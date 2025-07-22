@@ -10,7 +10,7 @@
 # VMs, bare metal, OpenStack clusters, public clouds and more.
 #
 # LimeTech - modified for Unraid OS
-# Bergware - modified for Unraid OS, May 2025
+# Bergware - modified for Unraid OS, June 2025
 
 DAEMON="Docker daemon"
 UNSHARE="/usr/bin/unshare"
@@ -350,61 +350,69 @@ docker_network_start(){
       SUBNET=; GATEWAY=; SERVER=; RANGE=;
       [[ -z ${!AUTO} || ${!AUTO} =~ "4" ]] && IPV4=$(ip -4 -br addr show scope global primary dev $NETWORK | awk '{print $3;exit}') || IPV4=
       if [[ -n $IPV4 ]]; then
-        SUBNET=$(ip -4 route show dev $NETWORK | awk '$1 !~ /^default/ {print $1;exit}')
+        SUBNET=$(ip -4 route show dev $NETWORK | sort | awk -v ORS=" " '$1 !~ /^default/ {print $1}' | sed 's/ $//')
+        GATEWAY=$(ip -4 route show to default dev $NETWORK | awk '{print $3;exit}')
         SERVER=${IPV4%/*}
         DHCP=${NETWORK/./_}
         DHCP=DOCKER_DHCP_${DHCP^^}
         RANGE=${!DHCP}
-        GATEWAY=$(ip -4 route show to default dev $NETWORK | awk '{print $3;exit}')
       fi
-      SUBNET6=; GATEWAY6=; SERVER6=;
+      SUBNET6=; GATEWAY6=;
       # get IPv6 address - ignore any /128 networks
-      [[ -z ${!AUTO} || ${!AUTO} =~ "6" ]] && IPV6=$(ip -6 -br addr show scope global primary -deprecated dev $NETWORK | awk -v RS='[[:space:]]+' '(NR>2){print}' | grep -Pvm1 '^f[a-f]|^$') || IPV6=
+      [[ -z ${!AUTO} || ${!AUTO} =~ "6" ]] && IPV6=$(ip -6 -br addr show scope global primary -deprecated dev $NETWORK | awk '{print $3;exit}') || IPV6=
       if [[ -n $IPV6 ]]; then
-        SUBNET6=$(ip -6 route show dev $NETWORK | awk '$1 !~ /^(default|f[a-f])/ {print $1;exit}')
-        SERVER6=${IPV6%/*}
+        SUBNET6=$(ip -6 route show dev $NETWORK | sort | awk -v ORS=" " '$1 !~ /^(default|fe80)/ {print $1}' | sed 's/ $//')
         GATEWAY6=$(ip -6 route show to default dev $NETWORK | awk '{print $3;exit}')
-        # replace link local address for first address in subnet
-        [[ ${GATEWAY6:0:4} == fe80 ]] && GATEWAY6=${SUBNET6%/*}1
       fi
     else
       # add user defined networks
-      IPV4=; IPV6=;
+      IPV4=
+      IPV6=
       DEVICE=${NETWORK/./_}
       DEVICE=${DEVICE^^}
       SUBNET=DOCKER_SUBNET_$DEVICE
       SUBNET=${!SUBNET}
       GATEWAY=DOCKER_GATEWAY_$DEVICE
       GATEWAY=${!GATEWAY}
-      SERVER=;
+      SERVER=
       RANGE=DOCKER_RANGE_$DEVICE
       RANGE=${!RANGE}
       SUBNET6=DOCKER_SUBNET6_$DEVICE
       SUBNET6=${!SUBNET6}
       GATEWAY6=DOCKER_GATEWAY6_$DEVICE
       GATEWAY6=${!GATEWAY6}
-      SERVER6=;
     fi
     # set parameters for custom network creation
-    [[ -n $SUBNET && -n $GATEWAY ]] && GATEWAY="--gateway=$GATEWAY" || GATEWAY=;
-    [[ -n $SUBNET && -n $SERVER ]] && SERVER="--aux-address=server=$SERVER" || SERVER=;
-    [[ -n $SUBNET && -n $RANGE ]] && RANGE="--ip-range=$RANGE" || RANGE=;
-    [[ -n $SUBNET ]] && SUBNET="--subnet=$SUBNET"
-    [[ -n $SUBNET6 && -n $GATEWAY6 ]] && GATEWAY6="--gateway=$GATEWAY6" || GATEWAY6=;
-    [[ -n $SUBNET6 && -n $SERVER6 ]] && SERVER6="--aux-address=server6=$SERVER6" || SERVER6=;
-    [[ -n $SUBNET6 ]] && SUBNET6="--ipv6 --subnet=$SUBNET6"
-    if [[ -n $SUBNET || -n $SUBNET6 ]]; then
+    [[ -n $SUBNET ]] && SET4=1 || SET4=0
+    [[ -n $SUBNET6 ]] && SET6=1 || SET6=0
+    if [[ $SET4 == 1 ]]; then
+      SUBNET="--subnet=${SUBNET// / --subnet=}"
+      [[ -n $GATEWAY ]] && GATEWAY="--gateway=$GATEWAY"
+      [[ -n $SERVER ]] && SERVER="--aux-address=server=$SERVER"
+      [[ -n $RANGE ]] && RANGE="--ip-range=$RANGE"
+    else
+      GATEWAY=
+      SERVER=
+      RANGE=
+    fi
+    if [[ $SET6 == 1 ]]; then
+      SUBNET6="--ipv6 --subnet=${SUBNET6// / --ipv6 --subnet=}"
+      [[ -n $GATEWAY6 && ${GATEWAY6:0:4} != fe80 ]] && GATEWAY6="--gateway=$GATEWAY6"
+    else
+      GATEWAY6=
+    fi
+    if [[ $SET4 == 1 || $SET6 == 1 ]]; then
       TYPE=${NETWORK//[0-9.]/}
       driver $TYPE forced
       if [[ $TYPE == br || $TYPE == wlan ]]; then
         VHOST=$NETWORK
       else
-        [[ -n $IPV4 && $DOCKER_ALLOW_ACCESS == yes  ]] && VHOST=vhost${NETWORK//[^0-9.]/} || VHOST=$NETWORK
+        [[ -n $IPV4 && $DOCKER_ALLOW_ACCESS == yes ]] && VHOST=vhost${NETWORK//[^0-9.]/} || VHOST=$NETWORK
       fi
       # delete and recreate unconditionally
       log "Processing... $NETWORK"
       docker network rm $NETWORK &>/dev/null
-      docker network create -d $ATTACH $SUBNET $GATEWAY $SERVER $RANGE $SUBNET6 $GATEWAY6 $SERVER6 -o parent=$VHOST $NETWORK | xargs docker network inspect -f "created network $ATTACH {{.Name}} with subnets: {{range .IPAM.Config}}{{.Subnet}}; {{end}}" 2>/dev/null | log
+      docker network create -d $ATTACH $SUBNET $GATEWAY $SERVER $RANGE $SUBNET6 $GATEWAY6 -o parent=$VHOST $NETWORK | xargs docker network inspect -f "created network $ATTACH {{.Name}} with subnets: {{range .IPAM.Config}}{{.Subnet}}; {{end}}" 2>/dev/null | log
       # connect containers to this new network
       for CONNECT in ${NETRESTORE[$NETWORK]}; do
         CONTAINER=${CONNECT%,*}

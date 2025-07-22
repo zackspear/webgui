@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2023, Lime Technology
- * Copyright 2012-2023, Bergware International.
+/* Copyright 2005-2025, Lime Technology
+ * Copyright 2012-2025, Bergware International.
  * Copyright 2014-2021, Guilherme Jardim, Eric Schultz, Jon Panozzo.
  *
  * This program is free software; you can redistribute it and/or
@@ -1571,7 +1571,7 @@ function showSubnet(bridge) {
     $('input[name="contMyIP"]').val('');
   } else {
     $('.myIP').show();
-    $('#myIP').html('Subnet: '+subnet[bridge]);
+    $('#myIP').html('<?=_('Subnet')?>: '+subnet[bridge]);
     $('.netCONT').hide();
     $('#netCONT').val('');
   }
@@ -1582,7 +1582,7 @@ function showSubnet(bridge) {
     $(".TSNetworkNotAllowed").show();
   } else {
     $(".TSNetworkAllowed").show();
-    $(".TSNetworkNotAllowed").hide();   
+    $(".TSNetworkNotAllowed").hide();
   }
 }
 
@@ -1893,7 +1893,7 @@ $(function() {
         Opts.Buttons += "<button type='button' onclick='removeConfig("+confNum+")'>_(Remove)_</button></span>";
         Opts.Buttons += "</span>";
       } else {
-        Opts.Buttons = "<span class='flex flex-row items-center gap-4'>"; 
+        Opts.Buttons = "<span class='flex flex-row items-center gap-4'>";
         Opts.Buttons += "<button type='button' onclick='editConfigPopup("+confNum+",<?=$disableEdit?>)'>_(Edit)_</button>";
         Opts.Buttons += "<button type='button' onclick='removeConfig("+confNum+")'>_(Remove)_</button>";
         Opts.Buttons += "</span>";
