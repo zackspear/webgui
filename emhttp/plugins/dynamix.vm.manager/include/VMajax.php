@@ -20,9 +20,8 @@ require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 $_SERVER['REQUEST_URI'] = 'vms';
 require_once "$docroot/webGui/include/Translations.php";
 
-if (preg_match('#^(.*?/system/)#', $domain_cfg['IMAGE_FILE'], $matches)) {
-    $domain_system_path = $matches[1];
-}
+$domain_system_path = $domain_cfg['IMAGE_FILE'] ?? "/mnt/user/system/";
+if (is_file($domain_system_path)) $domain_system_path = pathinfo($domain_system_path,PATHINFO_DIRNAME)."/";
 
 function requireLibvirt() {
 	global $lv;
