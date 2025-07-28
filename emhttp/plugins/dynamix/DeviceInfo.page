@@ -321,7 +321,7 @@ function selectDiskFsWidthZFS(slots,init) {
     }
   } else {
     var width, min_width;
-    if ($('#diskFsProfile').val() == 'raidz1') min_width = 3;
+    if ($('#diskFsProfile').val() == 'raidz1') min_width = 2;
     else if ($('#diskFsProfile').val() == 'raidz2') min_width = 3;
     else if ($('#diskFsProfile').val() == 'raidz3') min_width = 4;
     for (width=min_width; width<=slots; width++) {
@@ -345,7 +345,7 @@ function selectDiskFsProfileZFS(slots,init,subpool) {
   if (subpool != 'cache' && subpool != 'spares') {
     if (slots%2 == 0 || slots%3 == 0 || slots%4 == 0) $('#diskFsProfile').append($('<option>', {value: 'mirror', text: _('mirror')}));
     if (subpool == '') {
-      if (slots >= 3 && subpool == '') $('#diskFsProfile').append($('<option>', {value: 'raidz1', text: _('raidz1')}));
+      if (slots >= 2 && subpool == '') $('#diskFsProfile').append($('<option>', {value: 'raidz1', text: _('raidz1')}));
       if (slots >= 3 && subpool == '') $('#diskFsProfile').append($('<option>', {value: 'raidz2', text: _('raidz2')}));
       if (slots >= 4 && subpool == '') $('#diskFsProfile').append($('<option>', {value: 'raidz3', text: _('raidz3')}));
     }
@@ -579,6 +579,19 @@ function zfsResilver(path) {
       setTimeout(function(){zfsResilver(path);},1000);
     } else {
       $.removeCookie('zfs-resilver-<?=$tag?>');
+      refresh();
+    }
+  });
+  return false;
+}
+function zfsExpansion(path) {
+  $.post('/webGui/include/FileSystemStatus.php',{cmd:'zfs-expansion',path:path},function(data) {
+    if (data.indexOf('expansion')>0 && data.indexOf('in progress')>0) {
+      $('#zfs-button').prop('disabled',true);
+      $('#zfs-pool').text(data);
+      setTimeout(function(){zfsExpansion(path);},1000);
+    } else {
+      $.removeCookie('zfs-expansion-<?=$tag?>');
       refresh();
     }
   });
@@ -1781,6 +1794,7 @@ $(function() {
   if ($.cookie('btrfs-check-<?=$tag?>')) status = btrfsCheck($.cookie('btrfs-check-<?=$tag?>'));
   if ($.cookie('zfs-scrub-<?=$tag?>')) status = zfsScrub($.cookie('zfs-scrub-<?=$tag?>'));
   if ($.cookie('zfs-resilver-<?=$tag?>')) status = zfsResilver($.cookie('zfs-resilver-<?=$tag?>'));
+  if ($.cookie('zfs-expansion-<?=$tag?>')) status = zfsExpansion($.cookie('zfs-expansion-<?=$tag?>'));
   if ($.cookie('rfs-check-<?=$tag?>')) status = rfsCheck($.cookie('rfs-check-<?=$tag?>'));
   if ($.cookie('xfs-check-<?=$tag?>')) status = xfsCheck($.cookie('xfs-check-<?=$tag?>'));
   if ($.cookie('ext-check-<?=$tag?>')) status = extCheck($.cookie('ext-check-<?=$tag?>'));
@@ -1808,6 +1822,10 @@ $(function() {
         case 'zfs-resilver':
           $.cookie('zfs-resilver-<?=$tag?>','<?=$tag?>');
           zfsResilver($.cookie('zfs-resilver-<?=$tag?>'));
+          break;
+        case 'zfs-expansion':
+          $.cookie('zfs-expansion-<?=$tag?>','<?=$tag?>');
+          zfsExpansion($.cookie('zfs-expansion-<?=$tag?>'));
           break;
         }
       }
