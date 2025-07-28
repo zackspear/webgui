@@ -51,6 +51,7 @@ function caPluginUpdateCheck(plugin,options=[],callback) {
 	var pluginFilename = plugin.substr(0, plugin.lastIndexOf("."));
 	console.time("checkPlugin "+plugin);
 	console.log("checkPlugin  "+plugin);
+	options.element = false;
 	$.post("/plugins/dynamix.plugin.manager/scripts/PluginAPI.php",{action:'checkPlugin',options:{plugin:plugin,name:options.name}},function(caAPIresult) {
 		console.groupCollapsed("Result checkPlugin "+plugin);
 		console.log(caAPIresult);
