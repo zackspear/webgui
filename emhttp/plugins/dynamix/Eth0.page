@@ -786,7 +786,7 @@ _(Enable VLANs)_:
   <?=mk_option(_var($eth0, 'TYPE'), 'access', _('No'))?>
   <?=mk_option(_var($eth0, 'TYPE'), 'trunk', _('Yes'))?>
   </select>
-  <input type="button" id="button-vlan-eth0" class="form hide" value="_(Show)_" onclick="showVLAN('eth0')">
+  <span><input type="button" id="button-vlan-eth0" class="form hide" value="_(Show)_" onclick="showVLAN('eth0')"></span>
 
 :eth_enable_vlans_help:
 
