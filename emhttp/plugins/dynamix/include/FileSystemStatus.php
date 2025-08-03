@@ -45,6 +45,7 @@ default:
       case 'rfs-check': $pgrep = 'pgrep --ns $$  -f '."'/scripts/reiserfsck $dev'"; break;
       case 'xfs-check': $pgrep = 'pgrep --ns $$ -f '."'/scripts/xfs_repair.*$dev'"; break;
       case 'ext-check': $pgrep = 'pgrep --ns $$ -f '."'/scripts/ext_check.*$dev'"; break;
+      case 'ntfs-check': $pgrep = 'pgrep --ns $$ -f '."'/scripts/ntfs_check.*$dev'"; break;
     }
     echo file_get_contents($file);
     if (!exec($pgrep)) echo "\0";
