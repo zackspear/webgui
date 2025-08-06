@@ -1177,7 +1177,7 @@ _(Use Tailscale)_:
 
 <?if($TS_ExitNodeNeedsApproval):?>
 <div markdown="1" class="TShostname noshow">
-<b>Warning:</b>
+<b>_(Warning)_</b>:
 : Exit Node not yet approved. Navigate to the <a href="<?=$TS_DirectMachineLink?>" target='_blank'>Tailscale website</a> and approve it.
 </div>
 <?endif;?>
@@ -1186,7 +1186,7 @@ _(Use Tailscale)_:
 <div markdown="1" class="TSdivider noshow">
 <?if($TS_expiry_diff->invert):?>
 <b>_(Warning)_</b>:
-: <b>Tailscale Key expired!</b> <a href="<?=$TS_MachinesLink?>" target='_blank'>Renew/Disable key expiry</a> for '<b><?=$TS_HostNameActual?></b>'.
+: <span></span><b>Tailscale Key expired!</b> <a href="<?=$TS_MachinesLink?>" target='_blank'>Renew/Disable key expiry</a> for '<b><?=$TS_HostNameActual?></b>'.</span>
 <?else:?>
 <b>_(Warning)_</b>:
 : <span>Tailscale Key will expire in <b><?=$TS_expiry_diff->days?> days</b>! <a href="<?=$TS_MachinesLink?>" target='_blank'>Disable Key Expiry</a> for '<b><?=$TS_HostNameActual?></b>'.</span>
