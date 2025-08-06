@@ -368,8 +368,6 @@ function btrfsScrub(path) {
 function validatePath(input) {
   if (input.value.includes("'")) {
     input.setCustomValidity(_("Single quote ' is not allowed in the path.")_);
-    input.reportValidity();
-
   } else {
     input.setCustomValidity("");
   }
