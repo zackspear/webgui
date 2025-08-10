@@ -159,7 +159,6 @@ while (true) {
   $date  = my_date($xdate ? 'D j M Y, T' : $display['date'].', T',$now);
   $echo['time'] = [$clock,_($date,0)];
 
-  $echo = json_encode($echo);
   publish_md5('update3',$echo,true);
 
   sleep(1);

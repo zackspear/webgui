@@ -25,6 +25,7 @@ function curl_socket($socket, $url, $message='') {
   return $reply;
 }
 
+// $message: if an array, it will be converted to a JSON string
 // $abort: if true, the script will exit if the endpoint is without subscribers on the next publish attempt after $abortTime seconds
 // If a script publishes to multiple endpoints, timing out on one endpoint will terminate the entire script even if other enpoints succeed.
 // If this is a problem, don't use $abort and instead handle this in the script or utilize a single sript per endpoint.
@@ -37,6 +38,10 @@ function publish($endpoint, $message, $opt1=1, $opt2=false, $opt3=120) {
 
   if ( is_file("/tmp/publishPaused") )
     return false;
+
+  if ( is_array($message) ) {
+    $message = json_encode($message,true);
+  }
 
   // handle the $opt1/$opt2/$opt3 parameters while remaining backwards compatible
   if ( is_numeric($opt1) ) {
@@ -118,6 +123,10 @@ function publish_md5($endpoint, $message, $opt1=1, $opt2=false, $opt3=120) {
   } else {
     $abort = $opt1;
     $timeout = $opt2 ?: $opt3;
+  }
+
+  if ( is_array($message) ) {
+    $message = json_encode($message,true);
   }
 
   // if abort is set, republish the message even if it hasn't changed after $timeout seconds to check for subscribers and exit accordingly

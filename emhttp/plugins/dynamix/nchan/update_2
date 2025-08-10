@@ -499,7 +499,6 @@ while (true) {
     $echo[$a] = [implode($echo[$a]), $extra];
   }
 
-  $echo = json_encode($echo);
   publish_md5('update2',$echo,true);
   sleep(2);
 }

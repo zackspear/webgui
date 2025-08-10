@@ -87,7 +87,6 @@ while (true) {
   }
   if ($running < 1) $echo = "<tr><td colspan='7' style='text-align:center;padding-top:12px'>"._('No VMs running')."</td></tr>";
  
-  $echo = json_encode($echo);
   publish_md5('vm_usage',$echo,true);
 
   sleep($timer);

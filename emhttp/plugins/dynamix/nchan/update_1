@@ -122,7 +122,7 @@ while (true) {
   $share = array_keys($shares);
   $count = array_count_values($lsof ?? array());
   foreach ($share as $name) $echo['stream'][] = $count[$name]??0;
-  $echo = json_encode($echo);
+
   publish_md5('update1',$echo,true);
   
   sleep(5);
