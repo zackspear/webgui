@@ -17,34 +17,14 @@ $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/publish.php";
 
-$noDockerStats = false;
-$noDockerStatsTime = null;
-$exitAfterTimeout = 120;
-
 while (true) {
   $output = shell_exec("docker stats --no-stream --format='{{.ID}};{{.CPUPerc}};{{.MemUsage}}' 2>&1");  
 
-  if ( ! $noDockerStats ) {
-    // publish and exit the script if no listeners after the timeout
-    publish("dockerload", $output,true,$exitAfterTimeout);
-  }
+  publish("dockerload", $output,true);
   if ( $output === null ) {
-    // Don't continually publish messages if no stats are available -> only publish the first time
-    $noDockerStats = true;
-    
-    if ( ! $noDockerStatsTime ) {
-      $noDockerStatsTime = time();
-    }
-
-    // handle if no containers are running and user navigates to another page.
-    // publish requires a second publish attempt with no listeners in order to exit the script after the timeout has elapsed
-    if ( (time() - $noDockerStatsTime) > $exitAfterTimeout ) {
-      $noDockerStats = false;
-      $noDockerStatsTime = null;
-    }
+    // slow down publishing if no containers are running
     sleep(10);
   } else {    
-    $noDockerStats = false;
     sleep(1);
   }
 }
