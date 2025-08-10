@@ -25,6 +25,6 @@ while (true) {
     exit(1);
   }
   // publish and exit the script if no listeners after 120 seconds
-  publish("dockerload", $output, 1, true);
+  publish("dockerload", $output,true);
   sleep(1);
 }

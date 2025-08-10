@@ -125,7 +125,7 @@ while (true) {
   $echo = json_encode($echo);
   $md5_new = md5($echo,true);
   if ($md5_new !== $md5_old) {
-    $md5_old = publish('update1',$echo,1,true)!==false ? $md5_new : -1;
+    $md5_old = publish('update1',$echo,true)!==false ? $md5_new : -1;
   }
   sleep(5);
 }

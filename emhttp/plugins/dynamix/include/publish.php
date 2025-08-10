@@ -28,11 +28,26 @@ function curl_socket($socket, $url, $message='') {
 // $abort: if true, the script will exit if the endpoint is without subscribers on the next publish attempt after $abortTime seconds
 // If a script publishes to multiple endpoints, timing out on one endpoint will terminate the entire script even if other enpoints succeed.
 // If this is a problem, don't use $abort and instead handle this in the script or utilize a single sript per endpoint.
-function publish($endpoint, $message, $len=1, $abort=false, $abortTime = 120) {
+//
+// $opt1: length of the buffer.  If not numeric, it's a boolean for $abort.  If not numeric, it's a boolean for $abort.
+// $opt2: if $opt1 is not numeric, it's a boolean for $abort. 
+// $opt3: if $opt1 is not numeric, it's a value for $abortTime.
+function publish($endpoint, $message, $opt1=1, $opt2=false, $opt3=120) {
   static $abortStart = [], $com = [], $lens = [];
   
   if ( is_file("/tmp/publishPaused") )
     return false;
+
+  // handle the $opt1/$opt2/$opt3 parameters while remaining backwards compatible
+  if ( is_numeric($opt1) ) {
+    $len = $opt1;
+    $abort = $opt2;
+    $abortTime = $opt3;
+  } else {
+    $len = 1;
+    $abort = $opt1;
+    $abortTime = $opt2 ?: $opt3;
+  }
 
   // Check for the unlikely case of a buffer length change
   if ( (($lens[$endpoint] ?? 1) !== $len) && isset($com[$endpoint]) ) {
