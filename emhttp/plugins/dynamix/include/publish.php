@@ -40,7 +40,7 @@ function publish($endpoint, $message, $opt1=1, $opt2=false, $opt3=120) {
     return false;
 
   if ( is_array($message) ) {
-    $message = json_encode($message,true);
+    $message = json_encode($message);
   }
 
   // handle the $opt1/$opt2/$opt3 parameters while remaining backwards compatible
@@ -126,7 +126,7 @@ function publish_md5($endpoint, $message, $opt1=1, $opt2=false, $opt3=120) {
   }
 
   if ( is_array($message) ) {
-    $message = json_encode($message,true);
+    $message = json_encode($message);
   }
 
   // if abort is set, republish the message even if it hasn't changed after $timeout seconds to check for subscribers and exit accordingly
@@ -150,12 +150,11 @@ function publish_md5($endpoint, $message, $opt1=1, $opt2=false, $opt3=120) {
 function removeNChanScript() {
   global $docroot, $argv;
 
-  $script = str_replace("$docroot/","",(php_sapi_name() === 'cli') ? $argv[0] : $_SERVER['argv'][0]);
+  $script = trim(str_replace("$docroot/","",(php_sapi_name() === 'cli') ? $argv[0] : $_SERVER['argv'][0]));
   $nchan = @file("/var/run/nchan.pid",FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
   $nchan = array_filter($nchan,function($x) use ($script) {
      return $script !== trim(explode(":",$x)[0]);
   });
-
   if (count($nchan) > 0) {
     file_put_contents_atomic("/var/run/nchan.pid",implode("\n",$nchan)."\n");
   } else {
