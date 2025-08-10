@@ -34,7 +34,7 @@ function curl_socket($socket, $url, $message='') {
 // $opt3: if $opt1 is not numeric, it's a value for $abortTime.
 function publish($endpoint, $message, $opt1=1, $opt2=false, $opt3=120) {
   static $abortStart = [], $com = [], $lens = [];
-  
+
   if ( is_file("/tmp/publishPaused") )
     return false;
 
@@ -106,6 +106,36 @@ function publish($endpoint, $message, $opt1=1, $opt2=false, $opt3=120) {
   }
   return $reply;
 }
+
+// Function to not continually republish the same message if it hasn't changed since the last publish
+function publish_md5($endpoint, $message, $opt1=1, $opt2=false, $opt3=120) {
+  static $md5_old = [];
+  static $md5_time = [];
+ 
+  if ( is_numeric($opt1) ) {
+    $timeout = $opt3;
+    $abort = $opt2;
+  } else {
+    $abort = $opt1;
+    $timeout = $opt2 ?: $opt3;
+  }
+
+  // if abort is set, republish the message even if it hasn't changed after $timeout seconds to check for subscribers and exit accordingly
+  if ( $abort ) {
+    if ( (time() - ($md5_time[$endpoint]??0)) > $timeout ) {
+      $md5_old[$endpoint] = null;
+    }
+  }
+
+  $md5_new = $message ? md5($message,true) : -1 ;
+  if ($md5_new !== ($md5_old[$endpoint]??null)) {
+    $md5_old[$endpoint] = $md5_new;
+    $md5_time[$endpoint] = time();
+
+    return publish($endpoint, $message, $opt1, $opt2, $opt3);
+  }
+}
+
 
 // Removes the script calling this function from nchan.pid
 function removeNChanScript() {
