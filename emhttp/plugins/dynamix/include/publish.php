@@ -1,5 +1,5 @@
 <?PHP
-/* Copyright 2005-2023, Lime Technology
+/* Copyright 2005-2025, Lime Technology
  * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
@@ -12,6 +12,7 @@
 ?>
 <?
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+
 require_once "$docroot/webGui/include/Wrappers.php";
 
 function curl_socket($socket, $url, $message='') {
@@ -23,9 +24,12 @@ function curl_socket($socket, $url, $message='') {
   if ($reply===false) my_logger("curl to $url failed", 'curl_socket');
   return $reply;
 }
-function publish($endpoint, $message, $len=1) {
-  static $com  = [];
-  static $lens = [];
+
+// $abort: if true, the script will exit if the endpoint is without subscribers on the next publish attempt after $abortTime seconds
+// If a script publishes to multiple endpoints, timing out on one endpoint will terminate the entire script even if other enpoints succeed.
+// If this is a problem, don't use $abort and instead handle this in the script or utilize a single sript per endpoint.
+function publish($endpoint, $message, $len=1, $abort=false, $abortTime = 120) {
+  static $abortStart, $com, $lens = []; 
 
   if ( is_file("/tmp/publishPaused") )
     return false;
@@ -33,7 +37,7 @@ function publish($endpoint, $message, $len=1) {
   // Check for the unlikely case of a buffer length change
   if ( (($lens[$endpoint] ?? 1) !== $len) && isset($com[$endpoint]) ) {
     curl_close($com[$endpoint]);
-    unset($com[$endpoint]);
+    unset($com[$endpoint],$abortStart[$endpoint]);
   }
   if ( !isset($com[$endpoint]) ) {
     $lens[$endpoint] = $len;
@@ -50,6 +54,7 @@ function publish($endpoint, $message, $len=1) {
   $reply = curl_exec($com[$endpoint]);
   $err   = curl_error($com[$endpoint]);
   if ($err) {
+    my_logger("curl error: $err endpoint: $endpoint");
     curl_close($com[$endpoint]);
     unset($com[$endpoint]);
 
@@ -65,7 +70,42 @@ function publish($endpoint, $message, $len=1) {
       @unlink("/tmp/publishPaused");
     }
   }
-  if ($reply===false) my_logger("curl to $endpoint failed", 'publish');
+  if ($reply===false) 
+    my_logger("curl to $endpoint failed", 'publish');
+
+  if ($abort) {
+    $json = @json_decode($reply,true);
+    if ($reply===false || ( is_array($json) && ($json['subscribers']??false) === 0) ) {
+      if ( ! ($abortStart[$endpoint]??false) ) 
+        $abortStart[$endpoint] = time();
+      if ( (time() - $abortStart[$endpoint]) > $abortTime) {
+        my_logger("$endpoint timed out after $abortTime seconds.  Exiting.", 'publish');
+        
+        removeNChanScript();
+        exit();
+      }
+    } else {
+      // a subscriber is present.  Reset the abort timer if it's set
+      $abortStart[$endpoint] = null;
+    }
+  }
   return $reply;
+}
+
+// Removes the script calling this function from nchan.pid
+function removeNChanScript() {
+  global $docroot, $argv;
+
+  $script = str_replace("$docroot/","",(php_sapi_name() === 'cli') ? $argv[0] : $_SERVER['argv'][0]);
+  $nchan = @file("/var/run/nchan.pid",FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
+  $nchan = array_filter($nchan,function($x) use ($script) {
+     return $script !== trim(explode(":",$x)[0]);
+  });
+
+  if (count($nchan) > 0) {
+    file_put_contents_atomic("/var/run/nchan.pid",implode("\n",$nchan)."\n");
+  } else {
+    @unlink("/var/run/nchan.pid");
+  }
 }
 ?>
