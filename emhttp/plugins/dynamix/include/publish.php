@@ -29,8 +29,8 @@ function curl_socket($socket, $url, $message='') {
 // If a script publishes to multiple endpoints, timing out on one endpoint will terminate the entire script even if other enpoints succeed.
 // If this is a problem, don't use $abort and instead handle this in the script or utilize a single sript per endpoint.
 function publish($endpoint, $message, $len=1, $abort=false, $abortTime = 120) {
-  static $abortStart, $com, $lens = []; 
-
+  static $abortStart = [], $com = [], $lens = [];
+  
   if ( is_file("/tmp/publishPaused") )
     return false;
 
