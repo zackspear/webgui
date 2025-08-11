@@ -64,14 +64,19 @@ if (count($pages)) {
     $start   = array_diff($nchan, $running);  // returns any new scripts to be started
     $stop    = array_diff($running, $nchan);  // returns any old scripts to be stopped
     $running = array_merge($start, $running); // update list of current running nchan scripts
-    // start nchan scripts which are new or have been terminated without updating nchan.pid
+    // start nchan scripts which are new or have been stopped
     foreach ($running as $row) {
-        $script = explode(':', $row)[0];
-        exec("pgrep --ns $$ -f ".escapeshellarg("$docroot/$script"), $output, $retval);
-        if ($retval==1) {
-            exec(escapeshellarg("$docroot/$script")." &>/dev/null &");
+        if (in_array($row, $stop, true)) {
+            continue;
+        }
+        $script = explode(':', $row, 2)[0];
+        $output = [];
+        exec('pgrep --ns $$ -f ' . escapeshellarg("$docroot/$script"),$output,$retval);
+        if ($retval !== 0) { // 0=found; 1=none; 2=error
+            exec(escapeshellarg("$docroot/$script") . ' >/dev/null 2>&1 &');
         }
     }
+
     // stop nchan scripts with the :stop option 
     foreach ($stop as $row) {
         [$script, $opt] = my_explode(':', $row);
