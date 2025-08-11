@@ -62,13 +62,9 @@ foreach ($allPages as $page) {
 if (count($pages)) {
     $running = file_exists($nchan_pid) ? file($nchan_pid, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) : [];
     $start   = array_diff($nchan, $running);  // returns any new scripts to be started
-    $stop    = array_diff($running, $nchan);  // returns any old scripts to be stopped
     $running = array_merge($start, $running); // update list of current running nchan scripts
     // start nchan scripts which are new or have been stopped
     foreach ($running as $row) {
-        if (in_array($row, $stop, true)) {
-            continue;
-        }
         $script = explode(':', $row, 2)[0];
         $output = [];
         exec('pgrep --ns $$ -f ' . escapeshellarg("$docroot/$script"),$output,$retval);
@@ -77,14 +73,6 @@ if (count($pages)) {
         }
     }
 
-    // stop nchan scripts with the :stop option 
-    foreach ($stop as $row) {
-        [$script, $opt] = my_explode(':', $row);
-        if ($opt == 'stop') {
-            exec('pkill --ns $$ -f '.escapeshellarg($docroot.'/'.$script).' &>/dev/null &');
-            array_splice($running, array_search($row, $running), 1);
-        }
-    }
     if (count($running)) {
         file_put_contents_atomic($nchan_pid, implode("\n", $running) . "\n");
     } else {
