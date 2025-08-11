@@ -74,9 +74,11 @@ a.info span {
     display: none;
     white-space: nowrap;
     font-variant: small-caps;
-    position: absolute;
-    top: 16px;
-    left: 12px;
+    /*
+    - Must be fixed to avoid CSS limitation with overflow-x: auto; on TableContainer as overflow-y: visible; with that is not supported.
+    - Lack of position values - top, right, bottom, left - will cause the tooltip to be positioned relative to the parent element.
+    */
+    position: fixed;
     line-height: 2rem;
     color: var(--text-color);
     padding: 5px 8px;
