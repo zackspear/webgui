@@ -30,9 +30,9 @@ function curl_socket($socket, $url, $message='') {
 // If a script publishes to multiple endpoints, timing out on one endpoint will terminate the entire script even if other enpoints succeed.
 // If this is a problem, don't use $abort and instead handle this in the script or utilize a single sript per endpoint.
 //
-// $opt1: length of the buffer.  If not numeric, it's a boolean for $abort.  If not numeric, it's a boolean for $abort.
-// $opt2: if $opt1 is not numeric, it's a boolean for $abort. 
-// $opt3: if $opt1 is not numeric, it's a value for $abortTime.
+// $opt1: if numeric it's the length of the buffer.  If its true|false it signifies whether to utilise the abort if no listeners.
+// $opt2: if $opt1 is numeric, it's a boolean for $abort. If $opt1 is boolean, its the timeout defaulting to $opt3
+// $opt3: if $opt1 is numeric, it's a value for $abortTime.  If $opt1 is boolean, this parameter shouldn't be used
 function publish($endpoint, $message, $opt1=1, $opt2=false, $opt3=120) {
   static $abortStart = [], $com = [], $lens = [];
 
