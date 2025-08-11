@@ -136,7 +136,8 @@ function publish_md5($endpoint, $message, $opt1=1, $opt2=false, $opt3=120) {
     }
   }
 
-  $md5_new = $message ? md5($message,true) : -1 ;
+  // Always hash the payload to avoid collapsing distinct "falsey" values
+  $md5_new = md5((string)$message, true);
   if ($md5_new !== ($md5_old[$endpoint]??null)) {
     $md5_old[$endpoint] = $md5_new;
     $md5_time[$endpoint] = time();
