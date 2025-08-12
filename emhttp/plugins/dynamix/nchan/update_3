@@ -159,7 +159,7 @@ while (true) {
   $date  = my_date($xdate ? 'D j M Y, T' : $display['date'].', T',$now);
   $echo['time'] = [$clock,_($date,0)];
 
-  publish_md5('update3',$echo,true);
+  publish_noDupe('update3',$echo);
 
   sleep(1);
   $time1 = microtime(true);

@@ -1,6 +1,6 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2023, Lime Technology
+/* Copyright 2005-2025, Lime Technology
  * Copyright 2012-2023, Bergware International.
  * Copyright 2015, Dan Landon.
  *
@@ -132,7 +132,7 @@ while (true) {
     $echo[6] = isset($output) ? ((empty($volt) || ($minv<$output && $output<$maxv) ? "<span $green>" : "<span $red>").$echo[6].(isset($freq) ? " ~ $freq Hz" : "")."</span>") : $echo[6];
   }
 
-  publish_md5('apcups',$echo,true);
+  publish_noDupe('apcups',$echo);
 
   sleep(3);
 }

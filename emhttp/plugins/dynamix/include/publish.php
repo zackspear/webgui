@@ -11,7 +11,7 @@
  */
 ?>
 <?
-$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?? '/usr/local/emhttp');
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 
 require_once "$docroot/webGui/include/Wrappers.php";
 
@@ -25,15 +25,12 @@ function curl_socket($socket, $url, $message='') {
   return $reply;
 }
 
-// $message: if an array, it will be converted to a JSON string
-// $abort: if true, the script will exit if the endpoint is without subscribers on the next publish attempt after $abortTime seconds
-// If a script publishes to multiple endpoints, timing out on one endpoint will terminate the entire script even if other enpoints succeed.
-// If this is a problem, don't use $abort and instead handle this in the script or utilize a single sript per endpoint.
-//
-// $opt1: if numeric it's the length of the buffer.  If its true|false it signifies whether to utilise the abort if no listeners.
-// $opt2: if $opt1 is numeric, it's a boolean for $abort. If $opt1 is boolean, its the timeout defaulting to $opt3
-// $opt3: if $opt1 is numeric, it's a value for $abortTime.  If $opt1 is boolean, this parameter shouldn't be used
-function publish($endpoint, $message, $opt1=1, $opt2=false, $opt3=120) {
+// $endpoint: the name of the endpoint to publish to
+// $message: the message to publish (if an array, it will be converted to a JSON string)
+// $len: the length of the buffer (default 1)
+// $abort: if true, the script will exit if the endpoint is without subscribers on the next publish attempt after $abortTime seconds (default true)
+// $abortTime: the time in seconds to wait before exiting the script if the endpoint is without subscribers (default 120)
+function publish($endpoint, $message, $len=1, $abort=true, $abortTime=30) {
   static $abortStart = [], $com = [], $lens = [];
 
   if ( is_file("/tmp/publishPaused") )
@@ -41,17 +38,6 @@ function publish($endpoint, $message, $opt1=1, $opt2=false, $opt3=120) {
 
   if ( is_array($message) ) {
     $message = json_encode($message);
-  }
-
-  // handle the $opt1/$opt2/$opt3 parameters while remaining backwards compatible
-  if ( is_numeric($opt1) ) {
-    $len = $opt1;
-    $abort = $opt2;
-    $abortTime = $opt3;
-  } else {
-    $len = 1;
-    $abort = $opt1;
-    $abortTime = $opt2 ?: $opt3;
   }
 
   // Check for the unlikely case of a buffer length change
@@ -113,17 +99,10 @@ function publish($endpoint, $message, $opt1=1, $opt2=false, $opt3=120) {
 }
 
 // Function to not continually republish the same message if it hasn't changed since the last publish
-function publish_md5($endpoint, $message, $opt1=1, $opt2=false, $opt3=120) {
+function publish_noDupe($endpoint, $message, $len=1, $abort=true, $abortTime=30) {
   static $md5_old = [];
   static $md5_time = [];
- 
-  if ( is_numeric($opt1) ) {
-    $timeout = $opt3;
-    $abort = $opt2;
-  } else {
-    $abort = $opt1;
-    $timeout = $opt2 ?: $opt3;
-  }
+
 
   if ( is_array($message) ) {
     $message = json_encode($message);
@@ -131,18 +110,17 @@ function publish_md5($endpoint, $message, $opt1=1, $opt2=false, $opt3=120) {
 
   // if abort is set, republish the message even if it hasn't changed after $timeout seconds to check for subscribers and exit accordingly
   if ( $abort ) {
-    if ( (time() - ($md5_time[$endpoint]??0)) > $timeout ) {
+    if ( (time() - ($md5_time[$endpoint]??0)) > $abortTime ) {
       $md5_old[$endpoint] = null;
     }
   }
 
-  // Always hash the payload to avoid collapsing distinct "falsey" values
-  $md5_new = md5((string)$message, true);
+  $md5_new = $message ? md5($message,true) : -1 ;
   if ($md5_new !== ($md5_old[$endpoint]??null)) {
     $md5_old[$endpoint] = $md5_new;
     $md5_time[$endpoint] = time();
 
-    return publish($endpoint, $message, $opt1, $opt2, $opt3);
+    return publish($endpoint, $message, $len, $abort, $abortTime);
   }
 }
 

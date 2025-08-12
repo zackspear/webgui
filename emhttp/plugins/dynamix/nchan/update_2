@@ -499,7 +499,7 @@ while (true) {
     $echo[$a] = [implode($echo[$a]), $extra];
   }
 
-  publish_md5('update2',$echo,true);
+  publish_noDupe('update2',$echo);
   sleep(2);
 }
 ?>

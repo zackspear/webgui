@@ -1,6 +1,6 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2023, Lime Technology
+/* Copyright 2005-2025, Lime Technology
  * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
@@ -123,7 +123,7 @@ while (true) {
   $count = array_count_values($lsof ?? array());
   foreach ($share as $name) $echo['stream'][] = $count[$name]??0;
 
-  publish_md5('update1',$echo,true);
+  publish_noDupe('update1',$echo);
   
   sleep(5);
 }
