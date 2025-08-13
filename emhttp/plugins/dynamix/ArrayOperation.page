@@ -124,7 +124,7 @@ function toggle_state(device, name, action) {
     button = '[id^=button-]';
   }
   devices.stop();
-  $.post('/webGui/include/ToggleState.php', {device:device,name:name,action:action}, function(){setTimeout(function(){devices.start().monitor();},1000);if (button) $(button).prop('disabled',false);});
+  $.post('/webGui/include/ToggleState.php', {device:device,name:name,action:action}, function(){setTimeout(function(){devices.start();},1000);if (button) $(button).prop('disabled',false);});
 }
 
 function display_diskio() {
@@ -482,7 +482,7 @@ devices.on('message', function(msg, meta) {
     break;
   }
 });
-devices.start().monitor();
+devices.start();
 
 <?if (substr(_var($var,'fsState'),-3) == 'ing'):?>
 var fsState = new NchanSubscriber('/sub/fsState',{subscriber:'websocket', reconnectTimeout:5000});

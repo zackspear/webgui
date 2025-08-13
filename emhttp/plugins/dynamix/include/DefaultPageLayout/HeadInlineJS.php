@@ -8,13 +8,14 @@
 <script>
 String.prototype.actionName = function(){return this.split(/[\\/]/g).pop();}
 String.prototype.channel = function(){return this.split(':')[1].split(',').findIndex((e)=>/\[\d\]/.test(e));}
-NchanSubscriber.prototype.monitor = function(){subscribers.push(this);}
 
 Shadowbox.init({skipSetup:true});
 context.init();
 
-// list of nchan subscribers to start/stop at focus change
+// Legacy code.  No longer used in webGUI, and its purpose is removed, but plugins might still reference this prototype and its a fatal error to remove it.
 var subscribers = [];
+NchanSubscriber.prototype.monitor = function(){subscribers.push(this);}
+
 
 // server uptime
 var uptime = <?=strtok(exec("cat /proc/uptime"),' ')?>;
@@ -548,7 +549,7 @@ $.ajaxPrefilter(function(s, orig, xhr){
   // Reload page every X minutes during extended viewing?
   function setTimerReload() {
       timers.reload = setInterval(function(){
-        if (nchanPaused === false && ! dialogOpen() ) {
+        if (! dialogOpen() ) {
           location.reload();
         }
       },<?=$myPage['Load'] * 60000?>);

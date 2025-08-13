@@ -32,7 +32,7 @@ vmusage.on('message', function(msg){
   });
 
 $(function(){
-  vmusage.start().monitor();
+  vmusage.start();
 });
 
 </script>
