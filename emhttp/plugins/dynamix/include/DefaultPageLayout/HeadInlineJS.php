@@ -13,8 +13,7 @@ Shadowbox.init({skipSetup:true});
 context.init();
 
 // Legacy code.  No longer used in webGUI, and its purpose is removed, but plugins might still reference this prototype and its a fatal error to remove it.
-var subscribers = [];
-NchanSubscriber.prototype.monitor = function(){subscribers.push(this);}
+NchanSubscriber.prototype.monitor = function(){return null;}
 
 
 // server uptime
