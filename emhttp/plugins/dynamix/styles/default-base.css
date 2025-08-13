@@ -1854,8 +1854,6 @@ span.strong.tour {
 i.abortOps {
     font-size: 2rem;
     float: right;
-    margin-right: 20px;
-    margin-top: 8px;
     cursor: pointer;
 }
 pre#swalbody p {
