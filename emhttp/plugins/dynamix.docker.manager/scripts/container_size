@@ -27,7 +27,7 @@ $list = [];
 
 function write(...$messages){
   foreach ($messages as $message) {
-    publish('plugins', $message);
+    publish('plugins', $message,1,false);
   }
 }
 function autoscale($value) {

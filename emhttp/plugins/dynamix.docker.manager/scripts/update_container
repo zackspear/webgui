@@ -33,7 +33,7 @@ $cpus   = DockerUtil::cpus();
 
 function write(...$messages){
   foreach ($messages as $message) {
-    publish('docker', $message);
+    publish('docker', $message,1,false);
   }
 }
 function stopContainer_nchan($name) {
