@@ -47,7 +47,7 @@ require_once "$docroot/webGui/include/CustomMerge.php";
 
 function write(...$messages){
   foreach ($messages as $message) {
-    publish('diagnostics', $message);
+    publish('diagnostics', $message,1,false);
   }
 }
 

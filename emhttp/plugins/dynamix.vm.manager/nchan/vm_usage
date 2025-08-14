@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2024, Lime Technology
- * Copyright 2024-2024, Simon Fairweather.
+/* Copyright 2005-2025, Lime Technology
+ * Copyright 2024-2025, Simon Fairweather.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -87,7 +87,7 @@ while (true) {
   }
   if ($running < 1) $echo = "<tr><td colspan='7' style='text-align:center;padding-top:12px'>"._('No VMs running')."</td></tr>";
  
-  publish_md5('vm_usage',$echo,true);
+  publish('vm_usage',$echo);
 
   sleep($timer);
 }

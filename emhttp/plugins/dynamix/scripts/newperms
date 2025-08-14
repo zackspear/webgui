@@ -27,7 +27,7 @@ function write(...$messages){
   global $nchan;
   if ($nchan) {
     foreach ($messages as $message) {
-      publish('plugins', $message);
+      publish('plugins', $message,1,false);
     }
   } else {
     foreach ($messages as $message) echo $message;

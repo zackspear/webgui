@@ -66,7 +66,7 @@ while (true) {
     }
   }
   // Short of closing all web pages, the timeout should only happen if wifi is enabled and then disabled
-  publish_md5('wlan0',$echo,true);
+  publish('wlan0',$echo);
   sleep(3);
 }
 ?>

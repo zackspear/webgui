@@ -1,5 +1,5 @@
 Menu="Dashboard"
-Nchan="wg_poller,update_1,update_2,update_3,ups_status:stop,vm_dashusage"
+Nchan="wg_poller,update_1,update_2,update_3,ups_status,vm_dashusage"
 ---
 <?PHP
 /* Copyright 2005-2025, Lime Technology
@@ -2420,12 +2420,12 @@ $(function() {
 <?endif;?>
   dropdown('enter_view');
   startup = false;
-  dashboard.start().monitor();
+  dashboard.start();
 <?if ($vmusage == "Y"):?>
-  vmdashusage.start().monitor();
+  vmdashusage.start();
 <?endif;?>
 <?if ($apcupsd):?>
-  apcups.start().monitor();
+  apcups.start();
 <?endif;?>
   update900();
   toggleChart(true);
@@ -2439,12 +2439,5 @@ $(function() {
   $.removeCookie('lockbutton');
   // remember latest graph values
 });
-
-// Start graphs over again when window back in focus
-function pageFocusFunction() {
-  cpu = [];
-  rxd = [];
-  txd = [];
-}
 
 </script>

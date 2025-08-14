@@ -14,13 +14,12 @@
 <?
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 
-require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/publish.php";
 
 while (true) {
   $output = shell_exec("docker stats --no-stream --format='{{.ID}};{{.CPUPerc}};{{.MemUsage}}' 2>&1");  
 
-  publish_md5("dockerload", $output,true);
+  publish("dockerload", $output);
   if ( $output === null ) {
     // slow down publishing if no containers are running
     sleep(10);

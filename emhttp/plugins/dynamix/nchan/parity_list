@@ -147,21 +147,14 @@ while (true) {
 		$process = 0;
 	}
 
-	/* Publish changes */
-	$echo = json_encode($echo);
-	$md5_new = md5($echo, true);
-	if ($md5_new !== $md5_old) {
-		$md5_old = publish('parity', $echo) !== false ? $md5_new : -1;
-	}
-	if ($spot !== $spot_old) {
-		$spot_old = publish('paritymonitor', $spot > 0 ? 1 : 0) !== false ? $spot : -1;
-	}
-	if ($fsState !== $fs_old) {
-		$fs_old = publish('fsState', $fsState) !== false ? $fsState : -1;
-	}
-	if ($process !== $proc_old) {
-		$proc_old = publish('mymonitor', $process) !== false ? $process : -1;
-	}
+  // publish without a timeout for no listeners
+  	publish('parity', $echo,1,false);
+	publish('paritymonitor', $spot > 0 ? 1 : 0,1,false);
+	publish('fsState', $fsState,1,false);
+	publish('mymonitor', $process,1,false);
+
+	//publish to the dummy listener with the timeoutto see if there are any subscribers
+	publish('mainPingListener',"ping");
 
 	sleep(3);
 }

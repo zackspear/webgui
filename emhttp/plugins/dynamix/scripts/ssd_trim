@@ -33,7 +33,7 @@ require_once "$docroot/webGui/include/publish.php";
 
 function write(...$messages){
   foreach ($messages as $message) {
-    publish('plugins', $message);
+    publish('plugins', $message,1,false);
   }
 }
 

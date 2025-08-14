@@ -252,10 +252,10 @@ while (true) {
   }
   if (time() - $timer) {
     // update every second
-    publish('filemonitor', file_exists($active) ? 1 : 0);
+    publish('filemonitor', file_exists($active) ? 1 : 0,1,false);
     $timer = time();
   }
-  publish('filemanager', json_encode($reply));
+  publish('filemanager', json_encode($reply),1,false);
   usleep(250000);
 }
 ?>
