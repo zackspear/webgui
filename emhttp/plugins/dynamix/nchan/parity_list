@@ -148,13 +148,13 @@ while (true) {
 	}
 
   // publish without a timeout for no listeners
-  	publish_noDupe('parity', $echo,1,false);
-	publish_noDupe('paritymonitor', $spot > 0 ? 1 : 0,1,false);
-	publish_noDupe('fsState', $fsState,1,false);
-	publish_noDupe('mymonitor', $process,1,false);
+  	publish('parity', $echo,1,false);
+	publish('paritymonitor', $spot > 0 ? 1 : 0,1,false);
+	publish('fsState', $fsState,1,false);
+	publish('mymonitor', $process,1,false);
 
 	//publish to the dummy listener with the timeoutto see if there are any subscribers
-	publish_noDupe('mainPingListener',"ping");
+	publish('mainPingListener',"ping");
 
 	sleep(3);
 }

@@ -567,12 +567,12 @@ while (true) {
   $echo['stop'] = _var($var,'fsState')=='Stopped' ? 1 : 0;
 
   // publish without a timeout for no listeners
-  publish_noDupe('devices',$echo,1,false);
+  publish('devices',$echo,1,false);
   $fs_new = _var($var,'fsState')=='Started' ? 1 : 0;
-  publish_noDupe('arraymonitor',$fs_new,1,false);
+  publish('arraymonitor',$fs_new,1,false);
 
   //publish to the dummy listener with the timeout to see if there are any subscribers
-  publish_noDupe('mainPingListener',"ping");
+  publish('mainPingListener',"ping");
   sleep(1);
 }
 ?>

@@ -109,7 +109,7 @@ while (true) {
     }
   }
 
-  publish_noDupe('vm_dashusage',$echo);
+  publish('vm_dashusage',$echo);
 
   sleep($timer);
 }

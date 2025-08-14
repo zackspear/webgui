@@ -36,7 +36,7 @@ while (true) {
     $row = preg_split('/\s+/',$row);
     if (count($row)>5) $echo[] = [$row[0], $row[5]?$now-$row[5]:0, wg_scale($row[6],$unit)." $unit", wg_scale($row[7],$unit)." $unit"];
   }
-  publish_noDupe('wireguard',$echo);
+  publish('wireguard',$echo);
   sleep(1);
 }
 ?>
