@@ -2411,6 +2411,11 @@ apcups.on('message',function(msg) {
 <?endif;?>
 
 $(function() {
+  // ping subscriber to check for listeners
+  var dashboardPing = new NchanSubscriber('/sub/dashboardPing',{subscriber:'websocket', reconnectTimeout:5000});
+  dashboardPing.on('message', function(msg){});
+  dashboardPing.start();
+
   initCharts();
   cpuchart.render();
   netchart.render();

@@ -25,20 +25,17 @@ function curl_socket($socket, $url, $message='') {
   return $reply;
 }
 
-// $endpoint: the name of the endpoint to publish to
-// $message: the message to publish (if an array, it will be converted to a JSON string)
+// $endpoint: the name of the endpoint to publish to (string)
+// $message: the message to publish (string)
 // $len: the length of the buffer (default 1)
 // $abort: if true, the script will exit if the endpoint is without subscribers on the next publish attempt after $abortTime seconds (default true)
 // $abortTime: the time in seconds to wait before exiting the script if the endpoint is without subscribers (default 30)
-function publish($endpoint, $message, $len=1, $abort=true, $abortTime=30) {
+function publish($endpoint, $message, $len=1, $abort=false, $abortTime=30) {
   static $abortStart = [], $com = [], $lens = [];
 
   if ( is_file("/tmp/publishPaused") )
     return false;
 
-  if ( is_array($message) ) {
-    $message = json_encode($message);
-  }
 
   // Check for the unlikely case of a buffer length change
   if ( (($lens[$endpoint] ?? 1) !== $len) && isset($com[$endpoint]) ) {
@@ -85,9 +82,8 @@ function publish($endpoint, $message, $len=1, $abort=true, $abortTime=30) {
       if ( ! ($abortStart[$endpoint]??false) ) 
         $abortStart[$endpoint] = time();
       if ( (time() - $abortStart[$endpoint]) > $abortTime) {
-        my_logger("$endpoint timed out after $abortTime seconds.  Exiting.", 'publish');
-        
-        removeNChanScript();
+        $script = removeNChanScript();
+        my_logger("$script timed out after $abortTime seconds.  Exiting.", 'publish');
         exit();
       }
       $reply = false; // if no subscribers, force return value to false
@@ -100,7 +96,7 @@ function publish($endpoint, $message, $len=1, $abort=true, $abortTime=30) {
 }
 
 // Function to not continually republish the same message if it hasn't changed since the last publish
-function publish_noDupe($endpoint, $message, $len=1, $abort=true, $abortTime=30) {
+function publish_noDupe($endpoint, $message, $noListenerAbort=false, $abortTime=30) {
   static $msg_old = [];
   static $msg_time = [];
   static $listener = [];
@@ -109,12 +105,8 @@ function publish_noDupe($endpoint, $message, $len=1, $abort=true, $abortTime=30)
     $listener[$endpoint] = false;
   }
 
-  if ( is_array($message) ) {
-    $message = json_encode($message);
-  }
-
   // if abort is set, republish the message even if it hasn't changed after $timeout seconds to check for subscribers and exit accordingly
-  if ( $abort ) {
+  if ( $noListenerAbort ) {
     if ( (time() - ($msg_time[$endpoint]??0)) > $abortTime ) {
       $msg_old[$endpoint] = null;
     }
@@ -124,7 +116,7 @@ function publish_noDupe($endpoint, $message, $len=1, $abort=true, $abortTime=30)
     $msg_old[$endpoint] = $message;
     $msg_time[$endpoint] = time();
 
-    $return = publish($endpoint, $message, $len, $abort, $abortTime);
+    $return = publish($endpoint, $message,1,$noListenerAbort);
 
     // if no listener, keep publishing whether or not its the same message.
     $listener[$endpoint] = $return ? true : false;
@@ -133,6 +125,10 @@ function publish_noDupe($endpoint, $message, $len=1, $abort=true, $abortTime=30)
   }
 }
 
+// Wrapper to publish a ping message to the endpoint with occasional republishing and checking if anyone is listening
+function ping($endpoint) {
+  publish_noDupe($endpoint,"ping",true);
+}
 
 // Removes the script calling this function from nchan.pid
 function removeNChanScript() {
@@ -148,5 +144,6 @@ function removeNChanScript() {
   } else {
     @unlink("/var/run/nchan.pid");
   }
+  return $script;
 }
 ?>

@@ -87,8 +87,9 @@ while (true) {
   }
   if ($running < 1) $echo = "<tr><td colspan='7' style='text-align:center;padding-top:12px'>"._('No VMs running')."</td></tr>";
  
-  publish('vm_usage',$echo);
-
+  publish_noDupe('vm_usage',json_encode($echo));
+  ping('vmPing');
+  
   sleep($timer);
 }
 ?>

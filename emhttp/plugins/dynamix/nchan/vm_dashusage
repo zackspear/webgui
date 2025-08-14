@@ -109,7 +109,8 @@ while (true) {
     }
   }
 
-  publish('vm_dashusage',$echo);
+  publish_noDupe('vm_dashusage',json_encode($echo));
+  ping('dashboardPing');
 
   sleep($timer);
 }

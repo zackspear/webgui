@@ -18,6 +18,7 @@ $varroot = '/var/local/emhttp';
 require_once "$docroot/webGui/include/publish.php";
 require_once "$docroot/webGui/include/Wrappers.php";
 
+// Not necessary to check for listeners.  This will automatically exit if there are no listeners anywhere
 $csrf_old = '';
 while (true) {
   $csrf_new = @parse_ini_file("$varroot/var.ini")['csrf_token'];

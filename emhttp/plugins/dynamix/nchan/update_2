@@ -499,7 +499,8 @@ while (true) {
     $echo[$a] = [implode($echo[$a]), $extra];
   }
 
-  publish('update2',$echo);
+  publish_noDupe('update2',json_encode($echo));
+  ping('dashboardPing');
   sleep(2);
 }
 ?>

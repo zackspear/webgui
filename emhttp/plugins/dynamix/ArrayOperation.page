@@ -506,7 +506,7 @@ setTimeout(function(){paritymonitor.start();},5000);
 <?endif;?>
 
 $(function(){
-// Create dummy listeners for parity monitor and device info to monitor for listeners
+// Create ping listener for parity monitor and device info to monitor for listeners
   var mainPingListener = new NchanSubscriber('/sub/mainPingListener',{subscriber:'websocket', reconnectTimeout:5000});
   mainPingListener.on('message', function(msg){});
   mainPingListener.start();

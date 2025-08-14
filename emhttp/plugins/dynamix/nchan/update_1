@@ -123,8 +123,8 @@ while (true) {
   $count = array_count_values($lsof ?? array());
   foreach ($share as $name) $echo['stream'][] = $count[$name]??0;
 
-  publish('update1',$echo);
-  
+  publish_noDupe('update1',json_encode($echo));
+  ping('dashboardPing');
   sleep(5);
 }
 ?>
