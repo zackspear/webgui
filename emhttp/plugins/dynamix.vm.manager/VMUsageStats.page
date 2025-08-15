@@ -32,6 +32,11 @@ vmusage.on('message', function(msg){
   });
 
 $(function(){
+  // ping subscriber to check for listeners
+  var vmPing = new NchanSubscriber('/sub/vmPing',{subscriber:'websocket', reconnectTimeout:5000});
+  vmPing.on('message', function(msg){});
+  vmPing.start();
+  
   vmusage.start();
 });
 

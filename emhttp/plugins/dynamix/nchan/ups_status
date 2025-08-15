@@ -132,7 +132,8 @@ while (true) {
     $echo[6] = isset($output) ? ((empty($volt) || ($minv<$output && $output<$maxv) ? "<span $green>" : "<span $red>").$echo[6].(isset($freq) ? " ~ $freq Hz" : "")."</span>") : $echo[6];
   }
 
-  publish('apcups',$echo);
+  publish_noDupe('apcups',json_encode($echo));
+  ping('dashboardPing');
 
   sleep(3);
 }

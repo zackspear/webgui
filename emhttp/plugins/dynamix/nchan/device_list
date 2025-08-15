@@ -567,12 +567,12 @@ while (true) {
   $echo['stop'] = _var($var,'fsState')=='Stopped' ? 1 : 0;
 
   // publish without a timeout for no listeners
-  publish('devices',$echo,1,false);
+  publish('devices',json_encode($echo));
   $fs_new = _var($var,'fsState')=='Started' ? 1 : 0;
-  publish('arraymonitor',$fs_new,1,false);
+  publish('arraymonitor',$fs_new);
 
-  //publish to the dummy listener with the timeout to see if there are any subscribers
-  publish('mainPingListener',"ping");
+  // ping the page so we can terminate if nobody is listening
+  ping('mainPingListener');
   sleep(1);
 }
 ?>

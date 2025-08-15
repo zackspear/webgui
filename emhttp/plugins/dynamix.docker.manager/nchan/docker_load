@@ -19,7 +19,8 @@ require_once "$docroot/webGui/include/publish.php";
 while (true) {
   $output = shell_exec("docker stats --no-stream --format='{{.ID}};{{.CPUPerc}};{{.MemUsage}}' 2>&1");  
 
-  publish("dockerload", $output);
+  // continually publish and abort if no listeners
+  publish("dockerload", $output,1,true);
   if ( $output === null ) {
     // slow down publishing if no containers are running
     sleep(10);

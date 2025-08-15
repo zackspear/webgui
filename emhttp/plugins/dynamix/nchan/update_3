@@ -159,8 +159,9 @@ while (true) {
   $date  = my_date($xdate ? 'D j M Y, T' : $display['date'].', T',$now);
   $echo['time'] = [$clock,_($date,0)];
 
-  publish('update3',$echo);
-
+  publish_noDupe('update3',json_encode($echo));
+  ping('dashboardPing');
+  
   sleep(1);
   $time1 = microtime(true);
 }
