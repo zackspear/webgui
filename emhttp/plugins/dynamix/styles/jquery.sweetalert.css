@@ -178,11 +178,6 @@ pre#swaltext {
     }
   }
 
-  /* this is a hack to prevent the default SWAL input from being shown, but allow the ones we want to be show */
-  input[type="text"]:not(.swal-input-show) {
-    display: none;
-  }
-
   input:focus {
     outline: none;
     box-shadow: 0px 0px 3px #c4e6f5;
@@ -482,6 +477,11 @@ pre#swaltext {
   pre#swaltext {
     font-size: 1.2rem;
   }
+}
+
+/* this is a hack to prevent the default SWAL input from being shown unless the class show-input is present on the swal or the swal-input-show class is present on the input */
+.sweet-alert:not(.show-input) input[type="text"]:not(.swal-input-show) {
+  display: none;
 }
 
 /* Typography */
