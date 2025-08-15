@@ -36,22 +36,17 @@ case 'zfs-expansion':
   echo shell_exec("/usr/sbin/zpool status -P $path");
   break;
 default:
-  [$dev,$id] = array_pad(explode(' ',$path),2,'');
-  $dir = explode('-',$cmd)[0];
-  $file = "/var/lib/$dir/check.status.$id";
-  if (file_exists($file)) {
-    switch ($cmd) {
-      case 'btrfs-check': $pgrep = 'pgrep --ns $$ -f '."'/scripts/btrfs check .*$dev'"; break;
-      case 'rfs-check': $pgrep = 'pgrep --ns $$  -f '."'/scripts/reiserfsck $dev'"; break;
-      case 'xfs-check': $pgrep = 'pgrep --ns $$ -f '."'/scripts/xfs_repair.*$dev'"; break;
-      case 'ext-check': $pgrep = 'pgrep --ns $$ -f '."'/scripts/ext_check.*$dev'"; break;
-      case 'ntfs-check': $pgrep = 'pgrep --ns $$ -f '."'/scripts/ntfs_check.*$dev'"; break;
-    }
-    echo file_get_contents($file);
-    if (!exec($pgrep)) echo "\0";
-  } else {
-    echo "Not available\0";
+  switch ($cmd) {
+    case 'btrfs-check':
+    case 'xfs-check':
+    case 'ext-check':
+    case 'ntfs-check':
+    case 'exfat-check':
+    case 'reiserfs-check':
+      $fs = explode('-',$cmd)[0];
+      [$dev,$id] = array_pad(explode(' ',$path),2,'');
+      exec("$docroot/webGui/scripts/{$fs}_check status $dev $id", $status, $retval);
+      if ($retval != 9) echo "\0";
   }
-  break;
 }
 ?>

@@ -284,6 +284,12 @@ function selectDiskFsProfileNTFS() {
   $('#diskFsProfile').val('');
   setDiskFsWidth(1);
 }
+function selectDiskFsProfileEXFAT() {
+  $('#diskFsProfile').empty();
+  $('#diskFsProfile').append($('<option>', {value: '', text:''}));
+  $('#diskFsProfile').val('');
+  setDiskFsWidth(1);
+}
 function selectDiskFsProfileBTRFS(slots,init) {
   $('#diskFsProfile').empty();
   $('#diskFsProfile').append($('<option>', {value: 'single', text:_('single')}));
@@ -415,9 +421,11 @@ function selectDiskFsProfile(init) {
     selectDiskFsProfileEXT();
   } else if (fsType.indexOf('ntfs') != -1) {
     selectDiskFsProfileNTFS();
+  } else if (fsType.indexOf('exfat') != -1) {
+    selectDiskFsProfileEXFAT();
   }
 
-  if (subpool != '' || fsType == 'auto' || fsType.indexOf('xfs') != -1 || fsType.indexOf('ext') != -1 || fsType.indexOf('ntfs') != -1) {
+  if (subpool != '' || fsType == 'auto' || fsType.indexOf('xfs') != -1 || fsType.indexOf('ext') != -1 || fsType.indexOf('ntfs') != -1 || fsType.indexOf('exfat') != -1) {
     $('#compression').hide(t);
     $('#diskCompression').prop('disabled',true);
   } else {
@@ -605,13 +613,13 @@ function zfsExpansion(path) {
   });
   return false;
 }
-function rfsCheck(path) {
-  $.post('/webGui/include/FileSystemStatus.php',{cmd:'rfs-check',path:path},function(data) {
-    $('#rfs-check').text(data);
+function reiserfsCheck(path) {
+  $.post('/webGui/include/FileSystemStatus.php',{cmd:'reiserfs-check',path:path},function(data) {
+    $('#reiserfs-check').text(data);
     if (data.slice(-1)!='\0') {
-      setTimeout(function(){rfsCheck(path);},1000);
+      setTimeout(function(){reiserfsCheck(path);},1000);
     } else {
-      $.removeCookie('rfs-check-<?=$tag?>');
+      $.removeCookie('reiserfs-check-<?=$tag?>');
       refresh();
     }
   });
@@ -648,6 +656,18 @@ function ntfsCheck(path) {
       setTimeout(function(){ntfsCheck(path);},1000);
     } else {
       $.removeCookie('ntfs-check-<?=$tag?>');
+      refresh();
+    }
+  });
+  return false;
+}
+function exfatCheck(path) {
+  $.post('/webGui/include/FileSystemStatus.php',{cmd:'exfat-check',path:path},function(data) {
+    $('#exfat-check').text(data);
+    if (data.slice(-1)!='\0') {
+      setTimeout(function(){exfatCheck(path);},1000);
+    } else {
+      $.removeCookie('exfat-check-<?=$tag?>');
       refresh();
     }
   });
@@ -857,29 +877,36 @@ _(Spin down delay)_:
 _(File system status)_:
 : <?=_(_var($disk, 'fsStatus'))?>&nbsp;
 
-<?if (_var($var, 'fsState') == "Started"):?>
+<?if ($fsTypeImmutable):?>
 _(File system type)_:
 : <?=_(_var($disk, 'fsType'))?>&nbsp;
 <?else:?>
 _(File system type)_:
-: <select id="diskFsType" name="diskFsType.<?=_var($disk, 'idx')?>" onchange="selectDiskFsProfile(false)"  <?=disabled_if($fsTypeImmutable)?>>
-  <?=mk_option(_var($disk, 'fsType'), "auto", _('auto'))?>
+: <select id="diskFsType" name="diskFsType.<?=_var($disk, 'idx')?>" onchange="selectDiskFsProfile(false)">
+  <?echo "<optgroup label='Standard'>"?>
+  <?=mk_option(_var($disk, 'fsType'), "auto", _('Auto'))?>
   <?if (_var($disk,'slots',1) == 1) echo mk_option(_var($disk,'fsType'), "xfs", _('xfs'))?>
-  <?=mk_option(_var($disk, 'fsType'), "zfs", _('zfs'))?>
-  <?=mk_option(_var($disk, 'fsType'), "btrfs", _('btrfs'))?>
   <?if (_var($disk,'slots',1) == 1) echo mk_option(_var($disk,'fsType'), "ext4", _('ext4'))?>
-  <?if (_var($disk,'slots',1) == 1) echo mk_option(_var($disk,'fsType'), "ext3", _('ext3'), "disabled")?>
-  <?if (_var($disk,'slots',1) == 1) echo mk_option(_var($disk,'fsType'), "ext2", _('ext2'), "disabled")?>
-  <?if (_var($disk,'slots',1) == 1) echo mk_option(_var($disk,'fsType'), "ntfs", _('ntfs'))?>
-  <?if (_var($disk,'slots',1) == 1) echo mk_option(_var($disk,'fsType'), "reiserfs", _('reiserfs'), "disabled")?>
+  <?=mk_option(_var($disk, 'fsType'), "btrfs", _('btrfs'))?>
+  <?=mk_option(_var($disk, 'fsType'), "zfs", _('zfs'))?>
+  <?echo "</optgroup>"?>
+  <?echo "<optgroup label='Encrypted'>"?>
   <?if (_var($disk,'slots',1) == 1) echo mk_option(_var($disk,'fsType'), "luks:xfs", _('xfs')." - "._('encrypted'))?>
-  <?=mk_option(_var($disk, 'fsType'), "luks:zfs", _('zfs')." - "._('encrypted'))?>
-  <?=mk_option(_var($disk, 'fsType'), "luks:btrfs", _('btrfs')." - "._('encrypted'))?>
   <?if (_var($disk,'slots',1) == 1) echo mk_option(_var($disk,'fsType'), "luks:ext4", _('ext4')." - "._('encrypted'))?>
-  <?if (_var($disk,'slots',1) == 1) echo mk_option(_var($disk,'fsType'), "luks:reiserfs", _('reiserfs')." - "._('encrypted'), "disabled")?>
+  <?=mk_option(_var($disk, 'fsType'), "luks:btrfs", _('btrfs')." - "._('encrypted'))?>
+  <?=mk_option(_var($disk, 'fsType'), "luks:zfs", _('zfs')." - "._('encrypted'))?>
+  <?echo "</optgroup>"?>
+  <?if (_var($disk,'slots',1) == 1):?>
+    <?echo "<optgroup label='Limited support'>"?>
+    <?echo mk_option(_var($disk,'fsType'), "ntfs", _('ntfs'))?>
+    <?echo mk_option(_var($disk,'fsType'), "exfat", _('exfat'))?>
+    <?echo mk_option(_var($disk,'fsType'), "reiserfs", _('reiserfs')." ("._('deprecated').")", "disabled")?>
+    <?echo mk_option(_var($disk,'fsType'), "luks:reiserfs", _('reiserfs')." - "._('encrypted')." ("._('deprecated').")", "disabled")?>
+    <?echo "</optgroup>"?>
+  <?endif;?>
   </select>
-  <span id="reiserfs" class="warning"<?if (!fsType('reiserfs')):?> style="display:none"<?endif;?>><i class="fa fa-warning"></i>&nbsp;_(ReiserFS is deprecated, please use another file system)_!</span>
 <?endif;?>
+<span id="reiserfs" class="warning"<?if (!fsType('reiserfs')):?> style="display:none"<?endif;?>><i class="fa fa-warning"></i>&nbsp;_(ReiserFS is deprecated)_!</span>
 <?endif;?>
 
 <?if (diskType('Data') || isPool($tag)):?>
@@ -1252,7 +1279,7 @@ _(Time of the day)_:
 _(btrfs check status)_:
 : <pre id='btrfs-check'><?=implode("\n", $check_status)?></pre>
 
-<?if ($retval == 0):?>
+<?if ($retval != 9):?>
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_check">
 <input type="hidden" name="#arg[1]" value="start">
 <input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk, 'deviceSb')?>">
@@ -1267,7 +1294,7 @@ _(btrfs check status)_:
 
 :info_btrfs_check_help:
 
-<?else:?>
+<?elseif ($retval == 9):?>
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_check">
 <input type="hidden" name="#arg[1]" value="cancel">
 <input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk, 'deviceSb')?>">
@@ -1435,14 +1462,14 @@ _(Time of the day)_:
     <i class="title fa fa-shield"></i>_(Check Filesystem Status)_
   </span>
 </div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'rfs-check-<?=$tag?>','/dev/<?=_var($disk, 'deviceSb')?> <?=_var($disk, 'id')?>')">
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'reiserfs-check-<?=$tag?>','/dev/<?=_var($disk, 'deviceSb')?> <?=_var($disk, 'id')?>')">
 <?if (maintenance_mode()):?>
 <?exec("$docroot/webGui/scripts/reiserfs_check status /dev/"._var($disk,'deviceSb')." "._var($disk,'id'), $check_status, $retval)?>
 
 _(reiserfsck status)_:
-: <pre id='rfs-check'><?=implode("\n", $check_status)?></pre>
+: <pre id='reiserfs-check'><?=implode("\n", $check_status)?></pre>
 
-<?if ($retval != 0):?>
+<?if ($retval != 9):?>
 <input type="hidden" name="#command" value="/webGui/scripts/reiserfs_check">
 <input type="hidden" name="#arg[1]" value="start">
 <input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk, 'deviceSb')?>">
@@ -1451,13 +1478,13 @@ _(reiserfsck status)_:
 &nbsp;
 : <span class="inline-block">
     <input type="submit" value="_(Check)_">
-    <input type="text" name="#arg[4]" maxlength="256" value="">
+    <input type="text" name="#arg[4]" maxlength="256" value="--check">
     <span>_(Options (see Help))_</span>
   </span>
 
 :info_reiserfs_check_help:
 
-<?else:?>
+<?elseif ($retval == 9):?>
 <input type="hidden" name="#command" value="/webGui/scripts/reiserfs_check">
 <input type="hidden" name="#arg[1]" value="cancel">
 <input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk, 'deviceSb')?>">
@@ -1469,7 +1496,7 @@ _(reiserfsck status)_:
     <span>*_(Running)_*</span>
   </span>
 
-:info_reiserfs_cancel_help:
+:info_check_cancel_help:
 
 <?endif;?>
 <?else:?>
@@ -1496,7 +1523,7 @@ _(reiserfsck status)_:
 _(xfs_repair status)_:
 : <pre id='xfs-check'><?=implode("\n", $check_status)?></pre>
 
-<?if ($retval == 0 || $retval == 8):?>
+<?if ($retval == 0 || $retval == 4 || $retval == 8):?>
 <input type="hidden" name="#command" value="/webGui/scripts/xfs_check">
 <input type="hidden" name="#arg[1]" value="start">
 <input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk, 'deviceSb')?>">
@@ -1507,6 +1534,7 @@ _(xfs_repair status)_:
 : <span class="buttons-spaced">
     <input type="submit" value="_(Check)_">
     <?if ($retval == 0): ?> _(No file system corruption detected)_.<?endif; ?>
+    <?if ($retval == 4): ?> _(File system corruption fixed)_.<?endif; ?>
   </span>
 
 :info_xfs_check_help:
@@ -1543,21 +1571,6 @@ _(xfs_repair status)_:
 
 :info_xfs_check_help:
 
-<?elseif ($retval == 4):?>
-<input type="hidden" name="#command" value="/webGui/scripts/xfs_check">
-<input type="hidden" name="#arg[1]" value="start">
-<input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk, 'deviceSb')?>">
-<input type="hidden" name="#arg[3]" value="<?=_var($disk, 'id')?>">
-<input type="hidden" name="#arg[4]" value="-n">
-
-&nbsp;
-: <span class="buttons-spaced">
-    <input type="submit" value="_(Check)_">
-    _(File system corruption fixed)_
-  </span>
-
-:info_xfs_check_help:
-
 <?elseif ($retval == 9):?>
 <input type="hidden" name="#command" value="/webGui/scripts/xfs_check">
 <input type="hidden" name="#arg[1]" value="cancel">
@@ -1569,7 +1582,7 @@ _(xfs_repair status)_:
     *_(Running)_*
   </span>
 
-:info_xfs_cancel_help:
+:info_check_cancel_help:
 
 <?endif;?>
 <?else:?>
@@ -1596,7 +1609,7 @@ _(xfs_repair status)_:
 _(ntfsfix_ status)_:
 : <pre id='ntfs-check'><?=implode("\n", $check_status)?></pre>
 
-<?if ($retval == 0 || $retval == 8):?>
+<?if ($retval != 9):?>
 <input type="hidden" name="#command" value="/webGui/scripts/ntfs_check">
 <input type="hidden" name="#arg[1]" value="start">
 <input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk, 'deviceSb')?>">
@@ -1607,53 +1620,9 @@ _(ntfsfix_ status)_:
 : <span class="buttons-spaced">
     <input type="submit" value="_(Check)_">
     <?if ($retval == 0): ?> _(No file system corruption detected)_.<?endif; ?>
-  </span>
-
-:info_ntfs_check_help:
-
-<?elseif ($retval == 1):?>
-<input type="hidden" name="#command" value="/webGui/scripts/ntfs_check">
-<input type="hidden" name="#arg[1]" value="start">
-<input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk, 'deviceSb')?>">
-<input type="hidden" name="#arg[3]" value="<?=_var($disk, 'id')?>">
-<input type="hidden" name="#arg[4]" value="-e">
-
-&nbsp;
-: <span class="buttons-spaced">
-    <input type="submit" value="_(Fix)_">
-    <span style="color: red;">_(File system corruption detected)_.</span>
-  </span>
-
-:info_ntfs_check_help:
-
-<?elseif ($retval == 2):?>
-<input type="hidden" name="#command" value="/webGui/scripts/ntfs_check">
-<input type="hidden" name="#arg[1]" value="start">
-<input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk, 'deviceSb')?>">
-<input type="hidden" name="#arg[3]" value="<?=_var($disk, 'id')?>">
-<input type="hidden" name="#arg[4]" value="-eL">
-
-&nbsp;
-: <span class="buttons-spaced">
-    <input type="submit" value="_(Zero Log)_">
-    <span style="color: red;">_(Dirty log detected)_.</span>
-  </span>
-
-<p>_(Note)_: _(While there is some risk, if it is not possible to first mount the filesystem to clear the log, zeroing it is the only option to try and repair the filesystem, and in most cases it results in little or no data loss)_.</p>
-
-:info_ntfs_check_help:
-
-<?elseif ($retval == 4):?>
-<input type="hidden" name="#command" value="/webGui/scripts/ntfs_check">
-<input type="hidden" name="#arg[1]" value="start">
-<input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk, 'deviceSb')?>">
-<input type="hidden" name="#arg[3]" value="<?=_var($disk, 'id')?>">
-<input type="hidden" name="#arg[4]" value="-n">
-
-&nbsp;
-: <span class="buttons-spaced">
-    <input type="submit" value="_(Check)_">
-    _(File system corruption fixed)_
+    <?if ($retval == 1): ?> _(Basic repair actions applied)_.<?endif; ?>
+    <?if ($retval == 2): ?> <span style="color: red;">_(Fatal error)_.</span><?endif; ?>
+    <?if ($retval == 4): ?> <span style="color: red;">_(Volume is hibernated)_.</span><?endif; ?>
   </span>
 
 :info_ntfs_check_help:
@@ -1669,7 +1638,7 @@ _(ntfsfix_ status)_:
     *_(Running)_*
   </span>
 
-:info_ntfs_cancel_help:
+:info_check_cancel_help:
 
 <?endif;?>
 <?else:?>
@@ -1696,37 +1665,7 @@ _(ntfsfix_ status)_:
 _(check status)_:
 : <pre id='ext-check'><?=implode("\n", $check_status)?></pre>
 
-<?if ($retval == 0 || $retval == 8):?>
-<input type="hidden" name="#command" value="/webGui/scripts/ext_check">
-<input type="hidden" name="#arg[1]" value="start">
-<input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk, 'deviceSb')?>">
-<input type="hidden" name="#arg[3]" value="<?=_var($disk, 'id')?>">
-<input type="hidden" name="#arg[4]" value="-v -p">
-
-&nbsp;
-: <span class="buttons-spaced">
-    <input type="submit" value="_(Check)_">
-    <?if ($retval == 0): ?> _(No file system corruption detected)_.<?endif; ?>
-  </span>
-
-:info_ext_check_help:
-
-<?elseif ($retval == 1):?>
-<input type="hidden" name="#command" value="/webGui/scripts/ext_check">
-<input type="hidden" name="#arg[1]" value="start">
-<input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk, 'deviceSb')?>">
-<input type="hidden" name="#arg[3]" value="<?=_var($disk, 'id')?>">
-<input type="hidden" name="#arg[4]" value="-v -f -y">
-
-&nbsp;
-: <span class="buttons-spaced">
-    <input type="submit" value="_(Fix)_">
-    <span style="color: red;">_(File system corruption detected)_.</span>
-  </span>
-
-:info_ext_check_help:
-
-<?elseif ($retval == 4):?>
+<?if ($retval == 0 || $retval == 1 || $retval == 8):?>
 <input type="hidden" name="#command" value="/webGui/scripts/ext_check">
 <input type="hidden" name="#arg[1]" value="start">
 <input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk, 'deviceSb')?>">
@@ -1736,7 +1675,23 @@ _(check status)_:
 &nbsp;
 : <span class="buttons-spaced">
     <input type="submit" value="_(Check)_">
-    _(File system corruption fixed)_
+    <?if ($retval == 0): ?> _(No file system corruption detected)_.<?endif; ?>
+    <?if ($retval == 1): ?> _(File system corruption fixed)_.<?endif; ?>
+  </span>
+
+:info_ext_check_help:
+
+<?elseif ($retval == 4):?>
+<input type="hidden" name="#command" value="/webGui/scripts/ext_check">
+<input type="hidden" name="#arg[1]" value="start">
+<input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk, 'deviceSb')?>">
+<input type="hidden" name="#arg[3]" value="<?=_var($disk, 'id')?>">
+<input type="hidden" name="#arg[4]" value="-v -p">
+
+&nbsp;
+: <span class="buttons-spaced">
+    <input type="submit" value="_(Fix)_">
+    <span style="color: red;">_(File system corruption detected)_.</span>
   </span>
 
 :info_ext_check_help:
@@ -1753,7 +1708,78 @@ _(check status)_:
     *_(Running)_*
   </span>
 
-:info_ext_cancel_help:
+:info_check_cancel_help:
+
+<?endif;?>
+<?else:?>
+
+&nbsp;
+: <span class="inline-block">
+    <input type="submit" value="_(Check)_" disabled>
+    <span>**_(Check)_** _(is only available when array is Started in **Maintenance** mode)_.
+  </span>
+
+<?endif;?>
+</form>
+<?endif;?>
+
+<?if (fsType('exfat')):?>
+<div class="title nocontrol">
+  <span class="left">
+    <i class="title fa fa-shield"></i>_(Check Filesystem Status)_
+  </span>
+</div>
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'exfat-check-<?=$tag?>','/dev/<?=_var($disk, 'deviceSb')?> <?=_var($disk, 'id')?>')">
+<?if (maintenance_mode()):?>
+<?exec("$docroot/webGui/scripts/exfat_check status /dev/"._var($disk,'deviceSb')." "._var($disk,'id'), $check_status, $retval)?>
+
+_(check status)_:
+: <pre id='exfat-check'><?=implode("\n", $check_status)?></pre>
+
+<?if ($retval == 0 || $retval == 1 || $retval == 8):?>
+<input type="hidden" name="#command" value="/webGui/scripts/exfat_check">
+<input type="hidden" name="#arg[1]" value="start">
+<input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk, 'deviceSb')?>">
+<input type="hidden" name="#arg[3]" value="<?=_var($disk, 'id')?>">
+<input type="hidden" name="#arg[4]" value="-v -n">
+
+&nbsp;
+: <span class="buttons-spaced">
+    <input type="submit" value="_(Check)_">
+    <?if ($retval == 0): ?> _(No file system corruption detected)_.<?endif; ?>
+    <?if ($retval == 1): ?> _(File system corruption fixed)_.<?endif; ?>
+  </span>
+
+:info_exfat_check_help:
+
+<?elseif ($retval == 4):?>
+<input type="hidden" name="#command" value="/webGui/scripts/exfat_check">
+<input type="hidden" name="#arg[1]" value="start">
+<input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk, 'deviceSb')?>">
+<input type="hidden" name="#arg[3]" value="<?=_var($disk, 'id')?>">
+<input type="hidden" name="#arg[4]" value="-v -p">
+
+&nbsp;
+: <span class="buttons-spaced">
+    <input type="submit" value="_(Fix)_">
+    <span style="color: red;">_(File system corruption detected)_.</span>
+  </span>
+
+:info_exfat_check_help:
+
+<?elseif ($retval == 9):?>
+<input type="hidden" name="#command" value="/webGui/scripts/exfat_check">
+<input type="hidden" name="#arg[1]" value="cancel">
+<input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk, 'deviceSb')?>">
+<input type="hidden" name="#arg[3]" value="<?=_var($disk, 'id')?>">
+
+&nbsp;
+: <span class="buttons-spaced">
+    <input type="submit" value="_(Cancel)_">
+    *_(Running)_*
+  </span>
+
+:info_check_cancel_help:
 
 <?endif;?>
 <?else:?>
@@ -1926,10 +1952,11 @@ $(function() {
   if ($.cookie('zfs-scrub-<?=$tag?>')) status = zfsScrub($.cookie('zfs-scrub-<?=$tag?>'));
   if ($.cookie('zfs-resilver-<?=$tag?>')) status = zfsResilver($.cookie('zfs-resilver-<?=$tag?>'));
   if ($.cookie('zfs-expansion-<?=$tag?>')) status = zfsExpansion($.cookie('zfs-expansion-<?=$tag?>'));
-  if ($.cookie('rfs-check-<?=$tag?>')) status = rfsCheck($.cookie('rfs-check-<?=$tag?>'));
+  if ($.cookie('reiserfs-check-<?=$tag?>')) status = reiserfsCheck($.cookie('reiserfs-check-<?=$tag?>'));
   if ($.cookie('xfs-check-<?=$tag?>')) status = xfsCheck($.cookie('xfs-check-<?=$tag?>'));
-  if ($.cookie('ntfs-check-<?=$tag?>')) status = ntfsCheck($.cookie('ntfs-check-<?=$tag?>'));
   if ($.cookie('ext-check-<?=$tag?>')) status = extCheck($.cookie('ext-check-<?=$tag?>'));
+  if ($.cookie('ntfs-check-<?=$tag?>')) status = ntfsCheck($.cookie('ntfs-check-<?=$tag?>'));
+  if ($.cookie('exfat-check-<?=$tag?>')) status = exfatCheck($.cookie('exfat-check-<?=$tag?>'));
   if (status) {
     $.post('/webGui/include/FileSystemStatus.php',{cmd:'status',path:'<?=$tag?>'},function(a){
       var action = a.split(',');
