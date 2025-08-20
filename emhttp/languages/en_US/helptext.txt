@@ -540,10 +540,10 @@ Select the desired destinations and press **Write** to copy the settings to the 
 :share_edit_name_help:
 The share name can be up to 40 characters, and is case-sensitive with these restrictions:
 
-* cannot contain a double-quote character (") or the following characters: / \ * < > |
-* cannot be one of the reserved share names: flash, cache, cache2, .., disk1, disk2, ..
-
-We highly recommend to make your life easier and avoid special characters.
+* must start with a letter
+* subsequent characters can be a letter, digit, space, period, underscore, or dash, except the last character may not be a space or a period
+* there may not be consecutive spaces
+* cannot be one of the reserved names: flash, cache, cache2, .., disk1, disk2, ..
 :end
 
 :share_edit_comments_help:

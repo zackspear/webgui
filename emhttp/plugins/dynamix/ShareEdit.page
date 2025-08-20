@@ -380,7 +380,7 @@ _(Write settings to)_ <i class="fa fa-arrow-right fa-fw"></i>
 
 <div markdown="1" class="shade">
 _(Share name)_:
-: <input type="text" id="shareName" name="shareName" maxlength="40" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars($name)?>" oninput="checkName(this.value)" title="_(Hidden share names are not allowed)_" pattern="^[^\.].*"><span id="zfs-name" class="orange-text"><i class="fa fa-warning"></i> _(Share name contains invalid characters for ZFS use)_</span>
+: <input type="text" id="shareName" name="shareName" maxlength="40" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars($name)?>" oninput="checkName(this.value)" title="_(Hidden share names are not allowed)_" pattern="^[^\.].*"><span id="zfs-name" class="orange-text"><i class="fa fa-warning"></i> _(Share name contains invalid character(s))_</span>
 
 :share_edit_name_help:
 
@@ -1016,8 +1016,68 @@ function prepareEdit() {
 		return false;
 	}
 
+	// Length check
+	if (share.length > 40) {
+	    swal({
+	        title: "Invalid share name",
+	        text: "Share name must be 40 characters or less",
+	        type: 'error',
+	        html: true,
+	        confirmButtonText: "Ok"
+	    });
+	    return false;
+
+	}// Must start with a letter
+	if (!/^[A-Za-z]/.test(share)) {
+	    swal({
+	        title: "Invalid share name",
+	        text: "Share name must begin with a letter",
+	        type: 'error',
+	        html: true,
+	        confirmButtonText: "Ok"
+	    });
+	    return false;
+	}
+
+	// Allowed characters check
+	if (!/^[A-Za-z0-9 ._-]+$/.test(share)) {
+	    swal({
+	        title: "Invalid share name",
+	        text: "Share name may only contain letters, digits, spaces, '.', '_', or '-'",
+	        type: 'error',
+	        html: true,
+	        confirmButtonText: "Ok"
+	    });
+	    return false;
+	}
+
+	// Must not end with '.' or space
+	if (/[. ]$/.test(share)) {
+	    swal({
+	        title: "Invalid share name",
+	        text: "Share name cannot end with '.' or a space",
+	        type: 'error',
+	        html: true,
+	        confirmButtonText: "Ok"
+	    });
+	    return false;
+	}
+
+	// Must not contain consecutive spaces
+	if (/  +/.test(share)) {
+	    swal({
+	        title: "Invalid share name",
+	        text: "Share name cannot contain consecutive spaces",
+	        type: 'error',
+	        html: true,
+	        confirmButtonText: "Ok"
+	    });
+	    return false;
+	}
+
+	// Must not be one of our reserved strings
 	reserved = [<?=implode(',',array_map('escapestring',explode(',',$var['reservedNames'])))?>];
-	if (reserved.includes(share)) {
+        if (reserved.some(name => name.toLowerCase() === share.toLowerCase())) {
 		swal({
 			title: "Invalid share name",
 			text: "Do not use reserved names",
@@ -1027,8 +1087,9 @@ function prepareEdit() {
 		return false;
 	}
 
+	// Must not be same name as a pool
 	pools = [<?=implode(',',array_map('escapestring',$pools))?>];
-	if (pools.includes(share)) {
+        if (pools.some(name => name.toLowerCase() === share.toLowerCase())) {
 		swal({
 			title: "Invalid share name",
 			text: "Do not use pool names",
@@ -1037,9 +1098,6 @@ function prepareEdit() {
 		});
 		return false;
 	}
-
-	/* Clean up the share name. */
-	share = safeName(share);
 
 	/* Update settings. */
 	form.shareName.value = share;
@@ -1309,38 +1367,12 @@ document.addEventListener('DOMContentLoaded', function() {
 	programmaticChange = false;
 });
 
-/* Clean up the share name by removing invalid characters. */
-function safeName(name) {
-	/* Declare variables at the function scope */
-	const validChars = /^[A-Za-z0-9-_.: ]*$/;
-	let isValidName, sanitizedString, i;
-
-	/* Check if the name contains only valid characters */
-	isValidName = validChars.test(name);
-	
-	/* If valid, return the name as it is */
-	if (isValidName) {
-		return name;
-	}
-	
-	/* If not valid, sanitize the name by removing invalid characters */
-	sanitizedString = '';
-	for (i = 0; i < name.length; i++) {
-		if (validChars.test(name[i])) {
-			sanitizedString += name[i];
-		}
-	}
-	
-	/* Return the sanitized string */
-	return sanitizedString;
-}
-
-/* Remove characters not allowed in share name. */
+/* Check for characters not allowed in share name. */
 function checkName(name) {
 	/* Declare variables at the function scope */
 	var isValidName;
 
-	isValidName = /^[A-Za-z0-9-_.: ]*$/.test(name);
+	isValidName = /^[A-Za-z0-9-_. ]*$/.test(name);
 
 	if (isValidName) {
 		$('#zfs-name').hide();
