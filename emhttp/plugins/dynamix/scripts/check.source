@@ -1,90 +1,65 @@
 # source this file in "xxx_check" scripts
 # variable FSCK should be set to the file sysem check program
 
+# $FSCK start <dev> <id> <options>
+# $FSCK status <dev> <id>
+# $FSCK cancel <dev> <id>
+
 # Exit codes:
-# 0 - No corruption detected or process not found.
+# 0 - No corruption detected
 # N - refer to individual file system check programs
-# 8 - No check has been run yet.
+# 8 - No check has been run yet or previous check cancelled
 # 9 - Process is still running.
 
-OUTDIR=/var/lib/check
-mkdir -p $OUTDIR
+DEV="$2"
+ID="$3"
+OPTIONS="$4"
+
+START_CMD="$(basename $0) start $2 $3"
+OUTDIR="/var/lib/check"
+mkdir -p "$OUTDIR"
 
 case "$1" in
 'start')
     # Start the process in the background and log output
-    rm -f $OUTDIR/check.status.$3
-    ( $FSCK $4 $2 &> $OUTDIR/check.status.$3 ; echo $? > $OUTDIR/check.status.$3.exit )&
-    pid=$!
-    echo $pid > $OUTDIR/check.pid.$3
+    rm -f "${OUTDIR}/check.status.${ID}"
+    rm -f "${OUTDIR}/check.status.${ID}.exit"
+    (
+        $FSCK $OPTIONS $DEV &> "${OUTDIR}/check.status.${ID}"
+        echo $? > "${OUTDIR}/check.status.${ID}.exit"
+
+    ) </dev/null &>/dev/null &
     exit 0
     ;;
 
 'status')
-    # Check if the process is still running
-    if [ -f $OUTDIR/check.pid.$3 ]; then
-        pid=$(cat $OUTDIR/check.pid.$3)
-        if kill -0 $pid 2>/dev/null; then
-            # Process is running, return status and exit code 9
-            cat $OUTDIR/check.status.$3
-            exit 9
-        else
-            # Process is not running, read the exit status if available
-            if [ -f $OUTDIR/check.status.$3.exit ]; then
-                exit_status=$(cat $OUTDIR/check.status.$3.exit)
-                cat $OUTDIR/check.status.$3
-                rm -f $OUTDIR/check.pid.$3
-                if [[ $exit_status -eq 0 || $exit_status -eq 1 || $exit_status -eq 2 || $exit_status -eq 4 ]]; then
-                    exit $exit_status
-                else
-                    exit 0
-                fi
-            else
-                # Exit status file does not exist, but return status file if available
-                if [ -f $OUTDIR/check.status.$3 ]; then
-                    cat $OUTDIR/check.status.$3
-                fi
-                exit 8
-            fi
-        fi
+    # return status file if available
+    if [[ -f "${OUTDIR}/check.status.${ID}" ]]; then
+        cat "${OUTDIR}/check.status.${ID}"
     else
-        # No PID file found, check for existing status
-        if [ -f $OUTDIR/check.status.$3 ]; then
-            cat $OUTDIR/check.status.$3
-            # If no exit status file, assume process completed successfully
-            if [ -f $OUTDIR/check.status.$3.exit ]; then
-                exit_status=$(cat $OUTDIR/check.status.$3.exit)
-                if [[ $exit_status -eq 0 || $exit_status -eq 1 || $exit_status -eq 2 || $exit_status -eq 4 ]]; then
-                    exit $exit_status
-                else
-                    exit 0
-                fi
-            else
-                exit 8
-            fi
-        else
-            # No status file found
-            echo "Not available"
-            exit 8
+        echo "Not available"
+    fi
+    # Check if the process is still running
+    if pgrep -f "$START_CMD" &> /dev/null ; then
+        # Process is running, return exit code 9
+        exit 9
+    fi
+    # Process is not running, read the exit status if available
+    if [[ -f "${OUTDIR}/check.status.${ID}.exit" ]]; then
+        exit_status=$(cat "${OUTDIR}/check.status.${ID}.exit")
+        if [[ $exit_status -lt 8 ]]; then
+            exit $exit_status
         fi
     fi
+    exit 8
     ;;
 
 'cancel')
-    # Cancel the ntfsfix process
-    if [ -f $OUTDIR/check.pid.$3 ]; then
-        pid=$(cat $OUTDIR/check.pid.$3)
-        kill $pid
-        while kill -0 $pid 2>/dev/null; do
-            sleep 1
-        done
-        echo -e "\nCancelled" >> $OUTDIR/check.status.$3
-        rm -f $OUTDIR/check.pid.$3
-    else
-        echo "No process to cancel"
+    # Cancel the process
+    if pkill -f "$START_CMD" &> /dev/null ; then
+        echo -e "\nCancelled" >> "${OUTDIR}/check.status.${ID}"
     fi
-
-    exit 0
+    exit 8
     ;;
 
 *)

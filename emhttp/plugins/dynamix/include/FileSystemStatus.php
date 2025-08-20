@@ -44,8 +44,8 @@ default:
     case 'exfat-check':
     case 'reiserfs-check':
       $fs = explode('-',$cmd)[0];
-      [$dev,$id] = array_pad(explode(' ',$path),2,'');
-      exec("$docroot/webGui/scripts/{$fs}_check status $dev $id", $status, $retval);
+      [$dev,$id] = array_pad(explode(' ',trim($path,"'")),2,'');
+      passthru("$docroot/webGui/scripts/{$fs}_check status $dev $id", $retval);
       if ($retval != 9) echo "\0";
   }
 }

@@ -317,7 +317,7 @@ function selectDiskFsWidthZFS(slots,init) {
       value: 1,
       text: _(sprintf('%s '+label,slots))
     }));
-    if (selected_width == 0) selected_width = 1;
+    selected_width = 1;
   } else if ($('#diskFsProfile').val() == 'mirror') {
     var width;
     for (width=2; width<=Math.min(slots,4); width++) {
@@ -336,7 +336,7 @@ function selectDiskFsWidthZFS(slots,init) {
     if ($('#diskFsProfile').val() == 'raidz1') min_width = 2;
     else if ($('#diskFsProfile').val() == 'raidz2') min_width = 3;
     else if ($('#diskFsProfile').val() == 'raidz3') min_width = 4;
-    for (width=min_width; width<=slots; width++) {
+    for (width=slots; width>=min_width; width--) {
       if ((slots % width) == 0) {
         var groups = slots / width;
         var label = (groups == 1) ? "vdev" : "vdevs";
@@ -344,9 +344,9 @@ function selectDiskFsWidthZFS(slots,init) {
           value: width,
           text: _(sprintf('%s '+label+' of %s devices',groups,width)),
         }));
-        if (selected_width == 0) selected_width = width;
       }
     }
+    selected_width = slots;
   }
   $('#diskFsWidth').val(selected_width);
 }
@@ -565,7 +565,7 @@ function btrfsScrub(path) {
 }
 function btrfsCheck(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'btrfs-check',path:path},function(data) {
-    $('#btrfs-check').text(data);
+    $('#btrfs-check').text(data.replace(/\0$/, ''));
     if (data.slice(-1)!='\0') {
       setTimeout(function(){btrfsCheck(path);},1000);
     } else {
@@ -615,7 +615,7 @@ function zfsExpansion(path) {
 }
 function reiserfsCheck(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'reiserfs-check',path:path},function(data) {
-    $('#reiserfs-check').text(data);
+    $('#reiserfs-check').text(data.replace(/\0$/, ''));
     if (data.slice(-1)!='\0') {
       setTimeout(function(){reiserfsCheck(path);},1000);
     } else {
@@ -627,7 +627,7 @@ function reiserfsCheck(path) {
 }
 function xfsCheck(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'xfs-check',path:path},function(data) {
-    $('#xfs-check').text(data);
+    $('#xfs-check').text(data.replace(/\0$/, ''));
     if (data.slice(-1)!='\0') {
       setTimeout(function(){xfsCheck(path);},1000);
     } else {
@@ -639,7 +639,7 @@ function xfsCheck(path) {
 }
 function extCheck(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'ext-check',path:path},function(data) {
-    $('#ext-check').text(data);
+    $('#ext-check').text(data.replace(/\0$/, ''));
     if (data.slice(-1)!='\0') {
       setTimeout(function(){extCheck(path);},1000);
     } else {
@@ -651,7 +651,7 @@ function extCheck(path) {
 }
 function ntfsCheck(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'ntfs-check',path:path},function(data) {
-    $('#ntfs-check').text(data);
+    $('#ntfs-check').text(data.replace(/\0$/, ''));
     if (data.slice(-1)!='\0') {
       setTimeout(function(){ntfsCheck(path);},1000);
     } else {
@@ -663,7 +663,7 @@ function ntfsCheck(path) {
 }
 function exfatCheck(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'exfat-check',path:path},function(data) {
-    $('#exfat-check').text(data);
+    $('#exfat-check').text(data.replace(/\0$/, ''));
     if (data.slice(-1)!='\0') {
       setTimeout(function(){exfatCheck(path);},1000);
     } else {
