@@ -541,8 +541,7 @@ Select the desired destinations and press **Write** to copy the settings to the 
 The share name can be up to 40 characters, and is case-sensitive with these restrictions:
 
 * must start with a letter
-* subsequent characters can be a letter, digit, space, period, underscore, or dash, except the last character may not be a space or a period
-* there may not be consecutive spaces
+* subsequent characters can be a letter, digit, period, underscore, or dash, except the last character may not be a period
 * cannot be one of the reserved names: flash, cache, cache2, .., disk1, disk2, ..
 :end
 

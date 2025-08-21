@@ -380,7 +380,7 @@ _(Write settings to)_ <i class="fa fa-arrow-right fa-fw"></i>
 
 <div markdown="1" class="shade">
 _(Share name)_:
-: <input type="text" id="shareName" name="shareName" maxlength="40" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars($name)?>" oninput="checkName(this.value)" title="_(Hidden share names are not allowed)_" pattern="^[^\.].*"><span id="zfs-name" class="orange-text"><i class="fa fa-warning"></i> _(Share name contains invalid character(s))_</span>
+: <input type="text" id="shareName" name="shareName" maxlength="40" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars($name)?>" oninput="checkName(this.value)" title="_(Hidden share names are not allowed)_" pattern="^[^\.].*"><span id="zfs-name" class="orange-text"><i class="fa fa-warning"></i> _(Share name contains unallowed character(s))_</span>
 
 :share_edit_name_help:
 
@@ -982,22 +982,20 @@ function prepareEdit() {
 	/* Check if a change was required and not made for primary dropdown */
 	if (checkRequiredPrimary && !changeMadePrimary) {
 		swal({
-			title: "Primary Storage",
-			text: "Selected Pool is not available and cannot be used.",
+			title: "_(Primary Storage)_",
+			text: "_(Selected Pool is not available and cannot be used.)_",
 			type: 'error',
-			html: true,
-			confirmButtonText: "Ok"
+			confirmButtonText: "_(Ok)_"
 		});
 		return false;
 	}
 	/* Check if a change was required and not made for secondary dropdown */
 	if (checkRequiredSecondary && !changeMadeSecondary) {
 		swal({
-			title: "Secondary Storage",
-			text: "Selected Pool is not available and cannot be used.",
+			title: "_(Secondary Storage)_",
+			text: "_(Selected Pool is not available and cannot be used.)_",
 			type: 'error',
-			html: true,
-			confirmButtonText: "Ok"
+			confirmButtonText: "_(Ok)_"
 		});
 		return false;
 	}
@@ -1007,11 +1005,10 @@ function prepareEdit() {
 
 	if (share.length == 0) {
 		swal({
-			title: "Missing share name",
-			text: "Enter a name for the share",
+			title: "_(Missing share name)_",
+			text: "_(Enter a name for the share)_",
 			type: 'error',
-			html: true,
-			confirmButtonText: "Ok"
+			confirmButtonText: "_(Ok)_"
 		});
 		return false;
 	}
@@ -1019,84 +1016,69 @@ function prepareEdit() {
 	// Length check
 	if (share.length > 40) {
 	    swal({
-	        title: "Invalid share name",
-	        text: "Share name must be 40 characters or less",
+	        title: "_(Invalid share name)_",
+	        text: "_(Share name must be 40 characters or less)_",
 	        type: 'error',
-	        html: true,
-	        confirmButtonText: "Ok"
+	        confirmButtonText: "_(Ok)_"
 	    });
 	    return false;
 
-	}// Must start with a letter
-	if (!/^[A-Za-z]/.test(share)) {
-	    swal({
-	        title: "Invalid share name",
-	        text: "Share name must begin with a letter",
-	        type: 'error',
-	        html: true,
-	        confirmButtonText: "Ok"
-	    });
-	    return false;
 	}
 
-	// Allowed characters check
-	if (!/^[A-Za-z0-9 ._-]+$/.test(share)) {
-	    swal({
-	        title: "Invalid share name",
-	        text: "Share name may only contain letters, digits, spaces, '.', '_', or '-'",
-	        type: 'error',
-	        html: true,
-	        confirmButtonText: "Ok"
-	    });
-	    return false;
-	}
-
-	// Must not end with '.' or space
-	if (/[. ]$/.test(share)) {
-	    swal({
-	        title: "Invalid share name",
-	        text: "Share name cannot end with '.' or a space",
-	        type: 'error',
-	        html: true,
-	        confirmButtonText: "Ok"
-	    });
-	    return false;
-	}
-
-	// Must not contain consecutive spaces
-	if (/  +/.test(share)) {
-	    swal({
-	        title: "Invalid share name",
-	        text: "Share name cannot contain consecutive spaces",
-	        type: 'error',
-	        html: true,
-	        confirmButtonText: "Ok"
-	    });
-	    return false;
-	}
-
-	// Must not be one of our reserved strings
-	reserved = [<?=implode(',',array_map('escapestring',explode(',',$var['reservedNames'])))?>];
-        if (reserved.some(name => name.toLowerCase() === share.toLowerCase())) {
+	// Validate share name when creating new share or renaming existing share
+	if (share != form.shareNameOrig.value.trim()) {
+	    // Must start with a letter
+	    if (!/^[A-Za-z]/.test(share)) {
+	        swal({
+	            title: "_(Invalid share name)_",
+	            text: "_(Share name must begin with a letter)_",
+	            type: 'error',
+	            confirmButtonText: "_(Ok)_"
+	        });
+	        return false;
+	    }
+	    // Allowed characters check
+	    if (!/^[A-Za-z0-9._-]+$/.test(share)) {
+	        swal({
+	            title: "_(Invalid share name)_",
+	            text: "_(Share name may only contain letters, digits, '.', '_', or '-')_",
+	            type: 'error',
+	            confirmButtonText: "_(Ok)_"
+	        });
+	        return false;
+	    }
+	    // Must not end with '.'
+	    if (/[.]$/.test(share)) {
+	        swal({
+	            title: "_(Invalid share name)_",
+	            text: "_(Share name cannot end with '.')_",
+	            type: 'error',
+	            confirmButtonText: "_(Ok)_"
+	        });
+	        return false;    
+	    }
+	    // Must not be one of our reserved strings
+	    reserved = [<?=implode(',',array_map('escapestring',explode(',',$var['reservedNames'])))?>];
+            if (reserved.some(name => name.toLowerCase() === share.toLowerCase())) {
 		swal({
-			title: "Invalid share name",
-			text: "Do not use reserved names",
+			title: "_(Invalid share name)_",
+			text: "_(Do not use reserved names)_",
 			type: 'error',
-			confirmButtonText: "Ok"
+			confirmButtonText: "_(Ok)_"
 		});
 		return false;
-	}
-
-	// Must not be same name as a pool
-	pools = [<?=implode(',',array_map('escapestring',$pools))?>];
-        if (pools.some(name => name.toLowerCase() === share.toLowerCase())) {
+	    }
+	    // Must not be same name as a pool
+	    pools = [<?=implode(',',array_map('escapestring',$pools))?>];
+            if (pools.some(name => name.toLowerCase() === share.toLowerCase())) {
 		swal({
-			title: "Invalid share name",
-			text: "Do not use pool names",
+			title: "_(Invalid share name)_",
+			text: "_(Do not use pool names)_",
 			type: 'error',
-			confirmButtonText: "Ok"
+			confirmButtonText: "_(Ok)_"
 		});
 		return false;
+	    }
 	}
 
 	/* Update settings. */
@@ -1372,7 +1354,7 @@ function checkName(name) {
 	/* Declare variables at the function scope */
 	var isValidName;
 
-	isValidName = /^[A-Za-z0-9-_. ]*$/.test(name);
+	isValidName = /^[A-Za-z0-9-_.]*$/.test(name);
 
 	if (isValidName) {
 		$('#zfs-name').hide();
