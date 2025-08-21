@@ -367,7 +367,8 @@ function selectDiskFsProfileZFS(slots,init,subpool) {
   } else {
     if (slots == 1) $('#diskFsProfile').val('');
     if (slots == 2) $('#diskFsProfile').val('mirror');
-    if (slots >= 3) $('#diskFsProfile').val('raidz1');
+    if (slots >= 3 && slots <= 8) $('#diskFsProfile').val('raidz1');
+    if (slots >= 9) $('#diskFsProfile').val('raidz2');
   }
   selectDiskFsWidthZFS(slots,init);
   $('#diskFsProfile').on('change', function() {
