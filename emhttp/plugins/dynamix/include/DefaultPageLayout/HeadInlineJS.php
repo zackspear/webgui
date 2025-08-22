@@ -549,7 +549,7 @@ $.ajaxPrefilter(function(s, orig, xhr){
   function setTimerReload() {
       timers.reload = setInterval(function(){
         if (! dialogOpen() ) {
-          location.reload();
+          location.replace(location.href);
         }
       },<?=$myPage['Load'] * 60000?>);
     }
