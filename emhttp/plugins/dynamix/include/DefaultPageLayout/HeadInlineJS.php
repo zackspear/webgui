@@ -94,10 +94,10 @@ function refresh(top) {
   if (typeof top === 'undefined') {
     for (var i=0,element; element=document.querySelectorAll('input,button,select')[i]; i++) {element.disabled = true;}
     for (var i=0,link; link=document.getElementsByTagName('a')[i]; i++) { link.style.color = "gray"; } //fake disable
-    location.reload();
+    location.replace(location.href);
   } else {
     $.cookie('top',top);
-    location.reload();
+    location.replace(location.href);
   }
 }
 
