@@ -112,14 +112,6 @@ $(function(){
 <input type="hidden" name="language_notify">
 <input type="hidden" name="report">
 
-_(Notifications display)_:
-: <select name="display">
-  <?=mk_option($notify['display'], "0", _("Detailed"))?>
-  <?=mk_option($notify['display'], "1", _("Summarized"))?>
-  </select>
-
-:notifications_display_help:
-
 _(Display position)_:
 : <select name="position">
   <?=mk_option($notify['position'], "top-left", _("top-left"))?>
