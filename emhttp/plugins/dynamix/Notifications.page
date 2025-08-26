@@ -123,12 +123,6 @@ _(Display position)_:
 
 :notifications_display_position_help:
 
-_(Auto-close)_ (_(seconds)_):
-: <input type="number" name="life" min="0" max="60" value="<?=$notify['life']?>">
-  <span class="input-instructions">_(a value of zero means no automatic closure)_</span>
-
-:notifications_auto_close_help:
-
 _(Date format)_:
 : <select name="date">
   <?=mk_option($notify['date'], "d-m-Y", _("DD-MM-YYYY"))?>
