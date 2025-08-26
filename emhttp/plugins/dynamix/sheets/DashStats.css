@@ -230,7 +230,7 @@ i.fa-wrench.tile {
 }
 i[class^="icon-"] {
     font-size: 1.6rem;
-    /* margin-right: 8px; */
+    margin-right: 8px;
 }
 i[class^="icon-u-"] {
     font-size: inherit;
