@@ -3,6 +3,7 @@ Type="xmenu"
 Title="Management Access"
 Icon="icon-key"
 Tag="expeditedssl"
+Tabs="true"
 ---
 <?php
 /* Copyright 2005-2025, Lime Technology
