@@ -112,14 +112,6 @@ $(function(){
 <input type="hidden" name="language_notify">
 <input type="hidden" name="report">
 
-_(Notifications display)_:
-: <select name="display">
-  <?=mk_option($notify['display'], "0", _("Detailed"))?>
-  <?=mk_option($notify['display'], "1", _("Summarized"))?>
-  </select>
-
-:notifications_display_help:
-
 _(Display position)_:
 : <select name="position">
   <?=mk_option($notify['position'], "top-left", _("top-left"))?>
@@ -130,12 +122,6 @@ _(Display position)_:
   </select>
 
 :notifications_display_position_help:
-
-_(Auto-close)_ (_(seconds)_):
-: <input type="number" name="life" min="0" max="60" value="<?=$notify['life']?>">
-  <span class="input-instructions">_(a value of zero means no automatic closure)_</span>
-
-:notifications_auto_close_help:
 
 _(Date format)_:
 : <select name="date">
