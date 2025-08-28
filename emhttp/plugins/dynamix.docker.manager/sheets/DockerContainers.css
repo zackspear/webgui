@@ -5,6 +5,11 @@
     display: none;
     white-space: nowrap;
 }
+.docker-view-mode {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+}
 .log {
     cursor: zoom-in;
 }
