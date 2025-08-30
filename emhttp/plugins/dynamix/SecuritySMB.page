@@ -1,7 +1,7 @@
 Menu="Disk Share Flash"
 Title="SMB Security Settings"
 Tag="windows"
-Cond="(($var['shareSMBEnabled']!='no') && (isset($name)?array_key_exists($name,$sec):0))"
+Cond="(($var['shareSMBEnabled']!='no') && (isset($name)?array_key_exists($name,$sec)&&$shares[$name]['hasCfg']!='similar':0))"
 ---
 <?PHP
 /* Copyright 2005-2023, Lime Technology
@@ -24,6 +24,7 @@ uksort($users, 'strnatcmp');
 ?>
 :smb_security_help:
 
+<div markdown="1" class="relative">
 <div markdown="1" class="clone-settings shade">
 _(Read settings from)_ <i class="fa fa-arrow-left fa-fw"></i>
 : <span class="flex flex-row items-center gap-4">
@@ -60,6 +61,7 @@ _(Write settings to)_ <i class="fa fa-arrow-right fa-fw"></i>
 		<input type="button" id="writesmb" value="_(Write)_" class="clone" onclick="writeSMB()" disabled>
 	</span>
 </span>
+</div>
 </div>
 
 <div markdown="1" class="shade">

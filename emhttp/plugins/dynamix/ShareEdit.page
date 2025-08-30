@@ -335,15 +335,7 @@ $filteredShares = array_filter($shares, function($list) use ($name) {
 :share_edit_global2_help:
 <?endif;?>
 
-<form markdown="1" name="share_edit" method="POST" action="/update.htm" target="progressFrame" onsubmit="return prepareEdit()"<?=$name?" onchange=\"toggleButton('writeshare',true);$('#s5').dropdownchecklist('disable')\">":">"?>
-<input type="hidden" name="shareNameOrig" value="<?=htmlspecialchars($share['nameOrig'])?>">
-<input type="hidden" name="shareUseCache" value="<?=$share['useCache']?>">
-<input type="hidden" name="shareCachePool2" value="<?=$share['cachePool2']?>">
-<input type="hidden" name="shareAllocator" value="">
-<input type="hidden" name="shareSplitLevel" value="">
-<input type="hidden" name="shareInclude" value="">
-<input type="hidden" name="shareExclude" value="">
-
+<?if ($share['hasCfg']!='similar'):?>
 <?if (!empty($filteredShares)):?>
 <div markdown="1" class="clone-settings shade">
 _(Read settings from)_ <i class="fa fa-arrow-left fa-fw"></i>
@@ -374,13 +366,23 @@ _(Write settings to)_ <i class="fa fa-arrow-right fa-fw"></i>
 		<input type="button" id="writeshare" value="_(Write)_" class="clone" onclick="writeShare()" disabled>
 	</span>
 </span>
-<?endif; // $name ?>
+<?endif;?>
 </div>
-<?endif; // $filteredShares ?>
+<?endif;?>
+<?endif;?>
+
+<form markdown="1" name="share_edit" method="POST" action="/update.htm" target="progressFrame" onsubmit="return prepareEdit()"<?=$name?" onchange=\"toggleButton('writeshare',true);$('#s5').dropdownchecklist('disable')\">":">"?>
+<input type="hidden" name="shareNameOrig" value="<?=htmlspecialchars($share['nameOrig'])?>">
+<input type="hidden" name="shareUseCache" value="<?=$share['useCache']?>">
+<input type="hidden" name="shareCachePool2" value="<?=$share['cachePool2']?>">
+<input type="hidden" name="shareAllocator" value="">
+<input type="hidden" name="shareSplitLevel" value="">
+<input type="hidden" name="shareInclude" value="">
+<input type="hidden" name="shareExclude" value="">
 
 <div markdown="1" class="shade">
 _(Share name)_:
-: <input type="text" id="shareName" name="shareName" maxlength="40" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars($name)?>" oninput="checkName(this.value)" title="_(Hidden share names are not allowed)_" pattern="^[^\.].*"><span id="zfs-name" class="orange-text"><i class="fa fa-warning"></i> _(Share name contains unallowed character(s))_</span>
+: <input type="text" id="shareName" name="shareName" maxlength="40" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars($name)?>" oninput="checkName(this.value)" title="_(Hidden share names are not allowed)_" pattern="^[^\.].*"><span id="zfs-name" class="orange-text"><i class="fa fa-warning"></i> _(Share name contains restricted character(s))_</span>
 
 :share_edit_name_help:
 
@@ -591,6 +593,9 @@ _(Mover action)_:
 : <span class="inline-flex flex-row items-center gap-2">
 	<input type="submit" id="cmdEditShare" name="cmdEditShare" value="_(Apply)_" onclick="if (this.value=='_(Delete)_') this.value='Delete'; else this.value='Apply'; return handleDeleteClick(this)" disabled>
 	<input type="button" value="_(Done)_" onclick="done()">
+        <?if ($share['hasCfg']=='similar'):?>
+                <span class="orange-text"><i class="fa fa-warning"></i> _(Case-insensitve Share name is not unique)_</span>
+        <?endif;?>
   </span>
 </div>
 <?endif;?>
@@ -1088,6 +1093,18 @@ function prepareEdit() {
 		});
 		return false;
 	    }
+	    // Must not be same name as existing share
+	    shares = <?=json_encode(array_column($shares,'name'))?>;
+            if (shares.some(name => name.toLowerCase() === share.toLowerCase())) {
+		swal({
+			title: "_(Invalid share name)_",
+			text: "_(Share already exists)_",
+			type: 'error',
+			html: true,
+			confirmButtonText: "_(Ok)_"
+		});
+		return false;
+	    }
 	}
 
 	/* Update settings. */
@@ -1421,5 +1438,16 @@ $(function() {
 	updateScreen(form.shareUseCache.value);
 	if ($.cookie('autosize-' + $('#shareName').val())) $('#autosize').show();
 	checkName($('#shareName').val());
+	<?if ($share['hasCfg']=='similar'):?>
+		form.shareComment.disabled = true;
+		form.shareFloor.disabled = true;
+		form.shareCachePool.disabled = true;
+		form.shareCOW.disabled = true;
+		form.shareAllocator1.disabled = true;
+		form.shareSplitLevel1.disabled = true;
+		form.shareInclude1.disabled = true;
+		form.shareExclude1.disabled = true;
+		form.secondary.disabled = true;
+	<?endif;?>
 });
 </script>
