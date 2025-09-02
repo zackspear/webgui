@@ -140,7 +140,7 @@ _(Display width)_:
 :display_width_help:
 
 _(Language)_:
-: <select name="locale" class="fixed" onchange="updateDirection(this.value)">
+: <select name="locale" onchange="updateDirection(this.value)">
 <?echo mk_option($display['locale'], "","English");
   foreach (glob("$plugins/lang-*.xml",GLOB_NOSORT) as $xml_file) {
     $lang = language('Language', $xml_file);
