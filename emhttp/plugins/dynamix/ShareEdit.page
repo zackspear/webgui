@@ -335,6 +335,7 @@ $filteredShares = array_filter($shares, function($list) use ($name) {
 :share_edit_global2_help:
 <?endif;?>
 
+<div markdown="1" class="relative">
 <?if ($share['hasCfg']!='similar'):?>
 <?if (!empty($filteredShares)):?>
 <div markdown="1" class="clone-settings shade">
@@ -594,12 +595,13 @@ _(Mover action)_:
 	<input type="submit" id="cmdEditShare" name="cmdEditShare" value="_(Apply)_" onclick="if (this.value=='_(Delete)_') this.value='Delete'; else this.value='Apply'; return handleDeleteClick(this)" disabled>
 	<input type="button" value="_(Done)_" onclick="done()">
         <?if ($share['hasCfg']=='similar'):?>
-                <span class="orange-text"><i class="fa fa-warning"></i> _(Case-insensitve Share name is not unique)_</span>
+                <span class="orange-text"><i class="fa fa-warning"></i> _(Case-insensitive Share name is not unique)_</span>
         <?endif;?>
   </span>
 </div>
 <?endif;?>
 </form>
+</div>
 
 <script>
 let form = document.share_edit;

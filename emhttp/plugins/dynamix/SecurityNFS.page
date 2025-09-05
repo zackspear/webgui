@@ -22,7 +22,7 @@ $sec_nfs[$name]['hostList']	= str_replace(" ", "\n", $sec_nfs[$name]['hostList']
 :nfs_security_help:
 
 <div markdown="1" class="relative">
-<div markdown="1" class="clone-settings clone-settings-less-padding shade">
+<div markdown="1" class="clone-settings shade">
 _(Read settings from)_ <i class="fa fa-arrow-left fa-fw"></i>
 : <span class="flex flex-row items-center gap-4">
 	<select name="readnfs" onchange="toggleButton('readnfs',false)">
