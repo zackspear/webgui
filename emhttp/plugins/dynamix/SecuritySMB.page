@@ -145,7 +145,7 @@ _(Security)_:
 :smb_secure_access_help:
 
 <div markdown="1" class="relative">
-<div markdown="1" class="clone-settings clone-settings-less-padding shade">
+<div markdown="1" class="clone-settings shade">
 _(Read settings from)_ <i class="fa fa-arrow-left fa-fw"></i>
 : <span class="flex flex-row items-center gap-4">
 	<select name="readusersmb" onchange="toggleButton('readusersmb',false)">
@@ -208,7 +208,7 @@ _(Write settings to)_ <i class="fa fa-arrow-right fa-fw"></i>
 :smb_private_access_help:
 
 <div markdown="1" class="relative">
-<div markdown="1" class="clone-settings clone-settings-less-padding shade">
+<div markdown="1" class="clone-settings shade">
 _(Read settings from)_ <i class="fa fa-arrow-left fa-fw"></i>
 : <span class="flex flex-row items-center gap-4">
 	<select name="readusersmb" onchange="toggleButton('readusersmb',false)">
