@@ -2152,17 +2152,13 @@ span#wlan0 {
         right: 0;
         width: 40rem;
         margin: 0;
-        padding: 3rem 1rem 0 0;
+        padding: 1rem;
         background-color: transparent;
 
         dl {
             align-items: center;
             gap: 1.5rem 1rem;
         }
-    }
-
-    .clone-settings-less-padding {
-        padding-top: 1rem;
     }
 }
 

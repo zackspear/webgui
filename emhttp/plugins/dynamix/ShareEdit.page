@@ -335,6 +335,7 @@ $filteredShares = array_filter($shares, function($list) use ($name) {
 :share_edit_global2_help:
 <?endif;?>
 
+<form class="relative" markdown="1" name="share_edit" method="POST" action="/update.htm" target="progressFrame" onsubmit="return prepareEdit()"<?=$name?" onchange=\"toggleButton('writeshare',true);$('#s5').dropdownchecklist('disable')\">":">"?>
 <?if ($share['hasCfg']!='similar'):?>
 <?if (!empty($filteredShares)):?>
 <div markdown="1" class="clone-settings shade">
@@ -371,7 +372,6 @@ _(Write settings to)_ <i class="fa fa-arrow-right fa-fw"></i>
 <?endif;?>
 <?endif;?>
 
-<form markdown="1" name="share_edit" method="POST" action="/update.htm" target="progressFrame" onsubmit="return prepareEdit()"<?=$name?" onchange=\"toggleButton('writeshare',true);$('#s5').dropdownchecklist('disable')\">":">"?>
 <input type="hidden" name="shareNameOrig" value="<?=htmlspecialchars($share['nameOrig'])?>">
 <input type="hidden" name="shareUseCache" value="<?=$share['useCache']?>">
 <input type="hidden" name="shareCachePool2" value="<?=$share['cachePool2']?>">
