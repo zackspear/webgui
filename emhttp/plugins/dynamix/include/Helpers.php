@@ -180,6 +180,8 @@ function my_error($code) {
 }
 
 function mk_option($select, $value, $text, $extra="") {
+  $value = htmlspecialchars($value);
+  $text = htmlspecialchars($text);
   return "<option value='$value'".($value == $select ? " selected" : "").(strlen($extra) ? " $extra" : "").">$text</option>";
 }
 
