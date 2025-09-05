@@ -2415,6 +2415,7 @@ $(function() {
   startup = false;
   
   // Start GraphQL CPU subscription with retry logic
+  let cpuInitAttempts = 0, cpuRetryMs = 100;
   function initCpuSubscription() {
     if (window.gql && window.apolloClient) {
       // Define the subscription query when GraphQL is available
@@ -2437,30 +2438,36 @@ $(function() {
           if (result.data?.systemMetricsCpu) {
             const cpuData = result.data.systemMetricsCpu;
             const load = Math.round(cpuData.percentTotal);
-            const color = setColor(load, 90, 70);
+            const color = setColor(load, <?=$display['critical']?>, <?=$display['warning']?>);
             
             // Update main CPU display
             addChartCpu(load);
             cpuchart.updateSeries([{data:cpu}]);
-            $('.cpu_').text(load+'%');
+            $('.cpu_').text(load+'%').css({'color':fontColor(load, <?=$display['critical']?>, <?=$display['warning']?>)});
             $('#cpu_').alive(load+'%', color);
-            $('.cpu').text(load+'%');
+            $('.cpu').text(load+'%').css({'color':fontColor(load, <?=$display['critical']?>, <?=$display['warning']?>)});
             $('#cpu').alive(load+'%', color);
             
             // Update individual CPU cores
             cpuData.cpus.forEach((cpuCore, index) => {
               const coreLoad = Math.round(cpuCore.percentTotal);
-              const coreColor = setColor(coreLoad, 90, 70);
-              $('.cpu'+index).text(coreLoad+'%');
+              const coreColor = setColor(coreLoad, <?=$display['critical']?>, <?=$display['warning']?>);
+              $('.cpu'+index).text(coreLoad+'%').css({'color':fontColor(coreLoad, <?=$display['critical']?>, <?=$display['warning']?>)});
               $('#cpu'+index).alive(coreLoad+'%', coreColor);
             });
           }
         },
-        error: (err) => console.error('CPU subscription error:', err)
+        error: (err) => {
+          console.error('CPU subscription error:', err);
+          // Try to resubscribe with capped backoff
+          if (cpuSubscription) { try { cpuSubscription.unsubscribe(); } catch(e){} }
+          setTimeout(initCpuSubscription, Math.min(cpuRetryMs *= 2, 5000));
+        }
       });
     } else {
-      // Retry after 100ms if GraphQL client not ready
-      setTimeout(initCpuSubscription, 100);
+      // Retry with capped backoff if GraphQL client not ready
+      cpuInitAttempts++;
+      setTimeout(initCpuSubscription, Math.min(cpuRetryMs *= 2, 2000));
     }
   }
   
