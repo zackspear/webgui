@@ -1,5 +1,5 @@
 Menu="Dashboard"
-Nchan="wg_poller,update1,update2,update3,ups_status,vm_dashusage"
+Nchan="wg_poller,update_1,update_2,update_3,ups_status,vm_dashusage"
 ---
 <?PHP
 /* Copyright 2005-2025, Lime Technology
