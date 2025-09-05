@@ -2250,26 +2250,14 @@ vmdashusage.on('message', function(msg){
   });
 <?endif;?>
 
-var dashboard = new NchanSubscriber('/sub/cpuload,update1,update2,update3<?=$wireguard?",wireguard":""?>',{subscriber:'websocket', reconnectTimeout:5000});
+// GraphQL subscription for CPU metrics
+let CPU_SUBSCRIPTION = null;
+let cpuSubscription = null;
+
+var dashboard = new NchanSubscriber('/sub/update1,update2,update3<?=$wireguard?",wireguard":""?>',{subscriber:'websocket', reconnectTimeout:5000});
 dashboard.on('message',function(msg,meta) {
   switch (meta.id.channel()) {
   case 0:
-    var get = cpu_parse(msg);
-    // cpu load
-    $.each(get,function(k,v) {
-      var load = v.host;
-      var color = setColor(load, 90, 70);
-      if (k=='cpu') {
-        addChartCpu(load);
-        cpuchart.updateSeries([{data:cpu}]);
-        $('.cpu_').text(load+'%');
-        $('#cpu_').alive(load+'%',color);
-      }
-      $('.'+k).text(load+'%');
-      $('#'+k).alive(load+'%',color);
-    });
-    break;
-  case 1:
     var get = JSON.parse(msg);
     // memory & disk load
     var load = get.ram[0].slice(0,-1);
@@ -2310,7 +2298,7 @@ dashboard.on('message',function(msg,meta) {
     if ($('.smb').is(':visible')) for (var k=0; k < get.stream.length; k++) {$('#share'+k).html(get.stream[k]); $('#share'+k).removeClass(); if (get.stream[k]>0) $('#share'+k).addClass('orange-text');}
 <?endif;?>
     break;
-  case 2:
+  case 1:
     if (!update2) break;
     var get  = JSON.parse(msg);
     if(document.getElementById('array_list') != null) {
@@ -2348,7 +2336,7 @@ dashboard.on('message',function(msg,meta) {
     $('#parity').html(get.schedule[0]);
     $('#program').html(get.schedule[1]);
     break;
-  case 3:
+  case 2:
     var get = JSON.parse(msg);
     // rx & tx speeds
     for (let i=0,port; port=get.port[i]; i++) {
@@ -2369,7 +2357,7 @@ dashboard.on('message',function(msg,meta) {
     $('#current_time_').html(get.time[0]);
     $('#current_date').html(get.time[1]);
     break;
-  case 4:
+  case 3:
     // wireguard tunnels
     var get = JSON.parse(msg);
     let n = {};
@@ -2425,6 +2413,65 @@ $(function() {
 <?endif;?>
   dropdown('enter_view');
   startup = false;
+  
+  // Start GraphQL CPU subscription with retry logic
+  let cpuInitAttempts = 0, cpuRetryMs = 100;
+  function initCpuSubscription() {
+    if (window.gql && window.apolloClient) {
+      // Define the subscription query when GraphQL is available
+      CPU_SUBSCRIPTION = window.gql(`
+        subscription SystemMetricsCpu {
+          systemMetricsCpu {
+            percentTotal
+            cpus {
+              percentTotal
+              percentUser
+            }
+          }
+        }
+      `);
+      
+      cpuSubscription = window.apolloClient.subscribe({
+        query: CPU_SUBSCRIPTION
+      }).subscribe({
+        next: (result) => {
+          if (result.data?.systemMetricsCpu) {
+            const cpuData = result.data.systemMetricsCpu;
+            const load = Math.round(cpuData.percentTotal);
+            const color = setColor(load, <?=$display['critical']?>, <?=$display['warning']?>);
+            
+            // Update main CPU display
+            addChartCpu(load);
+            cpuchart.updateSeries([{data:cpu}]);
+            $('.cpu_').text(load+'%').css({'color':fontColor(load, <?=$display['critical']?>, <?=$display['warning']?>)});
+            $('#cpu_').alive(load+'%', color);
+            $('.cpu').text(load+'%').css({'color':fontColor(load, <?=$display['critical']?>, <?=$display['warning']?>)});
+            $('#cpu').alive(load+'%', color);
+            
+            // Update individual CPU cores
+            cpuData.cpus.forEach((cpuCore, index) => {
+              const coreLoad = Math.round(cpuCore.percentTotal);
+              const coreColor = setColor(coreLoad, <?=$display['critical']?>, <?=$display['warning']?>);
+              $('.cpu'+index).text(coreLoad+'%').css({'color':fontColor(coreLoad, <?=$display['critical']?>, <?=$display['warning']?>)});
+              $('#cpu'+index).alive(coreLoad+'%', coreColor);
+            });
+          }
+        },
+        error: (err) => {
+          console.error('CPU subscription error:', err);
+          // Try to resubscribe with capped backoff
+          if (cpuSubscription) { try { cpuSubscription.unsubscribe(); } catch(e){} }
+          setTimeout(initCpuSubscription, Math.min(cpuRetryMs *= 2, 5000));
+        }
+      });
+    } else {
+      // Retry with capped backoff if GraphQL client not ready
+      cpuInitAttempts++;
+      setTimeout(initCpuSubscription, Math.min(cpuRetryMs *= 2, 2000));
+    }
+  }
+  
+  initCpuSubscription();
   dashboard.start();
 <?if ($vmusage == "Y"):?>
   vmdashusage.start();
@@ -2443,6 +2490,13 @@ $(function() {
   $('#netline').val(netline);
   $.removeCookie('lockbutton');
   // remember latest graph values
+  
+  // Cleanup GraphQL subscription on page unload
+  $(window).on('beforeunload', function() {
+    if (cpuSubscription) {
+      cpuSubscription.unsubscribe();
+    }
+  });
 });
 
 </script>
