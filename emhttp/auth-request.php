@@ -54,12 +54,12 @@ $arrWhitelist = [
   '/manifest.json'
 ];
 
-// Add JS files from the unraid-components directory using cache
-$webComponentsDirectory = '/usr/local/emhttp/plugins/dynamix.my.servers/unraid-components/';
-$jsFiles = getCachedJSFiles($webComponentsDirectory);
-$arrWhitelist = array_merge($arrWhitelist, $jsFiles);
+// Whitelist ALL files from the unraid-components directory
+$webComponentsDirectory = '/plugins/dynamix.my.servers/unraid-components/';
+$requestUri = preg_replace(['/\?v=\d+$/','/\?\d+$/'],'',$_SERVER['REQUEST_URI']);
 
-if (in_array(preg_replace(['/\?v=\d+$/','/\?\d+$/'],'',$_SERVER['REQUEST_URI']),$arrWhitelist)) {
+// Check if the request is for any file in the unraid-components directory
+if (str_starts_with($requestUri, $webComponentsDirectory) || in_array($requestUri, $arrWhitelist)) {
   // authorized
   http_response_code(200);
 } else {
