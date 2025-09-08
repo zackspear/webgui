@@ -56,7 +56,7 @@ $arrWhitelist = [
 
 // Whitelist ALL files from the unraid-components directory
 $webComponentsDirectory = '/plugins/dynamix.my.servers/unraid-components/';
-$requestUri = preg_replace(['/\?v=\d+$/','/\?\d+$/'],'',$_SERVER['REQUEST_URI']);
+$requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
 
 // Check if the request is for any file in the unraid-components directory
 if (str_starts_with($requestUri, $webComponentsDirectory) || in_array($requestUri, $arrWhitelist)) {
