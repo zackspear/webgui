@@ -1,7 +1,7 @@
 Menu="Disk Share"
 Title="NFS Security Settings"
 Tag="linux"
-Cond="(($var['shareNFSEnabled']!='no') && (isset($name)?array_key_exists($name,$sec_nfs)&&$shares[$name]['hasCfg']!='similar':0))"
+Cond="(($var['shareNFSEnabled']!='no') && (isset($name)?array_key_exists($name,$sec_nfs)&&($shares[$name]['hasCfg']??false)!='similar':0))"
 ---
 <?PHP
 /* Copyright 2005-2023, Lime Technology

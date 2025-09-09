@@ -336,7 +336,7 @@ $filteredShares = array_filter($shares, function($list) use ($name) {
 <?endif;?>
 
 <div markdown="1" class="relative">
-<?if ($share['hasCfg']!='similar'):?>
+<?if (($share['hasCfg']??false)!='similar'):?>
 <?if (!empty($filteredShares)):?>
 <div markdown="1" class="clone-settings shade">
 _(Read settings from)_ <i class="fa fa-arrow-left fa-fw"></i>
@@ -594,7 +594,7 @@ _(Mover action)_:
 : <span class="inline-flex flex-row items-center gap-2">
 	<input type="submit" id="cmdEditShare" name="cmdEditShare" value="_(Apply)_" onclick="if (this.value=='_(Delete)_') this.value='Delete'; else this.value='Apply'; return handleDeleteClick(this)" disabled>
 	<input type="button" value="_(Done)_" onclick="done()">
-        <?if ($share['hasCfg']=='similar'):?>
+        <?if (($share['hasCfg']??false)=='similar'):?>
                 <span class="orange-text"><i class="fa fa-warning"></i> _(Case-insensitive Share name is not unique)_</span>
         <?endif;?>
   </span>
@@ -1440,7 +1440,7 @@ $(function() {
 	updateScreen(form.shareUseCache.value);
 	if ($.cookie('autosize-' + $('#shareName').val())) $('#autosize').show();
 	checkName($('#shareName').val());
-	<?if ($share['hasCfg']=='similar'):?>
+	<?if (($share['hasCfg']??false)=='similar'):?>
 		form.shareComment.disabled = true;
 		form.shareFloor.disabled = true;
 		form.shareCachePool.disabled = true;
