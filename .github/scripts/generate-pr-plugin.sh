@@ -94,14 +94,19 @@ TARBALL="/boot/config/plugins/&name;/&tarball;"
 MANIFEST="/boot/config/plugins/&name;/installed_files.txt"
 
 echo "Starting file deployment..."
+echo "Tarball: $TARBALL"
+echo "Backup directory: $BACKUP_DIR"
 
 # Clear manifest
 > "$MANIFEST"
 
-# Extract and get file list - use a temp file to avoid subshell issues
+# Get file list first
 tar -tzf "$TARBALL" > /tmp/plugin_files.txt
 
-# Process each file
+echo "Files in tarball:"
+cat /tmp/plugin_files.txt
+
+# Backup original files BEFORE extraction
 while IFS= read -r file; do
     # Skip directories
     if [[ "$file" == */ ]]; then
@@ -112,13 +117,15 @@ while IFS= read -r file; do
     # So the actual system path is /usr/local/emhttp/...
     SYSTEM_FILE="/${file}"
     
-    # Check if file exists and backup
+    # Check if file exists and backup the ORIGINAL (before our changes)
+    echo "Processing file: $file -> $SYSTEM_FILE"
     if [ -f "$SYSTEM_FILE" ]; then
         BACKUP_FILE="$BACKUP_DIR/$(echo "$file" | tr '/' '_')"
-        echo "Backing up: $SYSTEM_FILE"
+        echo "Backing up original: $SYSTEM_FILE -> $BACKUP_FILE"
         cp -p "$SYSTEM_FILE" "$BACKUP_FILE"
         echo "$SYSTEM_FILE|$BACKUP_FILE" >> "$MANIFEST"
     else
+        echo "New file: $SYSTEM_FILE"
         echo "$SYSTEM_FILE|NEW" >> "$MANIFEST"
     fi
 done < /tmp/plugin_files.txt

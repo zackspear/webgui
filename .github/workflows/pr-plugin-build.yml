@@ -83,11 +83,19 @@ jobs:
           
           # Create tarball - consistent filename for updates
           cd build
+          echo "Creating tarball with contents:"
+          find usr/ -type f
           tar -czf ../webgui-pr-${{ github.event.pull_request.number }}.tar.gz usr/
           cd ..
           
           # Generate file list for plugin
           find build/usr/local/emhttp -type f | sed 's|^build||' > file_list.txt
+          echo "File list for plugin:"
+          cat file_list.txt
+          
+          # Verify tarball contents
+          echo "Tarball contents:"
+          tar -tzf webgui-pr-${{ github.event.pull_request.number }}.tar.gz
       
       - name: Configure AWS CLI for R2
         if: steps.changed-files.outputs.has_changes == 'true'
