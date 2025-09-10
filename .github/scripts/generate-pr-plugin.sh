@@ -1,4 +1,6 @@
 #!/bin/bash
+set -euo pipefail
+IFS=$'\n\t'
 
 # Generate PR plugin file for Unraid
 # Usage: ./generate-pr-plugin.sh <version> <pr_number> <commit_sha> <tarball_name> <txz_url>
@@ -55,9 +57,9 @@ cat > "$PLUGIN_NAME" << 'EOF'
 echo "===================================="
 echo "WebGUI PR Test Plugin Installation"
 echo "===================================="
-echo "Version: &version;"
-echo "PR: #&pr;"
-echo "Commit: &commit;"
+echo "Version: VERSION_PLACEHOLDER"
+echo "PR: #PR_PLACEHOLDER"
+echo "Commit: COMMIT_PLACEHOLDER"
 echo ""
 
 # Create directories
@@ -88,8 +90,8 @@ echo "Starting file deployment..."
 # Clear manifest
 > "$MANIFEST"
 
-# Extract and get file list
-tar -tzf "$TARBALL" | while read -r file; do
+# Extract and get file list - use process substitution to avoid subshell
+while IFS= read -r file; do
     # Skip directories
     if [[ "$file" == */ ]]; then
         continue
@@ -108,7 +110,7 @@ tar -tzf "$TARBALL" | while read -r file; do
     else
         echo "$SYSTEM_FILE|NEW" >> "$MANIFEST"
     fi
-done
+done < <(tar -tzf "$TARBALL")
 
 # Extract the tarball to root (files are already prefixed with usr/local/)
 echo ""
@@ -119,12 +121,12 @@ echo ""
 echo "✅ Installation complete!"
 echo ""
 echo "The following files have been deployed:"
-cat "$MANIFEST" | cut -d'|' -f1 | while read -r file; do
+while IFS='|' read -r file backup; do
     echo "  - $file"
-done
+done < "$MANIFEST"
 
 echo ""
-echo "⚠️  This is a TEST plugin for PR #&pr;"
+echo "⚠️  This is a TEST plugin for PR #PR_PLACEHOLDER"
 echo "⚠️  Remove this plugin before applying production updates"
 ]]>
 </INLINE>

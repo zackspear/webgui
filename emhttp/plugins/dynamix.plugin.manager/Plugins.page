@@ -1,6 +1,6 @@
 Menu="Tasks:50"
 Type="xmenu"
-Title="Installed Plugins (PR Test)"
+Title="Installed Plugins (PR TEST BUILD)"
 Tag="icon-plugins"
 Tabs="true"
 Code="e944"
@@ -150,6 +150,10 @@ $(function() {
   $('.tabs').append("<span id='removeall' class='status vhshift' style='display:none;margin-left:12px'><input type='button' value=\"_(Remove Selected Plugins)_\" onclick='removeList()'></span>");
 });
 </script>
+
+<div style="background-color:#ff8c2f;color:white;padding:15px;margin:10px 0;border-radius:5px;font-weight:bold;text-align:center;font-size:16px">
+⚠️ PR TEST BUILD - This page has been modified for testing pull request changes
+</div>
 
 <div class="TableContainer">
     <table class='unraid tablesorter plugins shift' id='plugin_table'>
