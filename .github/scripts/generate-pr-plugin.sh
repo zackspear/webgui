@@ -70,7 +70,7 @@ echo "Created plugin directories"
 
 <!-- Download tarball -->
 <FILE Name="/boot/config/plugins/&name;/&tarball;">
-<LOCAL>/boot/config/plugins/&tarball;</LOCAL>
+<LOCAL>/boot/config/plugins/webgui-pr/&tarball;</LOCAL>
 <SHA256>&sha256;</SHA256>
 </FILE>
 
@@ -169,7 +169,7 @@ fi
 # Clean up
 echo "Cleaning up plugin files..."
 rm -rf "/boot/config/plugins/&name;"
-rm -f "/boot/config/plugins/&tarball;"
+rm -f "/boot/config/plugins/webgui-pr-&version;.plg"
 
 echo ""
 echo "✅ Plugin removed successfully"
