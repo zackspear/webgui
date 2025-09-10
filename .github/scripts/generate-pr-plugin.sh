@@ -101,10 +101,17 @@ echo "Backup directory: $BACKUP_DIR"
 > "$MANIFEST"
 
 # Get file list first
-tar -tzf "$TARBALL" > /tmp/plugin_files.txt
+echo "Examining tarball contents..."
+tar -tzf "$TARBALL" | head -20
+echo ""
 
-echo "Files in tarball:"
-cat /tmp/plugin_files.txt
+# Count total files
+FILE_COUNT=$(tar -tzf "$TARBALL" | grep -v '/$' | wc -l)
+echo "Total files to process: $FILE_COUNT"
+echo ""
+
+# Get file list
+tar -tzf "$TARBALL" > /tmp/plugin_files.txt
 
 # Backup original files BEFORE extraction
 while IFS= read -r file; do
@@ -113,19 +120,19 @@ while IFS= read -r file; do
         continue
     fi
     
-    # The tarball contains usr/local/emhttp/... but we extract to /
-    # So the actual system path is /usr/local/emhttp/...
+    # The tarball contains usr/local/emhttp/... (no leading slash)
+    # When we extract with -C /, it becomes /usr/local/emhttp/...
     SYSTEM_FILE="/${file}"
     
     # Check if file exists and backup the ORIGINAL (before our changes)
-    echo "Processing file: $file -> $SYSTEM_FILE"
+    echo "Processing: $file"
     if [ -f "$SYSTEM_FILE" ]; then
         BACKUP_FILE="$BACKUP_DIR/$(echo "$file" | tr '/' '_')"
-        echo "Backing up original: $SYSTEM_FILE -> $BACKUP_FILE"
+        echo "  → Backing up existing: $SYSTEM_FILE"
         cp -p "$SYSTEM_FILE" "$BACKUP_FILE"
         echo "$SYSTEM_FILE|$BACKUP_FILE" >> "$MANIFEST"
     else
-        echo "New file: $SYSTEM_FILE"
+        echo "  → Will create new: $SYSTEM_FILE"
         echo "$SYSTEM_FILE|NEW" >> "$MANIFEST"
     fi
 done < /tmp/plugin_files.txt
@@ -133,18 +140,46 @@ done < /tmp/plugin_files.txt
 # Clean up temp file
 rm -f /tmp/plugin_files.txt
 
-# Extract the tarball to root (files are already prefixed with usr/local/)
+# Extract the tarball to root
+# Since tarball contains usr/local/emhttp/..., extracting to / makes it /usr/local/emhttp/...
 echo ""
-echo "Installing modified files..."
-tar -xzf "$TARBALL" -C /
+echo "Extracting files to system..."
+tar -xzvf "$TARBALL" -C / 2>&1 | head -20
+echo ""
+
+# Verify extraction
+echo "Verifying installation..."
+INSTALLED_COUNT=0
+while IFS='|' read -r file backup; do
+    if [ -f "$file" ]; then
+        INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
+    fi
+done < "$MANIFEST"
+
+echo "Successfully installed $INSTALLED_COUNT files"
 
 echo ""
 echo "✅ Installation complete!"
 echo ""
-echo "The following files have been deployed:"
-while IFS='|' read -r file backup; do
-    echo "  - $file"
-done < "$MANIFEST"
+echo "Summary:"
+echo "--------"
+echo "Files deployed: $INSTALLED_COUNT"
+echo ""
+if [ $INSTALLED_COUNT -gt 0 ]; then
+    echo "Modified files:"
+    while IFS='|' read -r file backup; do
+        if [ -f "$file" ]; then
+            if [ "$backup" == "NEW" ]; then
+                echo "  [NEW] $file"
+            else
+                echo "  [MOD] $file"
+            fi
+        fi
+    done < "$MANIFEST"
+else
+    echo "⚠️  WARNING: No files were installed!"
+    echo "Check that the tarball structure matches the expected format."
+fi
 
 echo ""
 echo "⚠️  This is a TEST plugin for PR #PR_PLACEHOLDER"
