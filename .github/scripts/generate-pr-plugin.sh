@@ -1,15 +1,16 @@
 #!/bin/bash
 
 # Generate PR plugin file for Unraid
-# Usage: ./generate-pr-plugin.sh <version> <pr_number> <commit_sha> <tarball_name>
+# Usage: ./generate-pr-plugin.sh <version> <pr_number> <commit_sha> <tarball_name> <txz_url>
 
 VERSION=$1
 PR_NUMBER=$2
 COMMIT_SHA=$3
 TARBALL_NAME=$4
+TXZ_URL=$5
 
-if [ -z "$VERSION" ] || [ -z "$PR_NUMBER" ] || [ -z "$COMMIT_SHA" ] || [ -z "$TARBALL_NAME" ]; then
-    echo "Usage: $0 <version> <pr_number> <commit_sha> <tarball_name>"
+if [ -z "$VERSION" ] || [ -z "$PR_NUMBER" ] || [ -z "$COMMIT_SHA" ] || [ -z "$TARBALL_NAME" ] || [ -z "$TXZ_URL" ]; then
+    echo "Usage: $0 <version> <pr_number> <commit_sha> <tarball_name> <txz_url>"
     exit 1
 fi
 
@@ -68,9 +69,9 @@ echo "Created plugin directories"
 </INLINE>
 </FILE>
 
-<!-- Download tarball -->
+<!-- Download tarball from GitHub -->
 <FILE Name="/boot/config/plugins/&name;/&tarball;">
-<LOCAL>/boot/config/plugins/webgui-pr/&tarball;</LOCAL>
+<URL>TXZ_URL_PLACEHOLDER</URL>
 <SHA256>&sha256;</SHA256>
 </FILE>
 
@@ -168,7 +169,9 @@ fi
 
 # Clean up
 echo "Cleaning up plugin files..."
+# Remove the plugin directory (which includes the tarball and backups)
 rm -rf "/boot/config/plugins/&name;"
+# Remove the plugin file itself
 rm -f "/boot/config/plugins/webgui-pr-&version;.plg"
 
 echo ""
@@ -188,6 +191,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     sed -i '' "s/SHA256_PLACEHOLDER/${TARBALL_SHA256}/g" "$PLUGIN_NAME"
     sed -i '' "s/PR_PLACEHOLDER/${PR_NUMBER}/g" "$PLUGIN_NAME"
     sed -i '' "s/COMMIT_PLACEHOLDER/${COMMIT_SHA}/g" "$PLUGIN_NAME"
+    sed -i '' "s|TXZ_URL_PLACEHOLDER|${TXZ_URL}|g" "$PLUGIN_NAME"
 else
     # Linux sed
     sed -i "s/VERSION_PLACEHOLDER/${VERSION}/g" "$PLUGIN_NAME"
@@ -195,6 +199,7 @@ else
     sed -i "s/SHA256_PLACEHOLDER/${TARBALL_SHA256}/g" "$PLUGIN_NAME"
     sed -i "s/PR_PLACEHOLDER/${PR_NUMBER}/g" "$PLUGIN_NAME"
     sed -i "s/COMMIT_PLACEHOLDER/${COMMIT_SHA}/g" "$PLUGIN_NAME"
+    sed -i "s|TXZ_URL_PLACEHOLDER|${TXZ_URL}|g" "$PLUGIN_NAME"
 fi
 
 echo "Plugin generated: $PLUGIN_NAME"
