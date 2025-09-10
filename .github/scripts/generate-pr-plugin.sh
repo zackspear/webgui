@@ -88,14 +88,14 @@ echo "Starting file deployment..."
 > "$MANIFEST"
 
 # Extract and get file list
-cd /
 tar -tzf "$TARBALL" | while read -r file; do
     # Skip directories
     if [[ "$file" == */ ]]; then
         continue
     fi
     
-    # Convert tar path to actual system path
+    # The tarball contains usr/local/emhttp/... but we extract to /
+    # So the actual system path is /usr/local/emhttp/...
     SYSTEM_FILE="/${file}"
     
     # Check if file exists and backup
@@ -109,7 +109,7 @@ tar -tzf "$TARBALL" | while read -r file; do
     fi
 done
 
-# Extract the tarball
+# Extract the tarball to root (files are already prefixed with usr/local/)
 echo ""
 echo "Installing modified files..."
 tar -xzf "$TARBALL" -C /
@@ -180,11 +180,21 @@ echo "✅ Plugin removed successfully"
 </PLUGIN>
 EOF
 
-# Replace placeholders
-sed -i "s/VERSION_PLACEHOLDER/${VERSION}/g" "$PLUGIN_NAME"
-sed -i "s/TARBALL_PLACEHOLDER/${TARBALL_NAME}/g" "$PLUGIN_NAME"
-sed -i "s/SHA256_PLACEHOLDER/${TARBALL_SHA256}/g" "$PLUGIN_NAME"
-sed -i "s/PR_PLACEHOLDER/${PR_NUMBER}/g" "$PLUGIN_NAME"
-sed -i "s/COMMIT_PLACEHOLDER/${COMMIT_SHA}/g" "$PLUGIN_NAME"
+# Replace placeholders (compatible with both Linux and macOS)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS requires backup extension with -i
+    sed -i '' "s/VERSION_PLACEHOLDER/${VERSION}/g" "$PLUGIN_NAME"
+    sed -i '' "s/TARBALL_PLACEHOLDER/${TARBALL_NAME}/g" "$PLUGIN_NAME"
+    sed -i '' "s/SHA256_PLACEHOLDER/${TARBALL_SHA256}/g" "$PLUGIN_NAME"
+    sed -i '' "s/PR_PLACEHOLDER/${PR_NUMBER}/g" "$PLUGIN_NAME"
+    sed -i '' "s/COMMIT_PLACEHOLDER/${COMMIT_SHA}/g" "$PLUGIN_NAME"
+else
+    # Linux sed
+    sed -i "s/VERSION_PLACEHOLDER/${VERSION}/g" "$PLUGIN_NAME"
+    sed -i "s/TARBALL_PLACEHOLDER/${TARBALL_NAME}/g" "$PLUGIN_NAME"
+    sed -i "s/SHA256_PLACEHOLDER/${TARBALL_SHA256}/g" "$PLUGIN_NAME"
+    sed -i "s/PR_PLACEHOLDER/${PR_NUMBER}/g" "$PLUGIN_NAME"
+    sed -i "s/COMMIT_PLACEHOLDER/${COMMIT_SHA}/g" "$PLUGIN_NAME"
+fi
 
 echo "Plugin generated: $PLUGIN_NAME"

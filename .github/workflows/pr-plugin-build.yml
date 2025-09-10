@@ -117,6 +117,7 @@ jobs:
                - Extract the downloaded ZIP file
             
             2. **Copy files to your Unraid server:**
+               - Create directory: `mkdir -p /boot/config/plugins/webgui-pr/`
                - `webgui-pr-${{ steps.version.outputs.version }}.plg` → `/boot/config/plugins/`
                - `webgui-pr-${{ steps.version.outputs.version }}.tar.gz` → `/boot/config/plugins/webgui-pr/`
             
