@@ -123,12 +123,17 @@ while IFS= read -r file; do
     # The tarball contains usr/local/emhttp/... (no leading slash)
     # When we extract with -C /, it becomes /usr/local/emhttp/...
     SYSTEM_FILE="/${file}"
+    BACKUP_FILE="$BACKUP_DIR/$(echo "$file" | tr '/' '_')"
     
-    # Check if file exists and backup the ORIGINAL (before our changes)
     echo "Processing: $file"
-    if [ -f "$SYSTEM_FILE" ]; then
-        BACKUP_FILE="$BACKUP_DIR/$(echo "$file" | tr '/' '_')"
-        echo "  → Backing up existing: $SYSTEM_FILE"
+    
+    # Only backup if we haven't already backed up this file
+    # (preserves original backups across updates)
+    if [ -f "$BACKUP_FILE" ]; then
+        echo "  → Using existing backup: $BACKUP_FILE"
+        echo "$SYSTEM_FILE|$BACKUP_FILE" >> "$MANIFEST"
+    elif [ -f "$SYSTEM_FILE" ]; then
+        echo "  → Creating backup of original: $SYSTEM_FILE"
         cp -p "$SYSTEM_FILE" "$BACKUP_FILE"
         echo "$SYSTEM_FILE|$BACKUP_FILE" >> "$MANIFEST"
     else
@@ -140,11 +145,15 @@ done < /tmp/plugin_files.txt
 # Clean up temp file
 rm -f /tmp/plugin_files.txt
 
-# Extract the tarball to root
+# Extract the tarball to root with verbose output
 # Since tarball contains usr/local/emhttp/..., extracting to / makes it /usr/local/emhttp/...
 echo ""
-echo "Extracting files to system..."
-tar -xzvf "$TARBALL" -C / 2>&1 | head -20
+echo "Extracting files to system (verbose mode)..."
+echo "----------------------------------------"
+tar -xzvf "$TARBALL" -C /
+EXTRACT_STATUS=$?
+echo "----------------------------------------"
+echo "Extraction completed with status: $EXTRACT_STATUS"
 echo ""
 
 # Verify extraction
@@ -184,6 +193,57 @@ fi
 echo ""
 echo "⚠️  This is a TEST plugin for PR #PR_PLACEHOLDER"
 echo "⚠️  Remove this plugin before applying production updates"
+]]>
+</INLINE>
+</FILE>
+
+<!-- Update method - restore originals first, then apply new changes -->
+<FILE Run="/bin/bash" Method="update">
+<INLINE>
+<![CDATA[
+echo "===================================="
+echo "WebGUI PR Test Plugin Update"
+echo "===================================="
+echo "Version: &version;"
+echo ""
+
+BACKUP_DIR="/boot/config/plugins/&name;/backups"
+MANIFEST="/boot/config/plugins/&name;/installed_files.txt"
+
+# First restore original files to ensure clean state
+if [ -f "$MANIFEST" ]; then
+    echo "Step 1: Restoring original files before update..."
+    echo "------------------------------------------------"
+    
+    while IFS='|' read -r system_file backup_file; do
+        if [ "$backup_file" == "NEW" ]; then
+            # This was a new file from previous version, remove it
+            if [ -f "$system_file" ]; then
+                echo "Removing PR file: $system_file"
+                rm -f "$system_file"
+            fi
+        else
+            # Restore original from backup
+            if [ -f "$backup_file" ]; then
+                echo "Restoring original: $system_file"
+                cp -f "$backup_file" "$system_file"
+            fi
+        fi
+    done < "$MANIFEST"
+    
+    echo ""
+    echo "✅ Original files restored"
+    echo ""
+else
+    echo "⚠️  No previous manifest found, proceeding with fresh install"
+    echo ""
+fi
+
+# Clear the old manifest for the new version
+> "$MANIFEST"
+
+echo "Step 2: Update will now proceed with installation of new PR files..."
+echo ""
 ]]>
 </INLINE>
 </FILE>

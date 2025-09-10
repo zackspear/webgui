@@ -217,3 +217,4 @@ jobs:
             ---
             <sub>🤖 This comment is automatically generated and will be updated with each new push to this PR.</sub>
           edit-mode: replace
+          comment-id: deploy-comment
