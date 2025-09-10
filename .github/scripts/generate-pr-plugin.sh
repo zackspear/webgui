@@ -90,7 +90,10 @@ echo "Starting file deployment..."
 # Clear manifest
 > "$MANIFEST"
 
-# Extract and get file list - use process substitution to avoid subshell
+# Extract and get file list - use a temp file to avoid subshell issues
+tar -tzf "$TARBALL" > /tmp/plugin_files.txt
+
+# Process each file
 while IFS= read -r file; do
     # Skip directories
     if [[ "$file" == */ ]]; then
@@ -110,7 +113,10 @@ while IFS= read -r file; do
     else
         echo "$SYSTEM_FILE|NEW" >> "$MANIFEST"
     fi
-done < <(tar -tzf "$TARBALL")
+done < /tmp/plugin_files.txt
+
+# Clean up temp file
+rm -f /tmp/plugin_files.txt
 
 # Extract the tarball to root (files are already prefixed with usr/local/)
 echo ""
