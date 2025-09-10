@@ -297,6 +297,60 @@ function urlencode_path($path) {
   return str_replace("%2F", "/", urlencode($path));
 }
 
+function check_deprecated_filesystem($disk) {
+  $fsType = _var($disk, 'fsType', '');
+  $name = _var($disk, 'name', '');
+  $warnings = [];
+  
+  // Check for ReiserFS
+  if (stripos($fsType, 'reiserfs') !== false) {
+    $warnings[] = [
+      'type' => 'reiserfs',
+      'severity' => 'critical',
+      'message' => _('ReiserFS is deprecated and will not be supported in future Unraid releases')
+    ];
+  }
+  
+  // Check for XFS v4 (lacks CRC checksums)
+  if (stripos($fsType, 'xfs') !== false) {
+    // Check if disk is mounted to determine XFS version
+    $mountPoint = "/mnt/$name";
+    if (is_dir($mountPoint) && exec("mountpoint -q " . escapeshellarg($mountPoint) . " 2>/dev/null", $output, $ret) && $ret == 0) {
+      // Check for crc=0 which indicates XFS v4
+      $xfsInfo = shell_exec("xfs_info " . escapeshellarg($mountPoint) . " 2>/dev/null");
+      if ($xfsInfo && strpos($xfsInfo, 'crc=0') !== false) {
+        $warnings[] = [
+          'type' => 'xfs_v4',
+          'severity' => 'critical',
+          'message' => _('XFS v4 is deprecated and will not be supported in future Unraid releases. Please migrate to XFS v5 immediately')
+        ];
+      }
+    }
+  }
+  
+  return $warnings;
+}
+
+function get_filesystem_warning_icon($warnings) {
+  if (empty($warnings)) return '';
+  
+  $hasCritical = false;
+  $messages = [];
+  
+  foreach ($warnings as $warning) {
+    if ($warning['severity'] == 'critical') {
+      $hasCritical = true;
+    }
+    $messages[] = $warning['message'];
+  }
+  
+  $icon = $hasCritical ? 'exclamation-triangle' : 'exclamation-circle';
+  $color = $hasCritical ? 'red-text' : 'orange-text';
+  $tooltip = implode('. ', $messages);
+  
+  return " <i class='fa fa-$icon $color' title='$tooltip'></i>";
+}
+
 function pgrep($process_name, $escape_arg=true) {
   $pid = exec('pgrep --ns $$ '.($escape_arg ? escapeshellarg($process_name) : $process_name), $output, $retval);
   return $retval == 0 ? $pid : false;
@@ -603,5 +657,98 @@ function comparePCIData() {
 function clone_list($disk) {
   global $pools;
   return strpos($disk['status'],'_NP') === false && ($disk['type'] == 'Data' || in_array($disk['name'], $pools));
+}
+
+// Deprecated filesystem detection and display functions
+function check_deprecated_filesystems_array($disks, $filter_function) {
+  $deprecated = [];
+  
+  foreach ($filter_function($disks) as $disk) {
+    if (substr($disk['status'],0,7) != 'DISK_NP') {
+      $fsType = strtolower(_var($disk, 'fsType', ''));
+      
+      // Check for deprecated filesystems
+      if (strpos($fsType, 'reiserfs') !== false) {
+        $deprecated[] = [
+          'name' => $disk['name'],
+          'fsType' => 'ReiserFS',
+          'message' => 'ReiserFS is deprecated and will not be supported in future Unraid releases'
+        ];
+      }
+      
+      // Check for XFS v4 (lacks CRC checksums)
+      if (strpos($fsType, 'xfs') !== false) {
+        $name = $disk['name'];
+        $mountPoint = "/mnt/$name";
+        
+        // Check if disk is mounted
+        if (is_dir($mountPoint)) {
+          exec("mountpoint -q " . escapeshellarg($mountPoint) . " 2>/dev/null", $output, $ret);
+          if ($ret == 0) {
+            // Get XFS info to check for crc=0 which indicates XFS v4
+            $xfsInfo = shell_exec("xfs_info " . escapeshellarg($mountPoint) . " 2>/dev/null");
+            if ($xfsInfo && strpos($xfsInfo, 'crc=0') !== false) {
+              $deprecated[] = [
+                'name' => $disk['name'],
+                'fsType' => 'XFS v4',
+                'message' => 'XFS v4 is deprecated and will not be supported in future Unraid releases. Please migrate to XFS v5'
+              ];
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  return $deprecated;
+}
+
+function display_deprecated_filesystem_warning($deprecated_disks, $type = 'array') {
+  if (empty($deprecated_disks)) return '';
+  
+  $id = $type === 'array' ? 'array-deprecated-warning' : 'pool-deprecated-warning';
+  $title = htmlspecialchars($type === 'array' ? 'Deprecated Filesystem Warning' : 'Deprecated Pool Filesystem Warning');
+  $description = htmlspecialchars($type === 'array' ? 
+    'The following array devices are using deprecated filesystems:' : 
+    'The following pool devices are using deprecated filesystems:');
+  
+  // Build the disk list
+  $diskList = '';
+  foreach ($deprecated_disks as $disk) {
+    $name = htmlspecialchars($disk['name']);
+    $fsType = htmlspecialchars($disk['fsType']);
+    $message = htmlspecialchars($disk['message']);
+    $diskList .= "<li><strong>{$name}:</strong> {$fsType} - {$message}</li>\n";
+  }
+  
+  return <<<HTML
+<div id="{$id}" style="margin: 20px 0;">
+    <div style="background: #feefb3; border: 1px solid #ff8c2f; border-radius: 4px; padding: 15px; position: relative;">
+        <button onclick="$('#{$id}').fadeOut();" 
+                style="position: absolute; right: 10px; top: 10px; background: transparent; border: none; color: #ff8c2f; cursor: pointer; font-size: 1.2em;">
+            <i class="fa fa-times"></i>
+        </button>
+        <div style="display: flex; align-items: start;">
+            <i class="fa fa-exclamation-triangle" style="color: #ff8c2f; margin-right: 10px; font-size: 1.2em;"></i>
+            <div style="flex: 1; color: #000;">
+                <div style="font-weight: bold; margin-bottom: 10px; color: #ff8c2f;">
+                    {$title}
+                </div>
+                <div style="margin-bottom: 10px;">
+                    {$description}
+                </div>
+                <ul style="margin: 10px 0 10px 20px;">
+                    {$diskList}
+                </ul>
+                <div style="margin-top: 10px;">
+                    <strong>Action Required:</strong> Migrate to a supported filesystem (XFS v5, BTRFS, or ZFS). 
+                    <a href="https://docs.unraid.net/go/convert-reiser-and-xfs" 
+                       target="_blank" style="color: #ff8c2f;">View migration guide →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+HTML;
 }
 ?>
