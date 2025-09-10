@@ -71,8 +71,8 @@ echo "Commit: COMMIT_PLACEHOLDER"
 echo ""
 
 # Create directories
-mkdir -p /boot/config/plugins/&name;
-mkdir -p /boot/config/plugins/&name;/backups
+mkdir -p /boot/config/plugins/webgui-pr-PR_PLACEHOLDER
+mkdir -p /boot/config/plugins/webgui-pr-PR_PLACEHOLDER/backups
 
 echo "Created plugin directories"
 ]]>
@@ -80,7 +80,7 @@ echo "Created plugin directories"
 </FILE>
 
 <!-- Download tarball from GitHub -->
-<FILE Name="/boot/config/plugins/&name;/&tarball;">
+<FILE Name="/boot/config/plugins/webgui-pr-PR_PLACEHOLDER/TARBALL_PLACEHOLDER">
 <URL>TXZ_URL_PLACEHOLDER</URL>
 <SHA256>&sha256;</SHA256>
 </FILE>
@@ -89,9 +89,9 @@ echo "Created plugin directories"
 <FILE Run="/bin/bash" Method="install">
 <INLINE>
 <![CDATA[
-BACKUP_DIR="/boot/config/plugins/&name;/backups"
-TARBALL="/boot/config/plugins/&name;/&tarball;"
-MANIFEST="/boot/config/plugins/&name;/installed_files.txt"
+BACKUP_DIR="/boot/config/plugins/webgui-pr-PR_PLACEHOLDER/backups"
+TARBALL="/boot/config/plugins/webgui-pr-PR_PLACEHOLDER/TARBALL_PLACEHOLDER"
+MANIFEST="/boot/config/plugins/webgui-pr-PR_PLACEHOLDER/installed_files.txt"
 
 echo "Starting file deployment..."
 echo "Tarball: $TARBALL"
@@ -207,8 +207,8 @@ echo "===================================="
 echo "Version: &version;"
 echo ""
 
-BACKUP_DIR="/boot/config/plugins/&name;/backups"
-MANIFEST="/boot/config/plugins/&name;/installed_files.txt"
+BACKUP_DIR="/boot/config/plugins/webgui-pr-PR_PLACEHOLDER/backups"
+MANIFEST="/boot/config/plugins/webgui-pr-PR_PLACEHOLDER/installed_files.txt"
 
 # First restore original files to ensure clean state
 if [ -f "$MANIFEST" ]; then
@@ -257,8 +257,8 @@ echo "WebGUI PR Test Plugin Removal"
 echo "===================================="
 echo ""
 
-BACKUP_DIR="/boot/config/plugins/&name;/backups"
-MANIFEST="/boot/config/plugins/&name;/installed_files.txt"
+BACKUP_DIR="/boot/config/plugins/webgui-pr-PR_PLACEHOLDER/backups"
+MANIFEST="/boot/config/plugins/webgui-pr-PR_PLACEHOLDER/installed_files.txt"
 
 if [ -f "$MANIFEST" ]; then
     echo "Restoring original files..."
@@ -288,9 +288,9 @@ fi
 # Clean up
 echo "Cleaning up plugin files..."
 # Remove the plugin directory (which includes the tarball and backups)
-rm -rf "/boot/config/plugins/&name;"
+rm -rf "/boot/config/plugins/webgui-pr-PR_PLACEHOLDER"
 # Remove the plugin file itself
-rm -f "/boot/config/plugins/webgui-pr-&version;.plg"
+rm -f "/boot/config/plugins/webgui-pr-PR_PLACEHOLDER.plg"
 
 echo ""
 echo "✅ Plugin removed successfully"

@@ -120,11 +120,12 @@ jobs:
       - name: Generate plugin file with R2 URL
         if: steps.changed-files.outputs.has_changes == 'true'
         run: |
+          # Pass versioned filename to match the URL
           bash .github/scripts/generate-pr-plugin.sh \
             "${{ steps.version.outputs.version }}" \
             "${{ github.event.pull_request.number }}" \
             "$(git rev-parse --short HEAD)" \
-            "webgui-pr-${{ github.event.pull_request.number }}.tar.gz" \
+            "webgui-pr-${{ github.event.pull_request.number }}-${{ steps.version.outputs.version }}.tar.gz" \
             "${{ steps.version.outputs.txz_url }}" \
             "${{ steps.version.outputs.plugin_url }}"
       
