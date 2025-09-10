@@ -1,0 +1,154 @@
+name: Build PR Plugin
+
+on:
+  pull_request:
+    paths:
+      - 'emhttp/**'
+      - '.github/workflows/pr-plugin-build.yml'
+      - '.github/scripts/**'
+
+jobs:
+  build-plugin:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Get changed files
+        id: changed-files
+        run: |
+          # Get list of changed files in emhttp directory
+          git diff --name-only origin/${{ github.base_ref }}...HEAD | grep '^emhttp/' > changed_files.txt || true
+          
+          # Output for debugging
+          echo "Changed files:"
+          cat changed_files.txt
+          
+          # Check if we have any changes
+          if [ ! -s changed_files.txt ]; then
+            echo "No emhttp files changed"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Generate plugin version
+        if: steps.changed-files.outputs.has_changes == 'true'
+        id: version
+        run: |
+          # Generate version based on PR number and short SHA
+          VERSION="pr.${{ github.event.pull_request.number }}.$(git rev-parse --short HEAD)"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Generated version: $VERSION"
+      
+      - name: Create plugin package
+        if: steps.changed-files.outputs.has_changes == 'true'
+        run: |
+          # Create build directory
+          mkdir -p build/usr/local
+          
+          # Copy changed files preserving directory structure
+          while IFS= read -r file; do
+            if [ -f "$file" ]; then
+              # Create directory structure in build
+              dir=$(dirname "$file")
+              mkdir -p "build/usr/local/$dir"
+              cp "$file" "build/usr/local/$dir/"
+              echo "Added: $file"
+            fi
+          done < changed_files.txt
+          
+          # Create tarball
+          cd build
+          tar -czf ../webgui-pr-${{ steps.version.outputs.version }}.tar.gz usr/
+          cd ..
+          
+          # Generate file list for plugin
+          find build/usr/local/emhttp -type f | sed 's|^build||' > file_list.txt
+      
+      - name: Generate plugin file
+        if: steps.changed-files.outputs.has_changes == 'true'
+        run: |
+          bash .github/scripts/generate-pr-plugin.sh \
+            "${{ steps.version.outputs.version }}" \
+            "${{ github.event.pull_request.number }}" \
+            "$(git rev-parse --short HEAD)" \
+            "webgui-pr-${{ steps.version.outputs.version }}.tar.gz"
+      
+      - name: Upload plugin artifact
+        if: steps.changed-files.outputs.has_changes == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: webgui-pr-plugin-${{ github.event.pull_request.number }}
+          path: |
+            webgui-pr-*.plg
+            webgui-pr-*.tar.gz
+          retention-days: 30
+      
+      - name: Format changed files list
+        if: steps.changed-files.outputs.has_changes == 'true'
+        id: format-files
+        run: |
+          # Format the file list for the comment
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          cat changed_files.txt
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+      - name: Comment on PR
+        if: steps.changed-files.outputs.has_changes == 'true'
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ## 🔧 PR Test Plugin Available
+            
+            A test plugin has been generated for this PR that includes the modified files.
+            
+            **Version:** `${{ steps.version.outputs.version }}`
+            **Build:** [View Workflow Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            
+            ### 📥 Installation Instructions:
+            
+            1. **Download the plugin files** from the [workflow artifacts](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+               - Click on the `webgui-pr-plugin-${{ github.event.pull_request.number }}` artifact
+               - Extract the downloaded ZIP file
+            
+            2. **Copy files to your Unraid server:**
+               - `webgui-pr-${{ steps.version.outputs.version }}.plg` → `/boot/config/plugins/`
+               - `webgui-pr-${{ steps.version.outputs.version }}.tar.gz` → `/boot/config/plugins/webgui-pr/`
+            
+            3. **Install the plugin:**
+               - Via Plugins tab: Navigate to Install Plugin, use the file browser to select the .plg file
+               - Via command line: `installplg /boot/config/plugins/webgui-pr-${{ steps.version.outputs.version }}.plg`
+            
+            ### ⚠️ Important Notes:
+            
+            - **Testing only:** This plugin is for testing PR changes
+            - **Backup included:** Original files are automatically backed up
+            - **Easy removal:** Files are restored when plugin is removed
+            - **Conflicts:** Remove this plugin before installing production updates
+            
+            ### 📝 Modified Files:
+            
+            <details>
+            <summary>Click to expand file list</summary>
+            
+            ```
+            ${{ steps.format-files.outputs.files }}
+            ```
+            
+            </details>
+            
+            ### 🔄 To Remove:
+            
+            Navigate to Plugins → Installed Plugins and remove `webgui-pr-${{ steps.version.outputs.version }}`, or run:
+            ```bash
+            removepkg webgui-pr-${{ steps.version.outputs.version }}
+            ```
+            
+            ---
+            <sub>🤖 This comment is automatically generated and will be updated with each new push to this PR.</sub>
+          edit-mode: replace
