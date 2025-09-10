@@ -139,8 +139,12 @@ jobs:
         run: |
           # Format the file list for the comment
           echo "files<<EOF" >> $GITHUB_OUTPUT
-          cat changed_files.txt
+          cat changed_files.txt >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
+          
+          # Debug output
+          echo "Changed files found:"
+          cat changed_files.txt
       
       - name: Comment on PR
         if: steps.changed-files.outputs.has_changes == 'true'
