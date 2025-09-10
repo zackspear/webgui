@@ -3,20 +3,28 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # Generate PR plugin file for Unraid
-# Usage: ./generate-pr-plugin.sh <version> <pr_number> <commit_sha> <tarball_name> <txz_url>
+# Usage: ./generate-pr-plugin.sh <version> <pr_number> <commit_sha> <tarball_name> <txz_url> [plugin_url]
 
 VERSION=$1
 PR_NUMBER=$2
 COMMIT_SHA=$3
 TARBALL_NAME=$4
 TXZ_URL=$5
+PLUGIN_URL=${6:-""}  # Optional plugin URL for updates
 
 if [ -z "$VERSION" ] || [ -z "$PR_NUMBER" ] || [ -z "$COMMIT_SHA" ] || [ -z "$TARBALL_NAME" ] || [ -z "$TXZ_URL" ]; then
-    echo "Usage: $0 <version> <pr_number> <commit_sha> <tarball_name> <txz_url>"
+    echo "Usage: $0 <version> <pr_number> <commit_sha> <tarball_name> <txz_url> [plugin_url]"
     exit 1
 fi
 
-PLUGIN_NAME="webgui-pr-${VERSION}.plg"
+# If no plugin URL provided, generate one based on R2 location
+if [ -z "$PLUGIN_URL" ]; then
+    # Extract base URL from TXZ_URL and use consistent filename
+    PLUGIN_URL=$(echo "$TXZ_URL" | sed "s|\.tar\.gz|.plg|")
+fi
+
+# Use consistent filename (no version in filename, version is inside the plugin)
+PLUGIN_NAME="webgui-pr-${PR_NUMBER}.plg"
 TARBALL_SHA256=$(sha256sum "$TARBALL_NAME" | awk '{print $1}')
 
 echo "Generating plugin: $PLUGIN_NAME"
@@ -25,10 +33,10 @@ echo "Tarball SHA256: $TARBALL_SHA256"
 cat > "$PLUGIN_NAME" << 'EOF'
 <?xml version='1.0' standalone='yes'?>
 <!DOCTYPE PLUGIN [
-  <!ENTITY name "webgui-pr">
+  <!ENTITY name "webgui-pr-PR_PLACEHOLDER">
   <!ENTITY version "VERSION_PLACEHOLDER">
   <!ENTITY author "unraid">
-  <!ENTITY pluginURL "https://github.com/unraid/webgui">
+  <!ENTITY pluginURL "PLUGIN_URL_PLACEHOLDER">
   <!ENTITY tarball "TARBALL_PLACEHOLDER">
   <!ENTITY sha256 "SHA256_PLACEHOLDER">
   <!ENTITY pr "PR_PLACEHOLDER">
@@ -200,6 +208,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     sed -i '' "s/PR_PLACEHOLDER/${PR_NUMBER}/g" "$PLUGIN_NAME"
     sed -i '' "s/COMMIT_PLACEHOLDER/${COMMIT_SHA}/g" "$PLUGIN_NAME"
     sed -i '' "s|TXZ_URL_PLACEHOLDER|${TXZ_URL}|g" "$PLUGIN_NAME"
+    sed -i '' "s|PLUGIN_URL_PLACEHOLDER|${PLUGIN_URL}|g" "$PLUGIN_NAME"
 else
     # Linux sed
     sed -i "s/VERSION_PLACEHOLDER/${VERSION}/g" "$PLUGIN_NAME"
@@ -208,6 +217,7 @@ else
     sed -i "s/PR_PLACEHOLDER/${PR_NUMBER}/g" "$PLUGIN_NAME"
     sed -i "s/COMMIT_PLACEHOLDER/${COMMIT_SHA}/g" "$PLUGIN_NAME"
     sed -i "s|TXZ_URL_PLACEHOLDER|${TXZ_URL}|g" "$PLUGIN_NAME"
+    sed -i "s|PLUGIN_URL_PLACEHOLDER|${PLUGIN_URL}|g" "$PLUGIN_NAME"
 fi
 
 echo "Plugin generated: $PLUGIN_NAME"

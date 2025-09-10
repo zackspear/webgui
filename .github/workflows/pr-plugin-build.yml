@@ -44,10 +44,25 @@ jobs:
         if: steps.changed-files.outputs.has_changes == 'true'
         id: version
         run: |
-          # Generate version based on PR number and short SHA
-          VERSION="pr.${{ github.event.pull_request.number }}.$(git rev-parse --short HEAD)"
+          # Generate version with proper timestamp format: YYYY.MM.DD.HHMM
+          VERSION=$(date -u +"%Y.%m.%d.%H%M")
+          # Also keep PR info for reference
+          PR_VERSION="pr.${{ github.event.pull_request.number }}.$(git rev-parse --short HEAD)"
+          
+          # Generate stable URLs and keys once
+          S3_BASE_URL="${{ secrets.CLOUDFLARE_PREVIEW_BUCKET_BASE_URL }}/pr-plugins/pr-${{ github.event.pull_request.number }}"
+          TXZ_URL="${S3_BASE_URL}/webgui-pr-${{ github.event.pull_request.number }}.tar.gz"
+          PLUGIN_URL="${S3_BASE_URL}/webgui-pr-${{ github.event.pull_request.number }}.plg"
+          TXZ_KEY="pr-plugins/pr-${{ github.event.pull_request.number }}/webgui-pr-${{ github.event.pull_request.number }}.tar.gz"
+          PLUGIN_KEY="pr-plugins/pr-${{ github.event.pull_request.number }}/webgui-pr-${{ github.event.pull_request.number }}.plg"
+
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Generated version: $VERSION"
+          echo "pr_version=$PR_VERSION" >> $GITHUB_OUTPUT
+          echo "txz_url=$TXZ_URL" >> $GITHUB_OUTPUT
+          echo "plugin_url=$PLUGIN_URL" >> $GITHUB_OUTPUT
+          echo "txz_key=$TXZ_KEY" >> $GITHUB_OUTPUT
+          echo "plugin_key=$PLUGIN_KEY" >> $GITHUB_OUTPUT
+          echo "Generated version: $VERSION (PR: $PR_VERSION)"
       
       - name: Create plugin package
         if: steps.changed-files.outputs.has_changes == 'true'
@@ -66,9 +81,9 @@ jobs:
             fi
           done < changed_files.txt
           
-          # Create tarball
+          # Create tarball - consistent filename for updates
           cd build
-          tar -czf ../webgui-pr-${{ steps.version.outputs.version }}.tar.gz usr/
+          tar -czf ../webgui-pr-${{ github.event.pull_request.number }}.tar.gz usr/
           cd ..
           
           # Generate file list for plugin
@@ -85,17 +100,13 @@ jobs:
         if: steps.changed-files.outputs.has_changes == 'true'
         id: upload-txz
         run: |
-          # Upload to R2 with a path that's easy to prune (pr-plugins/pr-NUMBER/files)
-          aws s3 cp webgui-pr-${{ steps.version.outputs.version }}.tar.gz \
-            s3://${{ secrets.CLOUDFLARE_PREVIEW_BUCKET_NAME }}/pr-plugins/pr-${{ github.event.pull_request.number }}/ \
-            --endpoint-url ${{ secrets.CLOUDFLARE_S3_URL }} \
+          # Upload to R2 - overwrite existing file for updates
+          aws s3 cp "webgui-pr-${{ github.event.pull_request.number }}.tar.gz" \
+            "s3://${{ secrets.CLOUDFLARE_PREVIEW_BUCKET_NAME }}/${{ steps.version.outputs.txz_key }}" \
+            --endpoint-url "${{ secrets.CLOUDFLARE_S3_URL }}" \
             --acl public-read
           
-          # Construct the public URL
-          TXZ_URL="${{ secrets.CLOUDFLARE_PREVIEW_BUCKET_BASE_URL }}/pr-plugins/pr-${{ github.event.pull_request.number }}/webgui-pr-${{ steps.version.outputs.version }}.tar.gz"
-          
-          echo "txz_url=$TXZ_URL" >> $GITHUB_OUTPUT
-          echo "Uploaded TXZ to: $TXZ_URL"
+          echo "Uploaded TXZ to: ${{ steps.version.outputs.txz_url }}"
       
       - name: Generate plugin file with R2 URL
         if: steps.changed-files.outputs.has_changes == 'true'
@@ -104,24 +115,21 @@ jobs:
             "${{ steps.version.outputs.version }}" \
             "${{ github.event.pull_request.number }}" \
             "$(git rev-parse --short HEAD)" \
-            "webgui-pr-${{ steps.version.outputs.version }}.tar.gz" \
-            "${{ steps.upload-txz.outputs.txz_url }}"
+            "webgui-pr-${{ github.event.pull_request.number }}.tar.gz" \
+            "${{ steps.version.outputs.txz_url }}" \
+            "${{ steps.version.outputs.plugin_url }}"
       
       - name: Upload PLG to R2
         if: steps.changed-files.outputs.has_changes == 'true'
         id: upload-plg
         run: |
-          # Upload PLG to same PR folder
-          aws s3 cp webgui-pr-${{ steps.version.outputs.version }}.plg \
-            s3://${{ secrets.CLOUDFLARE_PREVIEW_BUCKET_NAME }}/pr-plugins/pr-${{ github.event.pull_request.number }}/ \
-            --endpoint-url ${{ secrets.CLOUDFLARE_S3_URL }} \
+          # Upload PLG - overwrite existing for updates (consistent filename)
+          aws s3 cp "webgui-pr-${{ github.event.pull_request.number }}.plg" \
+            "s3://${{ secrets.CLOUDFLARE_PREVIEW_BUCKET_NAME }}/${{ steps.version.outputs.plugin_key }}" \
+            --endpoint-url "${{ secrets.CLOUDFLARE_S3_URL }}" \
             --acl public-read
           
-          # Construct the public URL
-          PLG_URL="${{ secrets.CLOUDFLARE_PREVIEW_BUCKET_BASE_URL }}/pr-plugins/pr-${{ github.event.pull_request.number }}/webgui-pr-${{ steps.version.outputs.version }}.plg"
-          
-          echo "plg_url=$PLG_URL" >> $GITHUB_OUTPUT
-          echo "Uploaded PLG to: $PLG_URL"
+          echo "Uploaded PLG to: ${{ steps.version.outputs.plugin_url }}"
       
       - name: Upload artifacts to GitHub (backup)
         if: steps.changed-files.outputs.has_changes == 'true'
@@ -165,13 +173,13 @@ jobs:
             1. Go to **Plugins → Install Plugin**
             2. Copy and paste this URL:
             ```
-            ${{ steps.upload-plg.outputs.plg_url }}
+            ${{ steps.version.outputs.plugin_url }}
             ```
             3. Click **Install**
             
             **Alternative: Direct Download**
-            - [📦 Download PLG](${{ steps.upload-plg.outputs.plg_url }})
-            - [📦 Download TXZ](${{ steps.upload-txz.outputs.txz_url }})
+            - [📦 Download PLG](${{ steps.version.outputs.plugin_url }})
+            - [📦 Download TXZ](${{ steps.version.outputs.txz_url }})
             
             ### ⚠️ Important Notes:
             
