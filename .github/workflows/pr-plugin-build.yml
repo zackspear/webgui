@@ -7,6 +7,11 @@ on:
       - '.github/workflows/pr-plugin-build.yml'
       - '.github/scripts/**'
 
+permissions:
+  contents: read
+  pull-requests: write
+  actions: read
+
 jobs:
   build-plugin:
     runs-on: ubuntu-latest
@@ -80,6 +85,7 @@ jobs:
       
       - name: Upload plugin artifact
         if: steps.changed-files.outputs.has_changes == 'true'
+        id: upload-artifact
         uses: actions/upload-artifact@v4
         with:
           name: webgui-pr-plugin-${{ github.event.pull_request.number }}
@@ -97,6 +103,38 @@ jobs:
           cat changed_files.txt
           echo "EOF" >> $GITHUB_OUTPUT
       
+      - name: Get artifact download URL
+        if: steps.changed-files.outputs.has_changes == 'true'
+        id: artifact-url
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Wait a moment for artifact to be registered
+            await new Promise(resolve => setTimeout(resolve, 5000));
+            
+            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.runId,
+            });
+            
+            const artifact = artifacts.data.artifacts.find(a => 
+              a.name === `webgui-pr-plugin-${{ github.event.pull_request.number }}`
+            );
+            
+            if (artifact) {
+              // For public repos, we can use the GitHub API download URL
+              const apiUrl = `https://api.github.com/repos/${context.repo.owner}/${context.repo.repo}/actions/artifacts/${artifact.id}/zip`;
+              const artifactUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}/artifacts/${artifact.id}`;
+              core.setOutput('api_url', apiUrl);
+              core.setOutput('artifact_url', artifactUrl);
+              core.setOutput('artifact_id', artifact.id);
+              console.log(`Artifact ID: ${artifact.id}`);
+              console.log(`Artifact URL: ${artifactUrl}`);
+            } else {
+              console.log('Artifact not found yet');
+            }
+      
       - name: Comment on PR
         if: steps.changed-files.outputs.has_changes == 'true'
         uses: peter-evans/create-or-update-comment@v4
@@ -112,8 +150,9 @@ jobs:
             
             ### 📥 Installation Instructions:
             
-            1. **Download the plugin files** from the [workflow artifacts](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-               - Click on the `webgui-pr-plugin-${{ github.event.pull_request.number }}` artifact
+            1. **Download the plugin files:**
+               - [📦 Download from GitHub Artifacts](${{ steps.artifact-url.outputs.artifact_url }})
+               - Or use: `curl -L -o plugin.zip "${{ steps.artifact-url.outputs.api_url }}"`
                - Extract the downloaded ZIP file
             
             2. **Copy files to your Unraid server:**
