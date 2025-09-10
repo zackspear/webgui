@@ -49,11 +49,12 @@ jobs:
           # Also keep PR info for reference
           PR_VERSION="pr.${{ github.event.pull_request.number }}.$(git rev-parse --short HEAD)"
           
-          # Generate stable URLs and keys once
+          # Generate URLs with versioned TXZ to prevent SHA conflicts
           S3_BASE_URL="${{ secrets.CLOUDFLARE_PREVIEW_BUCKET_BASE_URL }}/pr-plugins/pr-${{ github.event.pull_request.number }}"
-          TXZ_URL="${S3_BASE_URL}/webgui-pr-${{ github.event.pull_request.number }}.tar.gz"
+          # TXZ gets unique versioned path to prevent SHA conflicts on updates
+          TXZ_URL="${S3_BASE_URL}/webgui-pr-${{ github.event.pull_request.number }}-${VERSION}.tar.gz"
           PLUGIN_URL="${S3_BASE_URL}/webgui-pr-${{ github.event.pull_request.number }}.plg"
-          TXZ_KEY="pr-plugins/pr-${{ github.event.pull_request.number }}/webgui-pr-${{ github.event.pull_request.number }}.tar.gz"
+          TXZ_KEY="pr-plugins/pr-${{ github.event.pull_request.number }}/webgui-pr-${{ github.event.pull_request.number }}-${VERSION}.tar.gz"
           PLUGIN_KEY="pr-plugins/pr-${{ github.event.pull_request.number }}/webgui-pr-${{ github.event.pull_request.number }}.plg"
 
           echo "version=$VERSION" >> $GITHUB_OUTPUT
@@ -108,7 +109,7 @@ jobs:
         if: steps.changed-files.outputs.has_changes == 'true'
         id: upload-txz
         run: |
-          # Upload to R2 - overwrite existing file for updates
+          # Upload to R2 with versioned filename to prevent SHA conflicts
           aws s3 cp "webgui-pr-${{ github.event.pull_request.number }}.tar.gz" \
             "s3://${{ secrets.CLOUDFLARE_PREVIEW_BUCKET_NAME }}/${{ steps.version.outputs.txz_key }}" \
             --endpoint-url "${{ secrets.CLOUDFLARE_S3_URL }}" \
