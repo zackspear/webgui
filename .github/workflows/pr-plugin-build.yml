@@ -51,14 +51,23 @@ jobs:
           
           # Generate URLs with versioned TXZ to prevent SHA conflicts
           S3_BASE_URL="${{ secrets.CLOUDFLARE_PREVIEW_BUCKET_BASE_URL }}/pr-plugins/pr-${{ github.event.pull_request.number }}"
+          
+          # Define filenames
+          LOCAL_TXZ_NAME="webgui-pr-${{ github.event.pull_request.number }}.tar.gz"
+          REMOTE_TXZ_NAME="webgui-pr-${{ github.event.pull_request.number }}-${VERSION}.tar.gz"
+          PLUGIN_NAME="webgui-pr-${{ github.event.pull_request.number }}.plg"
+          
           # TXZ gets unique versioned path to prevent SHA conflicts on updates
-          TXZ_URL="${S3_BASE_URL}/webgui-pr-${{ github.event.pull_request.number }}-${VERSION}.tar.gz"
-          PLUGIN_URL="${S3_BASE_URL}/webgui-pr-${{ github.event.pull_request.number }}.plg"
-          TXZ_KEY="pr-plugins/pr-${{ github.event.pull_request.number }}/webgui-pr-${{ github.event.pull_request.number }}-${VERSION}.tar.gz"
-          PLUGIN_KEY="pr-plugins/pr-${{ github.event.pull_request.number }}/webgui-pr-${{ github.event.pull_request.number }}.plg"
+          TXZ_URL="${S3_BASE_URL}/${REMOTE_TXZ_NAME}"
+          PLUGIN_URL="${S3_BASE_URL}/${PLUGIN_NAME}"
+          TXZ_KEY="pr-plugins/pr-${{ github.event.pull_request.number }}/${REMOTE_TXZ_NAME}"
+          PLUGIN_KEY="pr-plugins/pr-${{ github.event.pull_request.number }}/${PLUGIN_NAME}"
 
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "pr_version=$PR_VERSION" >> $GITHUB_OUTPUT
+          echo "local_txz=$LOCAL_TXZ_NAME" >> $GITHUB_OUTPUT
+          echo "remote_txz=$REMOTE_TXZ_NAME" >> $GITHUB_OUTPUT
+          echo "plugin_name=$PLUGIN_NAME" >> $GITHUB_OUTPUT
           echo "txz_url=$TXZ_URL" >> $GITHUB_OUTPUT
           echo "plugin_url=$PLUGIN_URL" >> $GITHUB_OUTPUT
           echo "txz_key=$TXZ_KEY" >> $GITHUB_OUTPUT
@@ -86,7 +95,7 @@ jobs:
           cd build
           echo "Creating tarball with contents:"
           find usr/ -type f
-          tar -czf ../webgui-pr-${{ github.event.pull_request.number }}.tar.gz usr/
+          tar -czf ../${{ steps.version.outputs.local_txz }} usr/
           cd ..
           
           # Generate file list for plugin
@@ -96,7 +105,7 @@ jobs:
           
           # Verify tarball contents
           echo "Tarball contents:"
-          tar -tzf webgui-pr-${{ github.event.pull_request.number }}.tar.gz
+          tar -tzf ${{ steps.version.outputs.local_txz }}
       
       - name: Configure AWS CLI for R2
         if: steps.changed-files.outputs.has_changes == 'true'
@@ -110,7 +119,7 @@ jobs:
         id: upload-txz
         run: |
           # Upload to R2 with versioned filename to prevent SHA conflicts
-          aws s3 cp "webgui-pr-${{ github.event.pull_request.number }}.tar.gz" \
+          aws s3 cp "${{ steps.version.outputs.local_txz }}" \
             "s3://${{ secrets.CLOUDFLARE_PREVIEW_BUCKET_NAME }}/${{ steps.version.outputs.txz_key }}" \
             --endpoint-url "${{ secrets.CLOUDFLARE_S3_URL }}" \
             --acl public-read
@@ -120,12 +129,14 @@ jobs:
       - name: Generate plugin file with R2 URL
         if: steps.changed-files.outputs.has_changes == 'true'
         run: |
-          # Pass versioned filename to match the URL
+          # Local file is non-versioned, but remote URL is versioned
+          # Pass local filename for SHA calculation and remote filename for download
           bash .github/scripts/generate-pr-plugin.sh \
             "${{ steps.version.outputs.version }}" \
             "${{ github.event.pull_request.number }}" \
             "$(git rev-parse --short HEAD)" \
-            "webgui-pr-${{ github.event.pull_request.number }}-${{ steps.version.outputs.version }}.tar.gz" \
+            "${{ steps.version.outputs.local_txz }}" \
+            "${{ steps.version.outputs.remote_txz }}" \
             "${{ steps.version.outputs.txz_url }}" \
             "${{ steps.version.outputs.plugin_url }}"
       
@@ -134,7 +145,7 @@ jobs:
         id: upload-plg
         run: |
           # Upload PLG - overwrite existing for updates (consistent filename)
-          aws s3 cp "webgui-pr-${{ github.event.pull_request.number }}.plg" \
+          aws s3 cp "${{ steps.version.outputs.plugin_name }}" \
             "s3://${{ secrets.CLOUDFLARE_PREVIEW_BUCKET_NAME }}/${{ steps.version.outputs.plugin_key }}" \
             --endpoint-url "${{ secrets.CLOUDFLARE_S3_URL }}" \
             --acl public-read

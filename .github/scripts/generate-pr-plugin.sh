@@ -3,17 +3,18 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # Generate PR plugin file for Unraid
-# Usage: ./generate-pr-plugin.sh <version> <pr_number> <commit_sha> <tarball_name> <txz_url> [plugin_url]
+# Usage: ./generate-pr-plugin.sh <version> <pr_number> <commit_sha> <local_tarball> <remote_tarball> <txz_url> [plugin_url]
 
 VERSION=$1
 PR_NUMBER=$2
 COMMIT_SHA=$3
-TARBALL_NAME=$4
-TXZ_URL=$5
-PLUGIN_URL=${6:-""}  # Optional plugin URL for updates
+LOCAL_TARBALL=$4  # Local file for SHA calculation
+REMOTE_TARBALL=$5  # Remote filename for download
+TXZ_URL=$6
+PLUGIN_URL=${7:-""}  # Optional plugin URL for updates
 
-if [ -z "$VERSION" ] || [ -z "$PR_NUMBER" ] || [ -z "$COMMIT_SHA" ] || [ -z "$TARBALL_NAME" ] || [ -z "$TXZ_URL" ]; then
-    echo "Usage: $0 <version> <pr_number> <commit_sha> <tarball_name> <txz_url> [plugin_url]"
+if [ -z "$VERSION" ] || [ -z "$PR_NUMBER" ] || [ -z "$COMMIT_SHA" ] || [ -z "$LOCAL_TARBALL" ] || [ -z "$REMOTE_TARBALL" ] || [ -z "$TXZ_URL" ]; then
+    echo "Usage: $0 <version> <pr_number> <commit_sha> <local_tarball> <remote_tarball> <txz_url> [plugin_url]"
     exit 1
 fi
 
@@ -25,7 +26,7 @@ fi
 
 # Use consistent filename (no version in filename, version is inside the plugin)
 PLUGIN_NAME="webgui-pr-${PR_NUMBER}.plg"
-TARBALL_SHA256=$(sha256sum "$TARBALL_NAME" | awk '{print $1}')
+TARBALL_SHA256=$(sha256sum "$LOCAL_TARBALL" | awk '{print $1}')
 
 echo "Generating plugin: $PLUGIN_NAME"
 echo "Tarball SHA256: $TARBALL_SHA256"
@@ -37,10 +38,11 @@ cat > "$PLUGIN_NAME" << 'EOF'
   <!ENTITY version "VERSION_PLACEHOLDER">
   <!ENTITY author "unraid">
   <!ENTITY pluginURL "PLUGIN_URL_PLACEHOLDER">
-  <!ENTITY tarball "TARBALL_PLACEHOLDER">
+  <!ENTITY tarball "REMOTE_TARBALL_PLACEHOLDER">
   <!ENTITY sha256 "SHA256_PLACEHOLDER">
   <!ENTITY pr "PR_PLACEHOLDER">
   <!ENTITY commit "COMMIT_PLACEHOLDER">
+  <!ENTITY github "https://github.com/unraid/webgui">
 ]>
 
 <PLUGIN name="&name;-&version;" 
@@ -49,7 +51,7 @@ cat > "$PLUGIN_NAME" << 'EOF'
         pluginURL="&pluginURL;" 
         min="6.12.0" 
         icon="wrench"
-        support="&pluginURL;/pull/&pr;">
+        support="&github;/pull/&pr;">
 
 <CHANGES>
 ##&version;
@@ -80,7 +82,7 @@ echo "Created plugin directories"
 </FILE>
 
 <!-- Download tarball from GitHub -->
-<FILE Name="/boot/config/plugins/webgui-pr-PR_PLACEHOLDER/TARBALL_PLACEHOLDER">
+<FILE Name="/boot/config/plugins/webgui-pr-PR_PLACEHOLDER/REMOTE_TARBALL_PLACEHOLDER">
 <URL>TXZ_URL_PLACEHOLDER</URL>
 <SHA256>&sha256;</SHA256>
 </FILE>
@@ -90,7 +92,7 @@ echo "Created plugin directories"
 <INLINE>
 <![CDATA[
 BACKUP_DIR="/boot/config/plugins/webgui-pr-PR_PLACEHOLDER/backups"
-TARBALL="/boot/config/plugins/webgui-pr-PR_PLACEHOLDER/TARBALL_PLACEHOLDER"
+TARBALL="/boot/config/plugins/webgui-pr-PR_PLACEHOLDER/REMOTE_TARBALL_PLACEHOLDER"
 MANIFEST="/boot/config/plugins/webgui-pr-PR_PLACEHOLDER/installed_files.txt"
 
 echo "Starting file deployment..."
@@ -305,7 +307,7 @@ EOF
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # macOS requires backup extension with -i
     sed -i '' "s/VERSION_PLACEHOLDER/${VERSION}/g" "$PLUGIN_NAME"
-    sed -i '' "s/TARBALL_PLACEHOLDER/${TARBALL_NAME}/g" "$PLUGIN_NAME"
+    sed -i '' "s/REMOTE_TARBALL_PLACEHOLDER/${REMOTE_TARBALL}/g" "$PLUGIN_NAME"
     sed -i '' "s/SHA256_PLACEHOLDER/${TARBALL_SHA256}/g" "$PLUGIN_NAME"
     sed -i '' "s/PR_PLACEHOLDER/${PR_NUMBER}/g" "$PLUGIN_NAME"
     sed -i '' "s/COMMIT_PLACEHOLDER/${COMMIT_SHA}/g" "$PLUGIN_NAME"
@@ -314,7 +316,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 else
     # Linux sed
     sed -i "s/VERSION_PLACEHOLDER/${VERSION}/g" "$PLUGIN_NAME"
-    sed -i "s/TARBALL_PLACEHOLDER/${TARBALL_NAME}/g" "$PLUGIN_NAME"
+    sed -i "s/REMOTE_TARBALL_PLACEHOLDER/${REMOTE_TARBALL}/g" "$PLUGIN_NAME"
     sed -i "s/SHA256_PLACEHOLDER/${TARBALL_SHA256}/g" "$PLUGIN_NAME"
     sed -i "s/PR_PLACEHOLDER/${PR_NUMBER}/g" "$PLUGIN_NAME"
     sed -i "s/COMMIT_PLACEHOLDER/${COMMIT_SHA}/g" "$PLUGIN_NAME"
