@@ -371,6 +371,7 @@ $isDarkTheme = $themeHelper->isDarkTheme();
             font-family: clear-sans, sans-serif;
             font-size: .875rem;
             background-color: #F2F2F2;
+            color: #1c1b1b;
             width: 100%;
             margin-bottom: 1rem;
             border: 2px solid #ccc;
