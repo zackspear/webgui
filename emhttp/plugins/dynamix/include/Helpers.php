@@ -713,9 +713,10 @@ function get_inline_fs_warnings($disk) {
       $html .= '<span id="reiserfs" class="warning"><i class="fa fa-exclamation-triangle"></i>&nbsp;' . 
                htmlspecialchars(_($warning['message'])) . '</span>';
     } else {
-      // XFS v4 - notice
-      $html .= '<span id="xfsv4" class="notice" style="color:#0066cc;"><i class="fa fa-info-circle"></i>&nbsp;' . 
-               htmlspecialchars(_($warning['message'])) . '</span>';
+      // XFS v4 - notice (without .notice class to avoid duplicate icon)
+      $html .= '<div id="xfsv4" style="color:#0066cc; margin: 5px 0; line-height: 1.5;">' . 
+               '<i class="fa fa-info-circle"></i>&nbsp;' . 
+               htmlspecialchars(_($warning['message'])) . '</div>';
     }
   }
   
