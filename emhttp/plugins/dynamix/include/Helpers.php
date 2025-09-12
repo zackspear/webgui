@@ -666,11 +666,8 @@ function check_disk_for_deprecated_fs($disk) {
   $deprecated = [];
   $fsType = strtolower(_var($disk, 'fsType', ''));
   
-  // TEST MODE: Enable by setting query parameter ?test_fs_warnings=1
-  $testMode = isset($_GET['test_fs_warnings']) && $_GET['test_fs_warnings'] == '1';
-  
   // Check for ReiserFS
-  if (strpos($fsType, 'reiserfs') !== false || ($testMode && (_var($disk, 'name') == 'disk1' || _var($disk, 'name') == 'cache'))) {
+  if (strpos($fsType, 'reiserfs') !== false) {
     $deprecated[] = [
       'name' => _var($disk, 'name'),
       'fsType' => 'ReiserFS',
@@ -680,20 +677,12 @@ function check_disk_for_deprecated_fs($disk) {
   }
   
   // Check for XFS v4 (lacks CRC checksums)
-  if (strpos($fsType, 'xfs') !== false || ($testMode && in_array(_var($disk, 'name'), ['disk2', 'appdata']))) {
+  if (strpos($fsType, 'xfs') !== false) {
     $name = _var($disk, 'name');
     $mountPoint = "/mnt/$name";
     
-    // In test mode, always show XFS v4 warning for disk2 and appdata pool
-    if ($testMode && in_array($name, ['disk2', 'appdata'])) {
-      $deprecated[] = [
-        'name' => $name,
-        'fsType' => 'XFS v4',
-        'severity' => 'notice',
-        'message' => 'XFS v4 detected - You have 5 years to migrate to XFS v5'
-      ];
-    } else if (is_dir($mountPoint)) {
-      // Normal detection for real XFS filesystems
+    // Check if disk is mounted
+    if (is_dir($mountPoint)) {
       exec("mountpoint -q " . escapeshellarg($mountPoint) . " 2>/dev/null", $output, $ret);
       if ($ret == 0) {
         // Get XFS info to check for crc=0 which indicates XFS v4
