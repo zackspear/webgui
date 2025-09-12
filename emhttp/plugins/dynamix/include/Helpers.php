@@ -692,7 +692,7 @@ function check_disk_for_deprecated_fs($disk) {
             'name' => $name,
             'fsType' => 'XFS v4',
             'severity' => 'notice',
-            'message' => 'XFS v4 detected - You have 5 years to migrate to XFS v5'
+            'message' => 'XFS v4 is deprecated and will not be supported in future Unraid releases. You have ~5 years to migrate to XFS v5.'
           ];
         }
       }
