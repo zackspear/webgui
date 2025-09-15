@@ -259,8 +259,49 @@ Link='nav-user'
 ---
 <script>
   $(function() {
+    // Check for updates
     caPluginUpdateCheck("webgui-pr-PR_PLACEHOLDER.plg");
-    addBannerWarning("Modified GUI installed via webgui-pr-PR_PLACEHOLDER plugin",false,true);
+
+    // Create banner with uninstall button
+    var bannerMessage = "Modified GUI installed via webgui-pr-PR_PLACEHOLDER plugin " +
+                       "<button class='btn btn-sm btn-warning' style='margin-left: 10px;' " +
+                       "onclick='uninstallPRPlugin()'>Uninstall</button>";
+
+    addBannerWarning(bannerMessage, false, true);
+
+    // Define uninstall function
+    window.uninstallPRPlugin = function() {
+      if (confirm("Are you sure you want to uninstall the PR test plugin? This will restore all original files.")) {
+        // Show progress
+        var originalMessage = $(".banner-warning").html();
+        $(".banner-warning").html("Uninstalling plugin, please wait...");
+
+        // Execute uninstall command
+        $.post("/webGui/include/PluginHelpers.php", {
+          action: "remove",
+          plugin: "webgui-pr-PR_PLACEHOLDER.plg"
+        }).done(function(data) {
+          // Remove banner and reload page
+          removeBannerWarning();
+          setTimeout(function() {
+            location.reload();
+          }, 1000);
+        }).fail(function() {
+          // Fallback to command execution
+          $.post("/webGui/include/CommandLine.php", {
+            command: "/usr/local/sbin/plugin remove webgui-pr-PR_PLACEHOLDER.plg"
+          }).done(function() {
+            removeBannerWarning();
+            setTimeout(function() {
+              location.reload();
+            }, 1000);
+          }).fail(function() {
+            $(".banner-warning").html(originalMessage);
+            alert("Failed to uninstall plugin. Please remove it manually from Plugins → Installed Plugins");
+          });
+        });
+      }
+    };
   });
 </script>
 ]]>
