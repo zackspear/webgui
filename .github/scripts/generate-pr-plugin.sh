@@ -265,15 +265,16 @@ Link='nav-user'
 ---
 <script>
   $(function() {
-    // Check for updates
-    caPluginUpdateCheck("webgui-pr-PR_PLACEHOLDER.plg");
+    // Check for updates (non-dismissible)
+    caPluginUpdateCheck("webgui-pr-PR_PLACEHOLDER.plg", {noDismiss: true});
 
-    // Create banner with uninstall link (following Unraid's pattern)
+    // Create banner with uninstall link (dismissible, but returns on update)
     var bannerMessage = "<i class='fa fa-warning' style='float:initial;'></i> " +
                        "Modified GUI installed via <b>webgui-pr-PR_PLACEHOLDER</b> plugin. " +
                        "<a onclick='uninstallPRPlugin()' style='cursor: pointer; text-decoration: underline;'>Click here to uninstall</a>";
 
-    addBannerWarning(bannerMessage, false, true);
+    // false = warning style, false = dismissible
+    addBannerWarning(bannerMessage, false, false);
 
     // Define uninstall function
     window.uninstallPRPlugin = function() {
