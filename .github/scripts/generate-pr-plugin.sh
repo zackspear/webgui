@@ -212,6 +212,10 @@ echo ""
 BACKUP_DIR="/boot/config/plugins/webgui-pr-PR_PLACEHOLDER/backups"
 MANIFEST="/boot/config/plugins/webgui-pr-PR_PLACEHOLDER/installed_files.txt"
 
+# Remove old banner file to ensure new one gets created
+echo "Removing old banner file..."
+rm -rf "/usr/local/emhttp/plugins/webgui-pr-PR_PLACEHOLDER"
+
 # First restore original files to ensure clean state
 if [ -f "$MANIFEST" ]; then
     echo "Step 1: Restoring original files before update..."
