@@ -21,7 +21,7 @@ fi
 # If no plugin URL provided, generate one based on R2 location
 if [ -z "$PLUGIN_URL" ]; then
     # Extract base URL from TXZ_URL and use consistent filename
-    PLUGIN_URL=$(echo "$TXZ_URL" | sed "s|\.tar\.gz|.plg|")
+    PLUGIN_URL="${TXZ_URL%.tar.gz}.plg"
 fi
 
 # Use consistent filename (no version in filename, version is inside the plugin)
@@ -206,11 +206,15 @@ echo "⚠️  Remove this plugin before applying production updates"
 echo "===================================="
 echo "WebGUI PR Test Plugin Update"
 echo "===================================="
-echo "Version: &version;"
+echo "Version: VERSION_PLACEHOLDER"
 echo ""
 
 BACKUP_DIR="/boot/config/plugins/webgui-pr-PR_PLACEHOLDER/backups"
 MANIFEST="/boot/config/plugins/webgui-pr-PR_PLACEHOLDER/installed_files.txt"
+
+# Remove old banner file to ensure new one gets created
+echo "Removing old banner file..."
+rm -rf "/usr/local/emhttp/plugins/webgui-pr-PR_PLACEHOLDER"
 
 # First restore original files to ensure clean state
 if [ -f "$MANIFEST" ]; then
@@ -246,6 +250,53 @@ fi
 
 echo "Step 2: Update will now proceed with installation of new PR files..."
 echo ""
+
+# The update continues by running the install method which will extract new files
+]]>
+</INLINE>
+</FILE>
+
+<!-- Add a banner to warn user this plugin is installed -->
+<FILE Name="/usr/local/emhttp/plugins/webgui-pr-PR_PLACEHOLDER/Banner-PR_PLACEHOLDER.page" Method="install update">
+<INLINE>
+<![CDATA[
+Menu='Buttons'
+Link='nav-user'
+---
+<script>
+  $(function() {
+    // Check for updates (non-dismissible)
+    caPluginUpdateCheck("webgui-pr-PR_PLACEHOLDER.plg", {noDismiss: true});
+
+    // Create banner with uninstall link (dismissible, but returns on update)
+    var bannerMessage = "<i class='fa fa-warning' style='float:initial;'></i> " +
+                       "Modified GUI installed via <b>webgui-pr-PR_PLACEHOLDER</b> plugin. " +
+                       "<a onclick='uninstallPRPlugin()' style='cursor: pointer; text-decoration: underline;'>Click here to uninstall</a>";
+
+    // false = warning style, false = dismissible
+    addBannerWarning(bannerMessage, false, false);
+
+    // Define uninstall function
+    window.uninstallPRPlugin = function() {
+      swal({
+        title: "Uninstall PR Test Plugin?",
+        text: "This will restore all original files and remove the test plugin.",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, uninstall",
+        cancelButtonText: "Cancel",
+        closeOnConfirm: false,
+        showLoaderOnConfirm: true
+      }, function(isConfirm) {
+        if (isConfirm) {
+          // Execute plugin removal using openPlugin (Unraid's standard method)
+          // The "refresh" parameter will automatically reload the page when uninstall is completed
+          openPlugin("plugin remove webgui-pr-PR_PLACEHOLDER.plg", "Removing PR Test Plugin", "", "refresh");
+        }
+      });
+    };
+  });
+</script>
 ]]>
 </INLINE>
 </FILE>
@@ -289,10 +340,11 @@ fi
 
 # Clean up
 echo "Cleaning up plugin files..."
+# Remove the banner
+rm -rf "/usr/local/emhttp/plugins/webgui-pr-PR_PLACEHOLDER"
 # Remove the plugin directory (which includes the tarball and backups)
 rm -rf "/boot/config/plugins/webgui-pr-PR_PLACEHOLDER"
-# Remove the plugin file itself
-rm -f "/boot/config/plugins/webgui-pr-PR_PLACEHOLDER.plg"
+# Note: The .plg file is handled automatically by the plugin system and should not be removed here
 
 echo ""
 echo "✅ Plugin removed successfully"
