@@ -206,7 +206,7 @@ echo "⚠️  Remove this plugin before applying production updates"
 echo "===================================="
 echo "WebGUI PR Test Plugin Update"
 echo "===================================="
-echo "Version: &version;"
+echo "Version: VERSION_PLACEHOLDER"
 echo ""
 
 BACKUP_DIR="/boot/config/plugins/webgui-pr-PR_PLACEHOLDER/backups"
@@ -250,6 +250,23 @@ echo ""
 </INLINE>
 </FILE>
 
+<!-- Add a banner to warn user this plugin is installed -->
+<FILE Name="/usr/local/emhttp/plugins/webgui-pr-PR_PLACEHOLDER/Banner-PR_PLACEHOLDER.page" Method="install">
+<INLINE>
+<![CDATA[
+Menu='Buttons'
+Link='nav-user'
+---
+<script>
+  $(function() {
+    caPluginUpdateCheck("webgui-pr-PR_PLACEHOLDER.plg");
+    addBannerWarning("Modified GUI installed via webgui-pr-PR_PLACEHOLDER plugin",false,true);
+  });
+</script>
+]]>
+</INLINE>
+</FILE>
+
 <!-- Removal script -->
 <FILE Run="/bin/bash" Method="remove">
 <INLINE>
@@ -289,6 +306,8 @@ fi
 
 # Clean up
 echo "Cleaning up plugin files..."
+# Remove the banner
+rm -rf "/usr/local/emhttp/plugins/webgui-pr-PR_PLACEHOLDER"
 # Remove the plugin directory (which includes the tarball and backups)
 rm -rf "/boot/config/plugins/webgui-pr-PR_PLACEHOLDER"
 # Remove the plugin file itself
