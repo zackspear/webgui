@@ -253,7 +253,7 @@ echo ""
 </FILE>
 
 <!-- Add a banner to warn user this plugin is installed -->
-<FILE Name="/usr/local/emhttp/plugins/webgui-pr-PR_PLACEHOLDER/Banner-PR_PLACEHOLDER.page">
+<FILE Name="/usr/local/emhttp/plugins/webgui-pr-PR_PLACEHOLDER/Banner-PR_PLACEHOLDER.page" Method="install update">
 <INLINE>
 <![CDATA[
 Menu='Buttons'
