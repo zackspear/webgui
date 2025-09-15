@@ -262,45 +262,47 @@ Link='nav-user'
     // Check for updates
     caPluginUpdateCheck("webgui-pr-PR_PLACEHOLDER.plg");
 
-    // Create banner with uninstall button
-    var bannerMessage = "Modified GUI installed via webgui-pr-PR_PLACEHOLDER plugin " +
-                       "<button class='btn btn-sm btn-warning' style='margin-left: 10px;' " +
-                       "onclick='uninstallPRPlugin()'>Uninstall</button>";
+    // Create banner with uninstall link (following Unraid's pattern)
+    var bannerMessage = "<i class='fa fa-warning' style='float:initial;'></i> " +
+                       "Modified GUI installed via <b>webgui-pr-PR_PLACEHOLDER</b> plugin. " +
+                       "<a href='#' onclick='uninstallPRPlugin(); return false;'>Click here to uninstall</a>";
 
     addBannerWarning(bannerMessage, false, true);
 
     // Define uninstall function
     window.uninstallPRPlugin = function() {
-      if (confirm("Are you sure you want to uninstall the PR test plugin? This will restore all original files.")) {
-        // Show progress
-        var originalMessage = $(".banner-warning").html();
-        $(".banner-warning").html("Uninstalling plugin, please wait...");
-
-        // Execute uninstall command
-        $.post("/webGui/include/PluginHelpers.php", {
-          action: "remove",
-          plugin: "webgui-pr-PR_PLACEHOLDER.plg"
-        }).done(function(data) {
-          // Remove banner and reload page
-          removeBannerWarning();
-          setTimeout(function() {
-            location.reload();
-          }, 1000);
-        }).fail(function() {
-          // Fallback to command execution
-          $.post("/webGui/include/CommandLine.php", {
-            command: "/usr/local/sbin/plugin remove webgui-pr-PR_PLACEHOLDER.plg"
+      swal({
+        title: "Uninstall PR Test Plugin?",
+        text: "This will restore all original files and remove the test plugin.",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, uninstall",
+        cancelButtonText: "Cancel",
+        closeOnConfirm: false,
+        showLoaderOnConfirm: true
+      }, function(isConfirm) {
+        if (isConfirm) {
+          // Execute plugin removal
+          $.post("/plugins/dynamix.plugin.manager/scripts/plugin", {
+            "#command": "/plugins/dynamix.plugin.manager/scripts/plugin",
+            "#arg[1]": "remove",
+            "#arg[2]": "webgui-pr-PR_PLACEHOLDER.plg"
           }).done(function() {
-            removeBannerWarning();
+            swal({
+              title: "Success!",
+              text: "Plugin uninstalled successfully. Page will reload.",
+              type: "success",
+              timer: 2000,
+              showConfirmButton: false
+            });
             setTimeout(function() {
               location.reload();
-            }, 1000);
+            }, 2000);
           }).fail(function() {
-            $(".banner-warning").html(originalMessage);
-            alert("Failed to uninstall plugin. Please remove it manually from Plugins → Installed Plugins");
+            swal("Error", "Failed to uninstall plugin. Please remove it manually from Plugins → Installed Plugins", "error");
           });
-        });
-      }
+        }
+      });
     };
   });
 </script>
