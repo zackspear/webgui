@@ -246,12 +246,14 @@ fi
 
 echo "Step 2: Update will now proceed with installation of new PR files..."
 echo ""
+
+# The update continues by running the install method which will extract new files
 ]]>
 </INLINE>
 </FILE>
 
 <!-- Add a banner to warn user this plugin is installed -->
-<FILE Name="/usr/local/emhttp/plugins/webgui-pr-PR_PLACEHOLDER/Banner-PR_PLACEHOLDER.page" Method="install">
+<FILE Name="/usr/local/emhttp/plugins/webgui-pr-PR_PLACEHOLDER/Banner-PR_PLACEHOLDER.page">
 <INLINE>
 <![CDATA[
 Menu='Buttons'
