@@ -290,12 +290,8 @@ Link='nav-user'
       }, function(isConfirm) {
         if (isConfirm) {
           // Execute plugin removal using openPlugin (Unraid's standard method)
-          openPlugin("plugin remove webgui-pr-PR_PLACEHOLDER.plg", "Removing PR Test Plugin");
-
-          // Monitor for completion and reload
-          setTimeout(function() {
-            location.reload();
-          }, 3000);
+          // The "refresh" parameter will automatically reload the page when uninstall is completed
+          openPlugin("plugin remove webgui-pr-PR_PLACEHOLDER.plg", "Removing PR Test Plugin", "", "refresh");
         }
       });
     };
@@ -348,8 +344,7 @@ echo "Cleaning up plugin files..."
 rm -rf "/usr/local/emhttp/plugins/webgui-pr-PR_PLACEHOLDER"
 # Remove the plugin directory (which includes the tarball and backups)
 rm -rf "/boot/config/plugins/webgui-pr-PR_PLACEHOLDER"
-# Remove the plugin file itself
-rm -f "/boot/config/plugins/webgui-pr-PR_PLACEHOLDER.plg"
+# Note: The .plg file is handled automatically by the plugin system and should not be removed here
 
 echo ""
 echo "✅ Plugin removed successfully"
