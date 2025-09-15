@@ -21,7 +21,7 @@ fi
 # If no plugin URL provided, generate one based on R2 location
 if [ -z "$PLUGIN_URL" ]; then
     # Extract base URL from TXZ_URL and use consistent filename
-    PLUGIN_URL=$(echo "$TXZ_URL" | sed "s|\.tar\.gz|.plg|")
+    PLUGIN_URL="${TXZ_URL%.tar.gz}.plg"
 fi
 
 # Use consistent filename (no version in filename, version is inside the plugin)
