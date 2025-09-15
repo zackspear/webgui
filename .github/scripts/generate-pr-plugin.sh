@@ -267,7 +267,7 @@ Link='nav-user'
     // Create banner with uninstall link (following Unraid's pattern)
     var bannerMessage = "<i class='fa fa-warning' style='float:initial;'></i> " +
                        "Modified GUI installed via <b>webgui-pr-PR_PLACEHOLDER</b> plugin. " +
-                       "<a href='#' onclick='uninstallPRPlugin(); return false;'>Click here to uninstall</a>";
+                       "<a onclick='uninstallPRPlugin()' style='cursor: pointer; text-decoration: underline;'>Click here to uninstall</a>";
 
     addBannerWarning(bannerMessage, false, true);
 
