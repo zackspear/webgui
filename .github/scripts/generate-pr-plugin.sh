@@ -284,25 +284,13 @@ Link='nav-user'
         showLoaderOnConfirm: true
       }, function(isConfirm) {
         if (isConfirm) {
-          // Execute plugin removal
-          $.post("/plugins/dynamix.plugin.manager/scripts/plugin", {
-            "#command": "/plugins/dynamix.plugin.manager/scripts/plugin",
-            "#arg[1]": "remove",
-            "#arg[2]": "webgui-pr-PR_PLACEHOLDER.plg"
-          }).done(function() {
-            swal({
-              title: "Success!",
-              text: "Plugin uninstalled successfully. Page will reload.",
-              type: "success",
-              timer: 2000,
-              showConfirmButton: false
-            });
-            setTimeout(function() {
-              location.reload();
-            }, 2000);
-          }).fail(function() {
-            swal("Error", "Failed to uninstall plugin. Please remove it manually from Plugins → Installed Plugins", "error");
-          });
+          // Execute plugin removal using openPlugin (Unraid's standard method)
+          openPlugin("plugin remove webgui-pr-PR_PLACEHOLDER.plg", "Removing PR Test Plugin");
+
+          // Monitor for completion and reload
+          setTimeout(function() {
+            location.reload();
+          }, 3000);
         }
       });
     };
