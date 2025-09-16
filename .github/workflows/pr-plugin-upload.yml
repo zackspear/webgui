@@ -60,11 +60,22 @@ jobs:
 
       - name: Extract artifacts
         run: |
-          unzip "${{ runner.temp }}/artifacts/artifacts.zip" -d "${{ runner.temp }}/artifacts/"
-          ls -la "${{ runner.temp }}/artifacts/"
+          mkdir -p "${{ runner.temp }}/artifacts/unpacked"
+
+          # Validate archive contents before extraction
+          bsdtar -tf "${{ runner.temp }}/artifacts/artifacts.zip" | awk '
+            /^-/ {next}
+            {
+              if ($0 ~ /^\// || $0 ~ /\.\.\//) { print "INVALID:"$0 > "/dev/stderr"; exit 1 }
+            }
+          '
+
+          # Safe extraction with path normalization
+          bsdtar -xpf "${{ runner.temp }}/artifacts/artifacts.zip" -C "${{ runner.temp }}/artifacts/unpacked" --no-same-owner --no-same-permissions
+          ls -la "${{ runner.temp }}/artifacts/unpacked"
 
           # Check if metadata exists
-          if [ ! -f "${{ runner.temp }}/artifacts/pr-metadata.json" ]; then
+          if [ ! -f "${{ runner.temp }}/artifacts/unpacked/pr-metadata.json" ]; then
             echo "No metadata file found, build may not have produced any changes"
             echo "has_artifacts=false" >> "$GITHUB_ENV"
             exit 0
@@ -74,19 +85,19 @@ jobs:
 
           # Extract metadata
           echo "Metadata contents:"
-          cat "${{ runner.temp }}/artifacts/pr-metadata.json"
+          cat "${{ runner.temp }}/artifacts/unpacked/pr-metadata.json"
 
       - name: Parse metadata
         if: env.has_artifacts == 'true'
         id: metadata
         run: |
           # Extract values from metadata
-          PR_NUMBER=$(jq -r '.pr_number' "${{ runner.temp }}/artifacts/pr-metadata.json")
-          VERSION=$(jq -r '.version' "${{ runner.temp }}/artifacts/pr-metadata.json")
-          PR_VERSION=$(jq -r '.pr_version' "${{ runner.temp }}/artifacts/pr-metadata.json")
-          LOCAL_TXZ=$(jq -r '.local_txz' "${{ runner.temp }}/artifacts/pr-metadata.json")
-          REMOTE_TXZ=$(jq -r '.remote_txz' "${{ runner.temp }}/artifacts/pr-metadata.json")
-          PLUGIN_NAME=$(jq -r '.plugin_name' "${{ runner.temp }}/artifacts/pr-metadata.json")
+          PR_NUMBER=$(jq -r '.pr_number' "${{ runner.temp }}/artifacts/unpacked/pr-metadata.json")
+          VERSION=$(jq -r '.version' "${{ runner.temp }}/artifacts/unpacked/pr-metadata.json")
+          PR_VERSION=$(jq -r '.pr_version' "${{ runner.temp }}/artifacts/unpacked/pr-metadata.json")
+          LOCAL_TXZ=$(jq -r '.local_txz' "${{ runner.temp }}/artifacts/unpacked/pr-metadata.json")
+          REMOTE_TXZ=$(jq -r '.remote_txz' "${{ runner.temp }}/artifacts/unpacked/pr-metadata.json")
+          PLUGIN_NAME=$(jq -r '.plugin_name' "${{ runner.temp }}/artifacts/unpacked/pr-metadata.json")
 
           # Generate R2 URLs and keys
           S3_BASE_URL="${{ secrets.CLOUDFLARE_PREVIEW_BUCKET_BASE_URL }}/pr-plugins/pr-${PR_NUMBER}"
@@ -108,16 +119,9 @@ jobs:
           echo "plugin_key=$PLUGIN_KEY" >> $GITHUB_OUTPUT
 
           # Also extract changed files for comment
-          jq -r '.changed_files[]' "${{ runner.temp }}/artifacts/pr-metadata.json" > "${{ runner.temp }}/artifacts/changed_files.txt"
+          jq -r '.changed_files[]' "${{ runner.temp }}/artifacts/unpacked/pr-metadata.json" > "${{ runner.temp }}/artifacts/unpacked/changed_files.txt"
           echo "Changed files:"
-          cat "${{ runner.temp }}/artifacts/changed_files.txt"
-
-      - name: Configure AWS CLI for R2
-        if: env.has_artifacts == 'true'
-        run: |
-          aws configure set aws_access_key_id ${{ secrets.CLOUDFLARE_PREVIEW_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.CLOUDFLARE_PREVIEW_SECRET_ACCESS_KEY }}
-          aws configure set region auto
+          cat "${{ runner.temp }}/artifacts/unpacked/changed_files.txt"
 
       - name: Upload TXZ to R2
         if: env.has_artifacts == 'true'
@@ -127,9 +131,15 @@ jobs:
           CLOUDFLARE_PREVIEW_BUCKET_NAME: ${{ secrets.CLOUDFLARE_PREVIEW_BUCKET_NAME }}
           CLOUDFLARE_S3_URL: ${{ secrets.CLOUDFLARE_S3_URL }}
           TXZ_URL: ${{ steps.metadata.outputs.txz_url }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_PREVIEW_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_PREVIEW_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          AWS_EC2_METADATA_DISABLED: true
+          AWS_SHARED_CREDENTIALS_FILE: /dev/null
+          AWS_CONFIG_FILE: /dev/null
         run: |
           # Copy from temp directory to working directory
-          cp "${{ runner.temp }}/artifacts/$LOCAL_TXZ" "./"
+          cp "${{ runner.temp }}/artifacts/unpacked/$LOCAL_TXZ" "./"
 
           # Upload to R2 with versioned filename
           aws s3 cp "$LOCAL_TXZ" \
@@ -168,6 +178,12 @@ jobs:
           CLOUDFLARE_PREVIEW_BUCKET_NAME: ${{ secrets.CLOUDFLARE_PREVIEW_BUCKET_NAME }}
           CLOUDFLARE_S3_URL: ${{ secrets.CLOUDFLARE_S3_URL }}
           PLUGIN_URL: ${{ steps.metadata.outputs.plugin_url }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_PREVIEW_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_PREVIEW_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          AWS_EC2_METADATA_DISABLED: true
+          AWS_SHARED_CREDENTIALS_FILE: /dev/null
+          AWS_CONFIG_FILE: /dev/null
         run: |
           # Upload PLG - overwrite existing for updates
           aws s3 cp "$PLUGIN_NAME" \
@@ -183,7 +199,7 @@ jobs:
         run: |
           # Format the file list for the comment
           echo "files<<EOF" >> $GITHUB_OUTPUT
-          cat "${{ runner.temp }}/artifacts/changed_files.txt" >> $GITHUB_OUTPUT
+          cat "${{ runner.temp }}/artifacts/unpacked/changed_files.txt" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Get PR info
