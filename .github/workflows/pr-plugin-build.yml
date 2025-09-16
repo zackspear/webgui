@@ -9,7 +9,7 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write
+  pull-requests: read
   actions: read
 
 jobs:
@@ -142,19 +142,25 @@ jobs:
             "${{ steps.version.outputs.txz_url }}" \
             "${{ steps.version.outputs.plugin_url }}"
       
-      - name: Upload PLG to R2
+      - name: Save metadata for upload workflow
         if: steps.changed-files.outputs.has_changes == 'true'
-        id: upload-plg
         run: |
-          # Upload PLG - overwrite existing for updates (consistent filename)
-          aws s3 cp "${{ steps.version.outputs.plugin_name }}" \
-            "s3://${{ secrets.CLOUDFLARE_PREVIEW_BUCKET_NAME }}/${{ steps.version.outputs.plugin_key }}" \
-            --endpoint-url "${{ secrets.CLOUDFLARE_S3_URL }}" \
-            --acl public-read
-          
-          echo "Uploaded PLG to: ${{ steps.version.outputs.plugin_url }}"
-      
-      - name: Upload artifacts to GitHub (backup)
+          cat > pr-metadata.json << EOF
+          {
+            "pr_number": ${{ github.event.pull_request.number }},
+            "version": "${{ steps.version.outputs.version }}",
+            "pr_version": "${{ steps.version.outputs.pr_version }}",
+            "local_txz": "${{ steps.version.outputs.local_txz }}",
+            "remote_txz": "${{ steps.version.outputs.remote_txz }}",
+            "plugin_name": "${{ steps.version.outputs.plugin_name }}",
+            "changed_files": $(cat changed_files.txt | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          }
+          EOF
+
+          echo "Metadata saved:"
+          cat pr-metadata.json
+
+      - name: Upload artifacts to GitHub
         if: steps.changed-files.outputs.has_changes == 'true'
         uses: actions/upload-artifact@v4
         with:
@@ -162,72 +168,7 @@ jobs:
           path: |
             webgui-pr-*.plg
             webgui-pr-*.tar.gz
+            pr-metadata.json
+            changed_files.txt
           retention-days: 30
       
-      - name: Format changed files list
-        if: steps.changed-files.outputs.has_changes == 'true'
-        id: format-files
-        run: |
-          # Format the file list for the comment
-          echo "files<<EOF" >> $GITHUB_OUTPUT
-          cat changed_files.txt >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-          
-          # Debug output
-          echo "Changed files found:"
-          cat changed_files.txt
-      
-      - name: Comment on PR
-        if: steps.changed-files.outputs.has_changes == 'true'
-        uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          header: pr-plugin
-          message: |
-            ## 🔧 PR Test Plugin Available
-            
-            A test plugin has been generated for this PR that includes the modified files.
-            
-            **Version:** `${{ steps.version.outputs.version }}`
-            **Build:** [View Workflow Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-            
-            ### 📥 Installation Instructions:
-            
-            **Install via Unraid Web UI:**
-            1. Go to **Plugins → Install Plugin**
-            2. Copy and paste this URL:
-            ```
-            ${{ steps.version.outputs.plugin_url }}
-            ```
-            3. Click **Install**
-            
-            **Alternative: Direct Download**
-            - [📦 Download PLG](${{ steps.version.outputs.plugin_url }})
-            - [📦 Download TXZ](${{ steps.version.outputs.txz_url }})
-            
-            ### ⚠️ Important Notes:
-            
-            - **Testing only:** This plugin is for testing PR changes
-            - **Backup included:** Original files are automatically backed up
-            - **Easy removal:** Files are restored when plugin is removed
-            - **Conflicts:** Remove this plugin before installing production updates
-            
-            ### 📝 Modified Files:
-            
-            <details>
-            <summary>Click to expand file list</summary>
-            
-            ```
-            ${{ steps.format-files.outputs.files }}
-            ```
-            
-            </details>
-            
-            ### 🔄 To Remove:
-            
-            Navigate to Plugins → Installed Plugins and remove `webgui-pr-${{ steps.version.outputs.version }}`, or run:
-            ```bash
-            plugin remove webgui-pr-${{ steps.version.outputs.version }}
-            ```
-            
-            ---
-            <sub>🤖 This comment is automatically generated and will be updated with each new push to this PR.</sub>
