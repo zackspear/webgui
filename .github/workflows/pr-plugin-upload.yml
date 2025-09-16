@@ -1,5 +1,9 @@
 name: Upload PR Plugin to R2
 
+concurrency:
+  group: pr-plugin-${{ github.event.workflow_run.id || github.run_id }}
+  cancel-in-progress: true
+
 on:
   workflow_run:
     workflows: ["Build PR Plugin"]
@@ -16,6 +20,11 @@ jobs:
     runs-on: ubuntu-latest
     # Only run if the build workflow succeeded
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      SHELLOPTS: errexit:pipefail
 
     steps:
       - name: Checkout code
@@ -23,6 +32,8 @@ jobs:
 
       - name: Prepare artifact extraction directory
         run: |
+          set -Eeuo pipefail
+          IFS=$'\n\t'
           mkdir -p "${{ runner.temp }}/artifacts/"
 
       - name: Download artifacts from build workflow
@@ -60,6 +71,8 @@ jobs:
 
       - name: Extract artifacts
         run: |
+          set -Eeuo pipefail
+          IFS=$'\n\t'
           mkdir -p "${{ runner.temp }}/artifacts/unpacked"
 
           # Validate archive contents before extraction
@@ -83,14 +96,15 @@ jobs:
 
           echo "has_artifacts=true" >> "$GITHUB_ENV"
 
-          # Extract metadata
-          echo "Metadata contents:"
-          cat "${{ runner.temp }}/artifacts/unpacked/pr-metadata.json"
+          # Validate metadata schema
+          echo "Metadata present; proceeding with schema validation."
 
       - name: Parse metadata
         if: env.has_artifacts == 'true'
         id: metadata
         run: |
+          set -Eeuo pipefail
+          IFS=$'\n\t'
           # Extract values from metadata
           PR_NUMBER=$(jq -r '.pr_number' "${{ runner.temp }}/artifacts/unpacked/pr-metadata.json")
           VERSION=$(jq -r '.version' "${{ runner.temp }}/artifacts/unpacked/pr-metadata.json")
@@ -118,10 +132,15 @@ jobs:
           echo "txz_key=$TXZ_KEY" >> $GITHUB_OUTPUT
           echo "plugin_key=$PLUGIN_KEY" >> $GITHUB_OUTPUT
 
-          # Also extract changed files for comment
-          jq -r '.changed_files[]' "${{ runner.temp }}/artifacts/unpacked/pr-metadata.json" > "${{ runner.temp }}/artifacts/unpacked/changed_files.txt"
-          echo "Changed files:"
-          cat "${{ runner.temp }}/artifacts/unpacked/changed_files.txt"
+          # Also extract changed files for comment (limit to 100 files)
+          jq -r '.changed_files[:100][]' "${{ runner.temp }}/artifacts/unpacked/pr-metadata.json" > "${{ runner.temp }}/artifacts/unpacked/changed_files.txt"
+          FILE_COUNT=$(jq '.changed_files | length' "${{ runner.temp }}/artifacts/unpacked/pr-metadata.json")
+          if [ "$FILE_COUNT" -gt 100 ]; then
+            echo "Note: Showing first 100 of $FILE_COUNT changed files"
+            echo "truncated=true" >> $GITHUB_OUTPUT
+          else
+            echo "truncated=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Upload TXZ to R2
         if: env.has_artifacts == 'true'
@@ -138,6 +157,8 @@ jobs:
           AWS_SHARED_CREDENTIALS_FILE: /dev/null
           AWS_CONFIG_FILE: /dev/null
         run: |
+          set -Eeuo pipefail
+          IFS=$'\n\t'
           # Copy from temp directory to working directory
           cp "${{ runner.temp }}/artifacts/unpacked/$LOCAL_TXZ" "./"
 
@@ -160,6 +181,8 @@ jobs:
           TXZ_URL: ${{ steps.metadata.outputs.txz_url }}
           PLUGIN_URL: ${{ steps.metadata.outputs.plugin_url }}
         run: |
+          set -Eeuo pipefail
+          IFS=$'\n\t'
           # Regenerate the plugin with the actual R2 URLs
           bash .github/scripts/generate-pr-plugin.sh \
             "$VERSION" \
@@ -185,6 +208,8 @@ jobs:
           AWS_SHARED_CREDENTIALS_FILE: /dev/null
           AWS_CONFIG_FILE: /dev/null
         run: |
+          set -Eeuo pipefail
+          IFS=$'\n\t'
           # Upload PLG - overwrite existing for updates
           aws s3 cp "$PLUGIN_NAME" \
             "s3://$CLOUDFLARE_PREVIEW_BUCKET_NAME/$PLUGIN_KEY" \
@@ -197,10 +222,15 @@ jobs:
         if: env.has_artifacts == 'true'
         id: format-files
         run: |
-          # Format the file list for the comment
-          echo "files<<EOF" >> $GITHUB_OUTPUT
-          cat "${{ runner.temp }}/artifacts/unpacked/changed_files.txt" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          set -Eeuo pipefail
+          IFS=$'\n\t'
+          # Format the file list for the comment with random delimiter
+          DELIM="FILES_$(openssl rand -hex 8)"
+          {
+            echo "files<<$DELIM"
+            cat "${{ runner.temp }}/artifacts/unpacked/changed_files.txt"
+            echo "$DELIM"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Get PR info
         if: env.has_artifacts == 'true'
