@@ -42,6 +42,18 @@ jobs:
             PR_NUMBER="${{ github.event.pull_request.number }}"
           fi
 
+          # Validate PR_NUMBER is non-empty and purely numeric
+          if [[ -z "$PR_NUMBER" ]]; then
+            echo "Error: PR_NUMBER is empty" >&2
+            exit 1
+          fi
+
+          if ! [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "Error: PR_NUMBER '$PR_NUMBER' is not a valid number (must be purely numeric)" >&2
+            exit 1
+          fi
+
+          # Only proceed with output and cleanup if validation passes
           echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
           echo "Cleaning up PR #$PR_NUMBER"
 
@@ -60,22 +72,62 @@ jobs:
           set -Eeuo pipefail
           IFS=$'\n\t'
 
+          # Validate PR_NUMBER is numeric (double-check)
+          if ! [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "Error: PR_NUMBER '$PR_NUMBER' is not numeric" >&2
+            exit 1
+          fi
+
+          # Construct PR folder with expected prefix
           PR_FOLDER="pr-plugins/pr-${PR_NUMBER}/"
 
-          echo "Deleting folder: $PR_FOLDER"
+          # Validate the folder prefix for safety
+          if ! [[ "$PR_FOLDER" =~ ^pr-plugins/pr-[0-9]+/$ ]]; then
+            echo "Error: Invalid PR_FOLDER format: '$PR_FOLDER'" >&2
+            exit 1
+          fi
 
-          # List all objects in the PR folder
-          aws s3 ls "s3://$CLOUDFLARE_PREVIEW_BUCKET_NAME/$PR_FOLDER" \
+          echo "Checking for objects in folder: $PR_FOLDER"
+
+          # Use list-objects-v2 for safer existence check
+          RESPONSE=$(aws s3api list-objects-v2 \
+            --bucket "$CLOUDFLARE_PREVIEW_BUCKET_NAME" \
+            --prefix "$PR_FOLDER" \
             --endpoint-url "$CLOUDFLARE_S3_URL" \
-            --recursive || {
-              echo "No files found for PR #$PR_NUMBER (folder may not exist)"
-              exit 0
-            }
+            --max-keys 1 \
+            2>&1) || {
+            EXIT_CODE=$?
+            echo "Error: Failed to list objects (exit code: $EXIT_CODE)" >&2
+            echo "Response: $RESPONSE" >&2
+            exit $EXIT_CODE
+          }
 
-          # Delete all objects in the PR folder
+          # Check if any objects exist
+          KEY_COUNT=$(echo "$RESPONSE" | grep -o '"KeyCount":[0-9]*' | cut -d: -f2 || echo "0")
+
+          if [[ "$KEY_COUNT" == "0" ]]; then
+            echo "No objects found in $PR_FOLDER - nothing to delete"
+            exit 0
+          fi
+
+          echo "Found objects in $PR_FOLDER - proceeding with deletion"
+
+          # Delete all objects recursively
           aws s3 rm "s3://$CLOUDFLARE_PREVIEW_BUCKET_NAME/$PR_FOLDER" \
             --endpoint-url "$CLOUDFLARE_S3_URL" \
-            --recursive
+            --recursive || {
+            EXIT_CODE=$?
+            echo "Error: Failed to delete objects (exit code: $EXIT_CODE)" >&2
+            exit $EXIT_CODE
+          }
+
+          # Remove directory marker object if it exists (the key with trailing slash)
+          DIR_MARKER="${PR_FOLDER%/}"  # Remove trailing slash for the marker
+          aws s3api delete-object \
+            --bucket "$CLOUDFLARE_PREVIEW_BUCKET_NAME" \
+            --key "$DIR_MARKER/" \
+            --endpoint-url "$CLOUDFLARE_S3_URL" \
+            2>/dev/null || true  # Ignore if marker doesn't exist
 
           echo "Successfully deleted all files for PR #$PR_NUMBER"
 
