@@ -1,9 +1,9 @@
 name: Upload PR Plugin to R2
 
 concurrency:
-  # Use the PR number from the workflow run to group uploads for the same PR
+  # Use the PR number from the workflow run or manual input to group uploads for the same PR
   # This ensures previous in-progress uploads for the same PR are cancelled
-  group: pr-plugin-${{ github.event.workflow_run.pull_requests[0].number || github.event.workflow_run.head_branch }}
+  group: pr-plugin-${{ inputs.pr_number || github.event.workflow_run.pull_requests[0].number || github.event.workflow_run.head_branch }}
   cancel-in-progress: true
 
 on:
@@ -11,6 +11,16 @@ on:
     workflows: ["Build PR Plugin"]
     types:
       - completed
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Pull Request number to build and upload'
+        required: true
+        type: string
+      run_id:
+        description: 'Workflow run ID to get artifacts from (optional, uses latest if not specified)'
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -20,8 +30,8 @@ permissions:
 jobs:
   upload-to-r2:
     runs-on: ubuntu-latest
-    # Only run if the build workflow succeeded
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # Only run if the build workflow succeeded or manual trigger
+    if: ${{ (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') || github.event_name == 'workflow_dispatch' }}
     defaults:
       run:
         shell: bash
@@ -48,10 +58,42 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            // Determine run_id based on trigger type
+            let run_id;
+            if (context.eventName === 'workflow_dispatch') {
+              if ('${{ inputs.run_id }}') {
+                run_id = parseInt('${{ inputs.run_id }}');
+              } else {
+                // Get latest run for the PR
+                const workflowRuns = await github.rest.actions.listWorkflowRuns({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  workflow_id: 'pr-plugin-build.yml',
+                  status: 'success'
+                });
+
+                // Filter for runs from the specified PR
+                const prNumber = parseInt('${{ inputs.pr_number }}');
+                const prRuns = workflowRuns.data.workflow_runs.filter(run =>
+                  run.pull_requests && run.pull_requests.some(pr => pr.number === prNumber)
+                );
+
+                if (prRuns.length === 0) {
+                  core.setFailed(`No successful build runs found for PR #${prNumber}`);
+                  return;
+                }
+
+                run_id = prRuns[0].id;
+                console.log(`Using latest build run ${run_id} for PR #${prNumber}`);
+              }
+            } else {
+              run_id = ${{ github.event.workflow_run.id }};
+            }
+
             let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
                owner: context.repo.owner,
                repo: context.repo.repo,
-               run_id: ${{ github.event.workflow_run.id }},
+               run_id: run_id,
             });
 
             let matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
@@ -84,15 +126,21 @@ jobs:
           mkdir -p "${{ runner.temp }}/artifacts/unpacked"
 
           # Validate archive contents before extraction
-          bsdtar -tf "${{ runner.temp }}/artifacts/artifacts.zip" | awk '
-            /^-/ {next}
+          unzip -l "${{ runner.temp }}/artifacts/artifacts.zip" | awk '
+            NR <= 3 || /^-/ || /^Archive:/ {next}
+            /files$/ {exit}
             {
-              if ($0 ~ /^\// || $0 ~ /\.\.\//) { print "INVALID:"$0 > "/dev/stderr"; exit 1 }
+              # Extract the filename from unzip -l output (last field)
+              filename = $NF
+              if (filename ~ /^\// || filename ~ /\.\.\//) {
+                print "INVALID:" filename > "/dev/stderr";
+                exit 1
+              }
             }
           '
 
-          # Safe extraction with path normalization
-          bsdtar -xpf "${{ runner.temp }}/artifacts/artifacts.zip" -C "${{ runner.temp }}/artifacts/unpacked" --no-same-owner --no-same-permissions
+          # Safe extraction using unzip
+          unzip -o "${{ runner.temp }}/artifacts/artifacts.zip" -d "${{ runner.temp }}/artifacts/unpacked"
           ls -la "${{ runner.temp }}/artifacts/unpacked"
 
           # Check if metadata exists
@@ -268,7 +316,7 @@ jobs:
             A test plugin has been generated for this PR that includes the modified files.
 
             **Version:** `${{ steps.metadata.outputs.version }}`
-            **Build:** [View Workflow Run](${{ github.event.workflow_run.html_url }})
+            **Build:** [View Workflow Run](${{ github.event.workflow_run.html_url || github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
             ### 📥 Installation Instructions:
 
