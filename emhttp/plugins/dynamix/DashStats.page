@@ -1489,7 +1489,6 @@ cpuchart.customData = {
 };
 
 $(function() {
-
   // Visibility observer for #netchart
   const netchartElement = document.querySelector('#netchart');
   const netchartObserver = new IntersectionObserver((entries) => {
@@ -1507,7 +1506,6 @@ $(function() {
     rootMargin: '0px', // No margin
     threshold: 0.1 // Trigger when 10% of element is visible
   });
-
 
   // Start observing the netchart element
   if (netchartElement) {
@@ -1584,7 +1582,6 @@ $(function() {
    } else {
      console.warn('No .cpu_open elements found for visibility observer');
    }
-
 });
 
 // Debounced resize handler to account for animationEnd not firing if ApexCharts has the viewport resized
@@ -1690,7 +1687,6 @@ function addChartNet(rx, tx) {
   txd.push({x:nettime, y:tx});
 }
 
-
 function resetCPUUpdateCount() {
   cpuchart.customData.updateCount = 0;
   cpuchart.customData.animationPending = false;
@@ -1770,32 +1766,26 @@ function updateCPUChart() {
     return;
   }
   // Check if the animation is still running and a timeout hasn't been set
-  if (cpuchart.customData.animationPending) {
-    console.log(cpuchart.customData.updateCount,"cpuchart animation not finished");
-  } else {
+  if (!cpuchart.customData.animationPending) {
     // No animation running.  Clear out the timeout and update the chart
     cpuchart.customData.animationPending = true;
     cpuchart.customData.newData = false;
-    console.log(cpuchart.customData.updateCount,'cpuchart updating chart');
     cpuchart.updateSeries([{data:cpu}]);
   }
 }
+
 function updateNetChart() {
   if (!netchart.customData.newData || !netchart.customData.isVisible || !isPageVisible()) { 
     return;
   }
   // Check if the animation is still running and a timeout hasn't been set
-  if (netchart.customData.animationPending) {
-    console.log(netchart.customData.updateCount,"netchart animation not finished");
-  } else {
+  if (!netchart.customData.animationPending) {
     // No animation running.  Clear out the timeout and update the chart
     netchart.customData.animationPending = true;
     netchart.customData.newData = false;
-    console.log(netchart.customData.updateCount,'netchart updating chart');
     netchart.updateSeries([{data:rxd},{data:txd}]);
   }
 }
-
 
 function isPageVisible() {
   // Check if charts are good to go
@@ -1991,7 +1981,6 @@ function autoscale(value,text,size,kilo) {
 
 function update900() {
   // prevent chart overflowing, reset every 5 minutes
-  console.log("resetting charts");
   resetCharts();
   setTimeout(update900,300000);
 }
