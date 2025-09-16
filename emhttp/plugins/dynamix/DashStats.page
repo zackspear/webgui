@@ -1525,7 +1525,6 @@ $(function() {
           resetCPUUpdateCount();
         }
       }
-
     });
   }, {
     root: null, // Use viewport as root
