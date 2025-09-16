@@ -1628,7 +1628,7 @@ function sanitizeMultiCookie(cookieName, delimiter, removeDuplicates=false) {
 
 function initCharts(clear) {
   // initialize graphs entries
-  data = [];
+  var data = [];
   data.cpu = data.rxd = data.txd = "";
   
   var now = new Date().getTime();
