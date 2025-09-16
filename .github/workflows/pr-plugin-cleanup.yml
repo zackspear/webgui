@@ -1,0 +1,94 @@
+name: Cleanup PR Plugin from R2
+
+on:
+  pull_request:
+    types: [closed]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Pull Request number to cleanup'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  cleanup-r2:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    env:
+      SHELLOPTS: errexit:pipefail
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          repository: ${{ github.repository }}
+
+      - name: Determine PR number
+        id: pr
+        run: |
+          set -Eeuo pipefail
+          IFS=$'\n\t'
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            PR_NUMBER="${{ inputs.pr_number }}"
+          else
+            PR_NUMBER="${{ github.event.pull_request.number }}"
+          fi
+
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+          echo "Cleaning up PR #$PR_NUMBER"
+
+      - name: Delete PR folder from R2
+        env:
+          PR_NUMBER: ${{ steps.pr.outputs.pr_number }}
+          CLOUDFLARE_PREVIEW_BUCKET_NAME: ${{ secrets.CLOUDFLARE_PREVIEW_BUCKET_NAME }}
+          CLOUDFLARE_S3_URL: ${{ secrets.CLOUDFLARE_S3_URL }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_PREVIEW_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_PREVIEW_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          AWS_EC2_METADATA_DISABLED: true
+          AWS_SHARED_CREDENTIALS_FILE: /dev/null
+          AWS_CONFIG_FILE: /dev/null
+        run: |
+          set -Eeuo pipefail
+          IFS=$'\n\t'
+
+          PR_FOLDER="pr-plugins/pr-${PR_NUMBER}/"
+
+          echo "Deleting folder: $PR_FOLDER"
+
+          # List all objects in the PR folder
+          aws s3 ls "s3://$CLOUDFLARE_PREVIEW_BUCKET_NAME/$PR_FOLDER" \
+            --endpoint-url "$CLOUDFLARE_S3_URL" \
+            --recursive || {
+              echo "No files found for PR #$PR_NUMBER (folder may not exist)"
+              exit 0
+            }
+
+          # Delete all objects in the PR folder
+          aws s3 rm "s3://$CLOUDFLARE_PREVIEW_BUCKET_NAME/$PR_FOLDER" \
+            --endpoint-url "$CLOUDFLARE_S3_URL" \
+            --recursive
+
+          echo "Successfully deleted all files for PR #$PR_NUMBER"
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          number: ${{ steps.pr.outputs.pr_number }}
+          header: pr-plugin-cleanup
+          message: |
+            ## 🧹 PR Test Plugin Cleaned Up
+
+            The test plugin and associated files for this PR have been removed from the preview environment.
+
+            ---
+            <sub>🤖 This comment is automatically generated when a PR is closed.</sub>
