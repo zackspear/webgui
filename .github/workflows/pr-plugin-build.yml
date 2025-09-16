@@ -109,38 +109,18 @@ jobs:
           echo "Tarball contents:"
           tar -tzf ${{ steps.version.outputs.local_txz }}
       
-      - name: Configure AWS CLI for R2
+      - name: Generate plugin file
         if: steps.changed-files.outputs.has_changes == 'true'
         run: |
-          aws configure set aws_access_key_id ${{ secrets.CLOUDFLARE_PREVIEW_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.CLOUDFLARE_PREVIEW_SECRET_ACCESS_KEY }}
-          aws configure set region auto
-      
-      - name: Upload TXZ to R2
-        if: steps.changed-files.outputs.has_changes == 'true'
-        id: upload-txz
-        run: |
-          # Upload to R2 with versioned filename to prevent SHA conflicts
-          aws s3 cp "${{ steps.version.outputs.local_txz }}" \
-            "s3://${{ secrets.CLOUDFLARE_PREVIEW_BUCKET_NAME }}/${{ steps.version.outputs.txz_key }}" \
-            --endpoint-url "${{ secrets.CLOUDFLARE_S3_URL }}" \
-            --acl public-read
-          
-          echo "Uploaded TXZ to: ${{ steps.version.outputs.txz_url }}"
-      
-      - name: Generate plugin file with R2 URL
-        if: steps.changed-files.outputs.has_changes == 'true'
-        run: |
-          # Local file is non-versioned, but remote URL is versioned
-          # Pass local filename for SHA calculation and remote filename for download
+          # Generate with placeholder URLs - will be updated by upload workflow
           bash .github/scripts/generate-pr-plugin.sh \
             "${{ steps.version.outputs.version }}" \
             "${{ github.event.pull_request.number }}" \
             "$(git rev-parse --short HEAD)" \
             "${{ steps.version.outputs.local_txz }}" \
             "${{ steps.version.outputs.remote_txz }}" \
-            "${{ steps.version.outputs.txz_url }}" \
-            "${{ steps.version.outputs.plugin_url }}"
+            "PENDING_UPLOAD" \
+            "PENDING_UPLOAD"
       
       - name: Save metadata for upload workflow
         if: steps.changed-files.outputs.has_changes == 'true'
