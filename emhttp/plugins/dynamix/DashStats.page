@@ -412,7 +412,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                     ?>
                     <tr id='cpu_chart'>
                         <td>
-                            <canvas id='cpuchart' width='600' height='120'></canvas>
+                            <canvas id='cpuchart' style='width:100%; height:120px'></canvas>
                         </td>
                     </tr>
                 </tbody>
@@ -584,7 +584,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                     ?>
                     <tr class="view4">
                         <td>
-                            <canvas id="netchart" width='600' height='120'></canvas>
+                            <canvas id="netchart" style='width:100%; height:120px'></canvas>
                         </td>
                     </tr>
                 </tbody>
@@ -1441,6 +1441,7 @@ var cpuchart = new SmoothieChart({
   millisPerPixel: 100,
   minValue: 0,
   maxValue: 100,
+  responsive: true,
   grid: {
     strokeStyle: '<?=$grid?>',
     fillStyle: 'transparent',
@@ -1462,6 +1463,7 @@ var cpuchart = new SmoothieChart({
 var netchart = new SmoothieChart({
   millisPerPixel: 100,
   minValue: 0,
+  responsive: true,
   grid: {
     strokeStyle: '<?=$grid?>',
     fillStyle: 'transparent',
