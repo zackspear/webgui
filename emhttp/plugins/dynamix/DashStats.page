@@ -1689,6 +1689,14 @@ function addChartNet(rx, tx) {
   txTimeSeries.append(now, tx / 1000);
 }
 
+// Cache for last values to avoid unnecessary DOM updates
+var lastCpuValues = {
+  load: -1,
+  color: '',
+  fontColor: '',
+  coreValues: {}
+};
+
 function updateCPUBarCharts() {
   if (!isPageVisible()) {
     return;
@@ -1703,54 +1711,84 @@ function updateCPUBarCharts() {
   const cpuLoad = customData.cpuLoad;
   const critical = <?=$display['critical']?>;
   const warning = <?=$display['warning']?>;
-  
-  // Cache DOM elements and calculations for overall CPU load
-  const cpuLoadText = cpuLoad + '%';
-  const cpuLoadColor = setColor(cpuLoad, critical, warning);
-  const cpuLoadFontColor = fontColor(cpuLoad, critical, warning);
-  
-  // Batch DOM updates for overall CPU load
-  const $cpuElements = $('.cpu_, .cpu');
-  const $cpuAliveElements = $('#cpu_, #cpu');
-  
-  $cpuElements.text(cpuLoadText).css({'color': cpuLoadFontColor});
-  $cpuAliveElements.alive(cpuLoadText, cpuLoadColor);
+
+  // Only update DOM if values have changed
+  if (cpuLoad !== lastCpuValues.load) {
+    const cpuLoadText = cpuLoad + '%';
+    const cpuLoadColor = setColor(cpuLoad, critical, warning);
+    const cpuLoadFontColor = fontColor(cpuLoad, critical, warning);
+
+    // Batch DOM updates for overall CPU load
+    const $cpuElements = $('.cpu_, .cpu');
+    const $cpuAliveElements = $('#cpu_, #cpu');
+
+    $cpuElements.text(cpuLoadText).css({'color': cpuLoadFontColor});
+
+    // Only call alive() if color actually changed
+    if (cpuLoadColor !== lastCpuValues.color) {
+      $cpuAliveElements.alive(cpuLoadText, cpuLoadColor);
+      lastCpuValues.color = cpuLoadColor;
+    }
+
+    lastCpuValues.load = cpuLoad;
+    lastCpuValues.fontColor = cpuLoadFontColor;
+  }
 
   // Update individual CPU cores if they are visible
   if (customData.coresVisible) {
     const cpus = customData.cpuData.cpus;
-    
+
     // Batch DOM updates for CPU cores
     const cpuCoreUpdates = [];
     const cpuAliveUpdates = [];
-    
+
     cpus.forEach((cpuCore, index) => {
       const coreLoad = Math.round(cpuCore.percentTotal);
-      const coreLoadText = coreLoad + '%';
-      const coreColor = setColor(coreLoad, critical, warning);
-      const coreFontColor = fontColor(coreLoad, critical, warning);
-      
-      cpuCoreUpdates.push({
-        selector: '.cpu' + index,
-        text: coreLoadText,
-        color: coreFontColor
+
+      // Only process if value changed
+      if (!lastCpuValues.coreValues[index] || lastCpuValues.coreValues[index].load !== coreLoad) {
+        const coreLoadText = coreLoad + '%';
+        const coreColor = setColor(coreLoad, critical, warning);
+        const coreFontColor = fontColor(coreLoad, critical, warning);
+
+        cpuCoreUpdates.push({
+          selector: '.cpu' + index,
+          text: coreLoadText,
+          color: coreFontColor
+        });
+
+        // Only update alive() if color changed
+        const lastCore = lastCpuValues.coreValues[index] || {};
+        if (coreColor !== lastCore.color) {
+          cpuAliveUpdates.push({
+            selector: '#cpu' + index,
+            text: coreLoadText,
+            color: coreColor
+          });
+          lastCore.color = coreColor;
+        }
+
+        // Update cache
+        lastCpuValues.coreValues[index] = {
+          load: coreLoad,
+          color: coreColor,
+          fontColor: coreFontColor
+        };
+      }
+    });
+
+    // Apply batch updates only for changed values
+    if (cpuCoreUpdates.length > 0) {
+      cpuCoreUpdates.forEach(update => {
+        $(update.selector).text(update.text).css({'color': update.color});
       });
-      
-      cpuAliveUpdates.push({
-        selector: '#cpu' + index,
-        text: coreLoadText,
-        color: coreColor
+    }
+
+    if (cpuAliveUpdates.length > 0) {
+      cpuAliveUpdates.forEach(update => {
+        $(update.selector).alive(update.text, update.color);
       });
-    });
-    
-    // Apply all CPU core updates in batches
-    cpuCoreUpdates.forEach(update => {
-      $(update.selector).text(update.text).css({'color': update.color});
-    });
-    
-    cpuAliveUpdates.forEach(update => {
-      $(update.selector).alive(update.text, update.color);
-    });
+    }
   }
 }
 
