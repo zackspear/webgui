@@ -1685,8 +1685,8 @@ function addChartCpu(load) {
 function addChartNet(rx, tx) {
   // Add data points to SmoothieCharts TimeSeries (convert bps to kbps)
   var now = new Date().getTime();
-  rxTimeSeries.append(now, rx / 1000);
-  txTimeSeries.append(now, tx / 1000);
+  rxTimeSeries.append(now, Math.floor(rx / 1000));
+  txTimeSeries.append(now, Math.floor(tx / 1000));
 }
 
 // Cache for last values to avoid unnecessary DOM updates
@@ -1743,7 +1743,7 @@ function updateCPUBarCharts() {
     const cpuAliveUpdates = [];
 
     cpus.forEach((cpuCore, index) => {
-      const coreLoad = Math.round(cpuCore.percentTotal);
+      const coreLoad = Math.floor(cpuCore.percentTotal);
 
       // Only process if value changed
       if (!lastCpuValues.coreValues[index] || lastCpuValues.coreValues[index].load !== coreLoad) {
@@ -2590,18 +2590,41 @@ dashboard.on('message',function(msg,meta) {
     // rx & tx speeds
     for (let i=0,port; port=get.port[i]; i++) {
       if (port[0] == port_select) {
-        $('#inbound').text(port[1]);
-        $('#outbound').text(port[2]);
+        // Cache for network values to avoid unnecessary DOM updates
+        if (!window.lastNetValues) window.lastNetValues = { inbound: '', outbound: '' };
+
+        // Only update DOM if values changed
+        if (port[1] !== window.lastNetValues.inbound) {
+          $('#inbound').text(port[1]);
+          window.lastNetValues.inbound = port[1];
+        }
+        if (port[2] !== window.lastNetValues.outbound) {
+          $('#outbound').text(port[2]);
+          window.lastNetValues.outbound = port[2];
+        }
+
         // update the netchart but only send to ApexCharts if the chart is visible
         addChartNet(port[3], port[4]);
-      
+
         break;
       }
     }
-    // port counters
-    for (let k=0; k < get.mode.length; k++) $('#main'+k).html(get.mode[k]);
-    for (let k=0; k < get.rxtx.length; k++) $('#port'+k).html(get.rxtx[k]);
-    for (let k=0; k < get.stat.length; k++) $('#link'+k).html(get.stat[k]);
+    // port counters - batch check for changes
+    for (let k=0; k < get.mode.length; k++) {
+      const $elem = $('#main'+k);
+      const newVal = get.mode[k];
+      if ($elem.html() !== newVal) $elem.html(newVal);
+    }
+    for (let k=0; k < get.rxtx.length; k++) {
+      const $elem = $('#port'+k);
+      const newVal = get.rxtx[k];
+      if ($elem.html() !== newVal) $elem.html(newVal);
+    }
+    for (let k=0; k < get.stat.length; k++) {
+      const $elem = $('#link'+k);
+      const newVal = get.stat[k];
+      if ($elem.html() !== newVal) $elem.html(newVal);
+    }
     // current date and time
     $('#current_time').html(get.time[0]);
     $('#current_time_').html(get.time[0]);
@@ -2696,7 +2719,7 @@ $(function() {
         next: (result) => {
           if (result.data?.systemMetricsCpu) {
             cpuchart.customData.cpuData = result.data.systemMetricsCpu;
-            cpuchart.customData.cpuLoad = Math.round(cpuchart.customData.cpuData.percentTotal);
+            cpuchart.customData.cpuLoad = Math.floor(cpuchart.customData.cpuData.percentTotal);
 
             //update cpu chart data
             addChartCpu(cpuchart.customData.cpuLoad);
