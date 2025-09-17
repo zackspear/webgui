@@ -78,6 +78,9 @@ echo ""
 BACKUP_DIR="/boot/config/plugins/webgui-pr-PR_PLACEHOLDER/backups"
 MANIFEST="/boot/config/plugins/webgui-pr-PR_PLACEHOLDER/installed_files.txt"
 
+# Ensure required directories exist even on first-time install/update
+mkdir -p "/boot/config/plugins/webgui-pr-PR_PLACEHOLDER" "$BACKUP_DIR"
+
 # First restore original files to ensure clean state
 if [ -f "$MANIFEST" ]; then
     echo "Step 1: Restoring original files before update..."
@@ -94,7 +97,7 @@ if [ -f "$MANIFEST" ]; then
             # Restore original from backup
             if [ -f "$backup_file" ]; then
                 echo "Restoring original: $system_file"
-                cp -f "$backup_file" "$system_file"
+                cp -fp "$backup_file" "$system_file"
             fi
         fi
     done < "$MANIFEST"
@@ -107,7 +110,7 @@ else
     echo ""
 fi
 
-# Clear the old manifest for the new version
+# Clear the old manifest for the new version (dir now guaranteed)
 > "$MANIFEST"
 
 echo "Step 2: Update will now proceed with installation of new PR files..."
@@ -117,7 +120,6 @@ echo ""
 ]]>
 </INLINE>
 </FILE>
-
 <!-- Create backup directory -->
 <FILE Run="/bin/bash" Method="install">
 <INLINE>
