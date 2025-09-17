@@ -1439,7 +1439,7 @@ var recover = null;
 // SmoothieCharts initialization
 var cpuchart = new SmoothieChart({
   millisPerPixel: 100,
-  minValue: 0,
+  minValue: -0.5,
   maxValue: 100,
   responsive: true,
   grid: {
@@ -1456,7 +1456,13 @@ var cpuchart = new SmoothieChart({
   },
   timestampFormatter: function(date) { return ''; },
   yRangeFunction: function(range) {
-    return { min: 0, max: 100 };
+    return { min: -0.5, max: 100 };
+  },
+  yMinFormatter: function(value) {
+    return Math.max(0, Math.floor(value));
+  },
+  yMaxFormatter: function(value) {
+    return Math.floor(value);
   }
 });
 
