@@ -260,7 +260,7 @@ echo "⚠️  NOTE: Under certain circumstances, it might be necessary to reboot
 </FILE>
 
 <!-- Add a banner to warn user this plugin is installed -->
-<FILE Name="/usr/local/emhttp/plugins/webgui-pr-PR_PLACEHOLDER/Banner-PR_PLACEHOLDER.page" Method="install">
+<FILE Name="/usr/local/emhttp/plugins/webgui-pr-PR_PLACEHOLDER/Banner-PR_PLACEHOLDER.page">
 <INLINE>
 <![CDATA[
 Menu='Buttons'
