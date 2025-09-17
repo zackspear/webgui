@@ -1427,8 +1427,8 @@ var rxd     = [];
 var txd     = [];
 var cputime = 0;
 var nettime = 0;
-var cpuline = cookie.cpuline||30;
-var netline = cookie.netline||30;
+var cpuline = parseInt(cookie.cpuline)||30;
+var netline = parseInt(cookie.netline)||30;
 var update2 = true;
 var box     = null;
 var startup = true;
@@ -1436,9 +1436,16 @@ var stopgap = '<thead class="stopgap"><tr><td class="stopgap"></td></tr></thead>
 var recall  = null;
 var recover = null;
 
+// Helper function to calculate millisPerPixel based on container width
+function getMillisPerPixel(timeInSeconds, containerId) {
+  var container = document.getElementById(containerId);
+  var width = (container && container.offsetWidth > 0) ? container.offsetWidth : 600; // fallback to 600 if not found or zero width
+  return (timeInSeconds * 1000) / width;
+}
+
 // SmoothieCharts initialization
 var cpuchart = new SmoothieChart({
-  millisPerPixel: 100,
+  millisPerPixel: (cpuline * 1000) / 600, // Safe initial value
   minValue: -0.5,
   maxValue: 100,
   responsive: true,
@@ -1467,7 +1474,7 @@ var cpuchart = new SmoothieChart({
 });
 
 var netchart = new SmoothieChart({
-  millisPerPixel: 100,
+  millisPerPixel: (netline * 1000) / 600, // Safe initial value
   minValue: 0,
   responsive: true,
   grid: {
@@ -1617,7 +1624,9 @@ let viewportResizeTimeout;
 window.addEventListener('resize', function(){
   clearTimeout(viewportResizeTimeout);
   viewportResizeTimeout = setTimeout(function(){
-    // SmoothieCharts handles resize automatically
+    // Update millisPerPixel based on new container sizes
+    cpuchart.options.millisPerPixel = getMillisPerPixel(cpuline, 'cpuchart');
+    netchart.options.millisPerPixel = getMillisPerPixel(netline, 'netchart');
   }, 250); // Wait 250ms after resize stops before executing
 });
 
@@ -1861,21 +1870,23 @@ function changeView(item) {
 }
 
 function changeCPUline(val) {
-  cpuline = val;
+  cpuline = parseInt(val);
   if (val==30) delete cookie.cpuline; else cookie.cpuline = val;
   saveCookie();
   // Update chart range
-  // Update SmoothieChart time window
-  cpuchart.options.millisPerPixel = (cpuline * 1000) / 600;
+  // Update SmoothieChart time window based on actual chart width
+  cpuchart.options.millisPerPixel = getMillisPerPixel(cpuline, 'cpuchart');
+  // No need to stop and restart, just update the option
 }
 
 function changeNetline(val) {
-  netline = val;
+  netline = parseInt(val);
   if (val==30) delete cookie.netline; else cookie.netline = val;
   saveCookie();
   // Update chart range
-  // Update SmoothieChart time window
-  netchart.options.millisPerPixel = (netline * 1000) / 600;
+  // Update SmoothieChart time window based on actual chart width
+  netchart.options.millisPerPixel = getMillisPerPixel(netline, 'netchart');
+  // No need to stop and restart, just update the option
 }
 
 function smartMenu(table) {
@@ -2610,6 +2621,12 @@ $(function() {
   // Start SmoothieCharts streaming
   cpuchart.streamTo(document.getElementById('cpuchart'), 1000);
   netchart.streamTo(document.getElementById('netchart'), 1000);
+
+  // Set millisPerPixel after DOM is ready and charts are attached
+  setTimeout(function() {
+    cpuchart.options.millisPerPixel = getMillisPerPixel(cpuline, 'cpuchart');
+    netchart.options.millisPerPixel = getMillisPerPixel(netline, 'netchart');
+  }, 100);
 
   addProperties();
 <?if ($group):?>
