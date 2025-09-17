@@ -45,7 +45,7 @@ function my_parse_ini_string($text, $sections=false, $scanner=INI_SCANNER_NORMAL
 }
 
 function my_parse_ini_file($file, $sections=false, $scanner=INI_SCANNER_NORMAL) {
-  return my_parse_ini_string(file_get_contents($file),$sections,$scanner);
+  return my_parse_ini_string(@file_get_contents($file),$sections,$scanner);
 }
 
 function parse_plugin_cfg($plugin, $sections=false, $scanner=INI_SCANNER_NORMAL) {

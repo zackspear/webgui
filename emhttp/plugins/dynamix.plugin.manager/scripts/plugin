@@ -730,7 +730,7 @@ if ($method == 'check') {
   if ($installed_plugin_file === false) {
     write("plugin: not installed\n");
     // run hook scripts for post processing
-    post_hooks($error);
+    post_hooks(1);
     done(1);
   }
   $installed_pluginURL = plugin('pluginURL', $installed_plugin_file, $error);
