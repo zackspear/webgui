@@ -398,11 +398,11 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                     foreach ($cpus as $pair) {
                         [$cpu1, $cpu2] = my_preg_split('/[,-]/',$pair);
                         echo "<tr class='cpu_open'>";
-                        if ($is_intel_cpu && count($core_types) > 0) 
-                            $core_type = "({$core_types[$cpu1]})"; 
-                        else 
+                        if ($is_intel_cpu && count($core_types) > 0)
+                            $core_type = "({$core_types[$cpu1]})";
+                        else
                             $core_type = "";
-                        
+
                         if ($cpu2)
                             echo "<td><span class='w26'>CPU $cpu1 $core_type - HT $cpu2 </span><span class='dashboard w36'><span class='cpu$cpu1 load resize'>0%</span><div class='usage-disk sys'><span id='cpu$cpu1'></span><span></span></div></span><span class='dashboard w36'><span class='cpu$cpu2 load resize'>0%</span><div class='usage-disk sys'><span id='cpu$cpu2'></span><span></span></div></span></td>";
                         else
@@ -658,7 +658,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                             <br>
                                             <span class="head_info">
                                                 <span>
-                                                    <i class='ups fa fa-bar-chart'></i>_(UPS Model)_: 
+                                                    <i class='ups fa fa-bar-chart'></i>_(UPS Model)_:
                                                 </span>
                                                 <span id='ups_model'></span>
                                             </span>
@@ -690,7 +690,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                     <tr>
                         <td>
                             <span class='w36'>
-                                <i class='ups fa fa-fw fa-bars'></i>_(UPS Load)_: 
+                                <i class='ups fa fa-fw fa-bars'></i>_(UPS Load)_:
                             </span>
                             <span id='ups_loadpct'></span>
                         </td>
@@ -1438,7 +1438,7 @@ var recover = null;
 
 var options_cpu = {
   series:[{name:'load', data:cpu.slice()}],
-  chart:{height:120, type:'line', fontFamily:'clear-sans', animations:{enabled:true, easing:'linear', dynamicAnimation:{speed:1000}}, toolbar:{show:false}, zoom:{enabled:false}},
+  chart:{height:120, type:'line', fontFamily:'clear-sans', animations:{enabled:true, easing:'linear', dynamicAnimation:{speed:980}}, toolbar:{show:false}, zoom:{enabled:false},events:{updated:function(){if (cpuchart.customData.updateCount == 0) {cpuchart.customData.animationPending = false}cpuchart.customData.updateCount++;},animationEnd:function(){cpuchart.customData.animationPending = false;updateCPUChart();}}},
   dataLabels:{enabled:false},
   tooltip:{enabled:false},
   stroke:{curve:'smooth', width:1},
@@ -1451,7 +1451,7 @@ var options_cpu = {
 };
 var options_net = {
   series:[{name:'receive', data:rxd.slice()},{name:'transmit', data:txd.slice()}],
-  chart:{height:120, type:'line', fontFamily:'clear-sans', animations:{enabled:true, easing:'linear', dynamicAnimation:{speed:1000}}, toolbar:{show:false}, zoom:{enabled:false}},
+  chart:{height:120, type:'line', fontFamily:'clear-sans', animations:{enabled:true, easing:'linear', dynamicAnimation:{speed:980}}, toolbar:{show:false}, zoom:{enabled:false},events:{updated:function(){if (netchart.customData.updateCount == 0) {netchart.customData.animationPending = false}netchart.customData.updateCount++;},animationEnd:function(){netchart.customData.animationPending = false;updateNetChart();}}},
   dataLabels:{enabled:false},
   tooltip:{enabled:false},
   stroke:{curve:'smooth', width:1},
@@ -1465,6 +1465,133 @@ var options_net = {
 
 var cpuchart = new ApexCharts(document.querySelector('#cpuchart'), options_cpu);
 var netchart = new ApexCharts(document.querySelector('#netchart'), options_net);
+
+// Add custom global variable to ncharts (won't affect ApexCharts functionality)
+netchart.customData = {
+  isVisible: false,
+  BrowserVisibility: true,
+  animationPending: false,
+  netAnimationInterval: null,
+  newData: false,
+  updateCount: 0,
+  initialized: false
+};
+
+cpuchart.customData = {
+  isVisible: false,
+  BrowserVisibility: true,
+  animationPending: false,
+  cpuAnimationInterval: null,
+  coresVisible: false,
+  newData: false,
+  updateCount: 0,
+  initialized: false
+};
+
+$(function() {
+  // Visibility observer for #netchart
+  const netchartElement = document.querySelector('#netchart');
+  const netchartObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.target === netchartElement) {
+        netchart.customData.isVisible = entry.isIntersecting;
+        // Reset the update count as the chart doesn't always fire animationEnd in this case
+        if (netchart.customData.isVisible) {
+          resetNetUpdateCount();
+        }
+      }
+    });
+  }, {
+    root: null, // Use viewport as root
+    rootMargin: '0px', // No margin
+    threshold: 0.1 // Trigger when 10% of element is visible
+  });
+
+  // Start observing the netchart element
+  if (netchartElement) {
+    netchartObserver.observe(netchartElement);
+  } else {
+    console.warn('NetChart element not found for visibility observer');
+  }
+
+  // Visibility observer for #cpuchart
+  const cpuchartElement = document.querySelector('#cpuchart');
+  const cpuchartObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.target === cpuchartElement) {
+        cpuchart.customData.isVisible = entry.isIntersecting;
+        // Reset the update count as the chart doesn't always fire animationEnd in this case
+        if (cpuchart.customData.isVisible) {
+          resetCPUUpdateCount();
+        }
+      }
+    });
+  }, {
+    root: null, // Use viewport as root
+    rootMargin: '0px', // No margin
+    threshold: 0.1 // Trigger when 10% of element is visible
+  });
+
+   // Start observing the cpuchart element
+   if (cpuchartElement) {
+     cpuchartObserver.observe(cpuchartElement);
+   } else {
+     console.warn('CpuChart element not found for visibility observer');
+   }
+
+   // Visibility observer for the cpu core load visibility
+   // Set the visibility true if one or more are visible
+   const cpuOpenElements = document.querySelectorAll('.cpu_open');
+   let cpuOpenVisibilityStates = new Map(); // Track visibility state of each element
+
+   const cpuOpenObserver = new IntersectionObserver((entries) => {
+     let stateChanged = false;
+
+     entries.forEach(entry => {
+       const element = entry.target;
+       const isVisible = entry.isIntersecting;
+       const wasVisible = cpuOpenVisibilityStates.get(element) || false;
+
+       // Only update if state actually changed
+       if (wasVisible !== isVisible) {
+         cpuOpenVisibilityStates.set(element, isVisible);
+         stateChanged = true;
+       }
+     });
+
+     // Only dispatch event if at least one element changed state
+     if (stateChanged) {
+       // Check if ALL elements have the same visibility state
+       const allHidden = Array.from(cpuOpenVisibilityStates.values()).every(state => state === false);
+
+       cpuchart.customData.coresVisible = !allHidden;
+     }
+   }, {
+     root: null, // Use viewport as root
+     rootMargin: '0px', // No margin
+     threshold: 0.1 // Trigger when 10% of element is visible
+   });
+
+   // Start observing all .cpu_open elements
+   cpuchart.customData.coresVisible = false;
+   if (cpuOpenElements.length > 0) {
+     cpuOpenElements.forEach(element => {
+       cpuOpenObserver.observe(element);
+     });
+   } else {
+     console.warn('No .cpu_open elements found for visibility observer');
+   }
+});
+
+// Debounced resize handler to account for animationEnd not firing if ApexCharts has the viewport resized
+let viewportResizeTimeout;
+window.addEventListener('resize', function(){
+  clearTimeout(viewportResizeTimeout);
+  viewportResizeTimeout = setTimeout(function(){
+    resetNetUpdateCount();
+    resetCPUUpdateCount();
+  }, 250); // Wait 250ms after resize stops before executing
+});
 
 if (cookie.port_select && !ports.includes(cookie.port_select)) {
   delete cookie.port_select;
@@ -1502,7 +1629,8 @@ function sanitizeMultiCookie(cookieName, delimiter, removeDuplicates=false) {
 function initCharts(clear) {
   // initialize graphs entries
   var data = [];
-  data.cpu = data.rxd = data.txd ="";
+  data.cpu = data.rxd = data.txd = "";
+  
   var now = new Date().getTime();
   if (!clear) {
     var c = data.cpu.split(';');
@@ -1527,10 +1655,10 @@ function initCharts(clear) {
 }
 
 function resetCharts() {
-  // prevent unlimited graph growing
-  cpu = cpu.slice(-cpuline);
-  rxd = rxd.slice(-netline);
-  txd = txd.slice(-netline);
+  // prevent unlimited graph growing - limit to 300 (5 minutes) of data
+  cpu = cpu.slice(-300);
+  rxd = rxd.slice(-300);
+  txd = txd.slice(-300);
 }
 
 function addChartCpu(load) {
@@ -1556,6 +1684,115 @@ function addChartNet(rx, tx) {
   }
   rxd.push({x:nettime, y:rx});
   txd.push({x:nettime, y:tx});
+}
+
+function resetCPUUpdateCount() {
+  cpuchart.customData.updateCount = 0;
+  cpuchart.customData.animationPending = false;
+}
+
+function resetNetUpdateCount() {
+  netchart.customData.updateCount = 0;
+  netchart.customData.animationPending = false;
+}
+function updateCPUBarCharts() {
+  if (!isPageVisible()) {
+    return;
+  }
+  // prevent an initial JS error if the first datapoint isn't available yet
+  // (cpuchart.customData.newData is reset by the updateCPUChart function so can't be used)
+  const customData = cpuchart.customData;
+  if (!customData.cpuData?.cpus || typeof customData.cpuLoad === 'undefined') {
+    return;
+  }
+
+  const cpuLoad = customData.cpuLoad;
+  const critical = <?=$display['critical']?>;
+  const warning = <?=$display['warning']?>;
+  
+  // Cache DOM elements and calculations for overall CPU load
+  const cpuLoadText = cpuLoad + '%';
+  const cpuLoadColor = setColor(cpuLoad, critical, warning);
+  const cpuLoadFontColor = fontColor(cpuLoad, critical, warning);
+  
+  // Batch DOM updates for overall CPU load
+  const $cpuElements = $('.cpu_, .cpu');
+  const $cpuAliveElements = $('#cpu_, #cpu');
+  
+  $cpuElements.text(cpuLoadText).css({'color': cpuLoadFontColor});
+  $cpuAliveElements.alive(cpuLoadText, cpuLoadColor);
+
+  // Update individual CPU cores if they are visible
+  if (customData.coresVisible) {
+    const cpus = customData.cpuData.cpus;
+    
+    // Batch DOM updates for CPU cores
+    const cpuCoreUpdates = [];
+    const cpuAliveUpdates = [];
+    
+    cpus.forEach((cpuCore, index) => {
+      const coreLoad = Math.round(cpuCore.percentTotal);
+      const coreLoadText = coreLoad + '%';
+      const coreColor = setColor(coreLoad, critical, warning);
+      const coreFontColor = fontColor(coreLoad, critical, warning);
+      
+      cpuCoreUpdates.push({
+        selector: '.cpu' + index,
+        text: coreLoadText,
+        color: coreFontColor
+      });
+      
+      cpuAliveUpdates.push({
+        selector: '#cpu' + index,
+        text: coreLoadText,
+        color: coreColor
+      });
+    });
+    
+    // Apply all CPU core updates in batches
+    cpuCoreUpdates.forEach(update => {
+      $(update.selector).text(update.text).css({'color': update.color});
+    });
+    
+    cpuAliveUpdates.forEach(update => {
+      $(update.selector).alive(update.text, update.color);
+    });
+  }
+}
+
+function updateCPUChart() {
+  if (!cpuchart.customData.newData || !cpuchart.customData.isVisible || !isPageVisible()) {
+    return;
+  }
+  // Check if the animation is still running and a timeout hasn't been set
+  if (!cpuchart.customData.animationPending) {
+    // No animation running.  Clear out the timeout and update the chart
+    cpuchart.customData.animationPending = true;
+    cpuchart.customData.newData = false;
+    cpuchart.updateSeries([{data:cpu}]);
+  }
+}
+
+function updateNetChart() {
+  if (!netchart.customData.newData || !netchart.customData.isVisible || !isPageVisible()) { 
+    return;
+  }
+  // Check if the animation is still running and a timeout hasn't been set
+  if (!netchart.customData.animationPending) {
+    // No animation running.  Clear out the timeout and update the chart
+    netchart.customData.animationPending = true;
+    netchart.customData.newData = false;
+    netchart.updateSeries([{data:rxd},{data:txd}]);
+  }
+}
+
+function isPageVisible() {
+  // Check if charts are good to go
+  if (netchart.customData.initialized && cpuchart.customData.initialized) {
+    return !document.hidden;
+  } else {
+    return false;
+  }
 }
 
 <?if ($wireguard):?>
@@ -1671,6 +1908,8 @@ function changeCPUline(val) {
   cpuline = val;
   if (val==30) delete cookie.cpuline; else cookie.cpuline = val;
   saveCookie();
+  // Reset the update count as the chart doesn't always fire animationEnd
+  resetCPUUpdateCount();
   cpuchart.updateOptions({xaxis:{range:cpuline-1}});
 }
 
@@ -1678,6 +1917,8 @@ function changeNetline(val) {
   netline = val;
   if (val==30) delete cookie.netline; else cookie.netline = val;
   saveCookie();
+  // Reset the update count as the chart doesn't always fire animationEnd
+  resetNetUpdateCount();
   netchart.updateOptions({xaxis:{range:netline-1}});
 }
 
@@ -1738,9 +1979,9 @@ function autoscale(value,text,size,kilo) {
 }
 
 function update900() {
-  // prevent chart overflowing, reset every 15 minutes
+  // prevent chart overflowing, reset every 5 minutes
   resetCharts();
-  setTimeout(update900,900000);
+  setTimeout(update900,300000);
 }
 
 function attributes(page,disk) {
@@ -2343,8 +2584,11 @@ dashboard.on('message',function(msg,meta) {
       if (port[0] == port_select) {
         $('#inbound').text(port[1]);
         $('#outbound').text(port[2]);
-        addChartNet(port[3], port[4]);
-        netchart.updateSeries([{data:rxd},{data:txd}]);
+        // update the netchart but only send to ApexCharts if the chart is visible
+        addChartNet(port[3], port[4]); 
+        netchart.customData.newData = true;
+        updateNetChart();
+      
         break;
       }
     }
@@ -2405,15 +2649,17 @@ $(function() {
   dashboardPing.start();
 
   initCharts();
+
   cpuchart.render();
   netchart.render();
+
   addProperties();
 <?if ($group):?>
   dropdown('enter_share');
 <?endif;?>
   dropdown('enter_view');
   startup = false;
-  
+
   // Start GraphQL CPU subscription with retry logic
   let cpuInitAttempts = 0, cpuRetryMs = 100;
   function initCpuSubscription() {
@@ -2430,31 +2676,21 @@ $(function() {
           }
         }
       `);
-      
+
       cpuSubscription = window.apolloClient.subscribe({
         query: CPU_SUBSCRIPTION
       }).subscribe({
         next: (result) => {
           if (result.data?.systemMetricsCpu) {
-            const cpuData = result.data.systemMetricsCpu;
-            const load = Math.round(cpuData.percentTotal);
-            const color = setColor(load, <?=$display['critical']?>, <?=$display['warning']?>);
+            cpuchart.customData.cpuData = result.data.systemMetricsCpu;
+            cpuchart.customData.cpuLoad = Math.round(cpuchart.customData.cpuData.percentTotal);
+
+            //update cpu chart data 
+            addChartCpu(cpuchart.customData.cpuLoad);            
+            cpuchart.customData.newData = true;
+            updateCPUBarCharts();
+            updateCPUChart();
             
-            // Update main CPU display
-            addChartCpu(load);
-            cpuchart.updateSeries([{data:cpu}]);
-            $('.cpu_').text(load+'%').css({'color':fontColor(load, <?=$display['critical']?>, <?=$display['warning']?>)});
-            $('#cpu_').alive(load+'%', color);
-            $('.cpu').text(load+'%').css({'color':fontColor(load, <?=$display['critical']?>, <?=$display['warning']?>)});
-            $('#cpu').alive(load+'%', color);
-            
-            // Update individual CPU cores
-            cpuData.cpus.forEach((cpuCore, index) => {
-              const coreLoad = Math.round(cpuCore.percentTotal);
-              const coreColor = setColor(coreLoad, <?=$display['critical']?>, <?=$display['warning']?>);
-              $('.cpu'+index).text(coreLoad+'%').css({'color':fontColor(coreLoad, <?=$display['critical']?>, <?=$display['warning']?>)});
-              $('#cpu'+index).alive(coreLoad+'%', coreColor);
-            });
           }
         },
         error: (err) => {
@@ -2470,7 +2706,7 @@ $(function() {
       setTimeout(initCpuSubscription, Math.min(cpuRetryMs *= 2, 2000));
     }
   }
-  
+
   initCpuSubscription();
   dashboard.start();
 <?if ($vmusage == "Y"):?>
@@ -2489,8 +2725,13 @@ $(function() {
   $('#cpuline').val(cpuline);
   $('#netline').val(netline);
   $.removeCookie('lockbutton');
-  // remember latest graph values
   
+  // Inhibit chart updates until DOM quiets down
+  setTimeout(function() {
+    netchart.customData.initialized = true;
+    cpuchart.customData.initialized = true;
+  },500);
+    
   // Cleanup GraphQL subscription on page unload
   $(window).on('beforeunload', function() {
     if (cpuSubscription) {
