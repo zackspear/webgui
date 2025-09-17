@@ -505,6 +505,12 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                                       <?=mk_option("",$port,_($port))?>
                                                   <?endforeach;?>
                                               </select>
+                                              <select name="enter_view" style="min-width: 140px" onchange="changeView(this.value)">
+                                                  <?=mk_option("", "0", _("General info"))?>
+                                                  <?=mk_option("", "1", _("Counters info"))?>
+                                                  <?=mk_option("", "2", _("Errors info"))?>
+                                                  <?=mk_option("", "3", _("Network traffic"))?>
+                                              </select>
                                           </span><br>
                                         </span>
                                         <span class='flex flex-row flex-wrap items-center gap-4'>
@@ -531,12 +537,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                     <tr>
                         <td>
                             <span class='w26'>
-                                <select name="enter_view" onchange="changeView(this.value)">
-                                    <?=mk_option("", "0", _("General info"))?>
-                                    <?=mk_option("", "1", _("Counters info"))?>
-                                    <?=mk_option("", "2", _("Errors info"))?>
-                                    <?=mk_option("", "3", _("Network traffic"))?>
-                                </select>
+                                &nbsp;
                             </span>
                             <span class='w36'>
                                 <i class='view1'>_(Mode of operation)_</i>
