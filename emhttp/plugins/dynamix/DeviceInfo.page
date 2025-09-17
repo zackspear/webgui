@@ -1932,11 +1932,11 @@ _(Name)_:
 <script>
 $(function() {
 <?if (count($sheets)>1):?>
-  var ctrl  = "<span class='inline-flex flex-row items-center gap-2'><span class='waitmsg fa fa-circle-o-notch fa-span fa-fw' style='display:none;'></span><a href='/<?=$path?>?name=<?=$prev?>' title='_(previous device)_'>";
+  var ctrl  = "<span class='inline-flex flex-row items-center gap-2<?= $tabbed ? ' menuNavButtonsTabbed' : ''?>'><span class='waitmsg fa fa-circle-o-notch fa-span fa-fw' style='display:none;'></span><a href='/<?=$path?>?name=<?=$prev?>' title='_(previous device)_'>";
       ctrl += "<button type='button' onclick='this.disabled=true;$(\".waitmsg\").show();'><i class='fa fa-chevron-left fa-fw'></i></button></a>";
       ctrl += "<a href='/<?=$path?>?name=<?=$next?>' title='_(next device)_'><button type='button' onclick='this.disabled=true;$(\".waitmsg\").show();'><i class='fa fa-chevron-right fa-fw'></i></button></a></span>";
 <?if ($tabbed):?>
-  $('.tabs').append(ctrl);
+  $('.tabs-container').append(ctrl);
 <?else:?>
   $('div[class=title]:first .right').append(ctrl);
 <?endif;?>

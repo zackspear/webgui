@@ -48,7 +48,7 @@ function toggleButton(button,id) {
 
 <?if ($name):?>
 const prevNextButtons = `
-<div class="buttons-spaced flex-shrink-0">
+<div class="buttons-spaced flex-shrink-0<?= $tabbed ? ' menuNavButtonsTabbed' : ''?>">
   <a class="button" href="/Shares/Share?name=<?=$prev?>" title="_(previous user share)_">
     <i class="fa fa-chevron-left fa-fw"></i>
   </a>
@@ -59,7 +59,7 @@ const prevNextButtons = `
 `;
 
 $(function() {
-  const target = <?= $tabbed ? '".tabs"' : '".title:first .right"' ?>;
+  const target = <?= $tabbed ? '".tabs-container"' : '".title:first .right"' ?>;
   $(target).append(prevNextButtons);
 });
 <?endif;?>
