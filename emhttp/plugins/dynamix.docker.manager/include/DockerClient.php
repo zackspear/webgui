@@ -1007,7 +1007,7 @@ class DockerClient {
 			foreach($ct['NetworkSettings']['Networks'] as $netName => $netVals) {
 				$i = $c['NetworkMode']=='host' ? $host : $netVals['IPAddress'];
 				$c['Networks'][$netName] = [ 'IPAddress' => $i ];
-				if ($driver[$netName]=='ipvlan' || $driver[$netName]=='macvlan') {
+				if ( isset($driver[$netName]) && ($driver[$netName]=='ipvlan' || $driver[$netName]=='macvlan') ) {
 					if (!isset($c['Ports']['vlan'])) $c['Ports']['vlan'] = [];
 					$c['Ports']['vlan']["$i"] = $i;
 				}
