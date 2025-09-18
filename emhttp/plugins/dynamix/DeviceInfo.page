@@ -876,7 +876,7 @@ _(Spin down delay)_:
 <?endif;?>
 <?if (diskType('Data') || (isPool($tag) && !isSubpool($tag))):?>
 _(File system status)_:
-: <?=_(_var($disk, 'fsStatus'))?>&nbsp;
+: <?=_(_var($disk, 'fsStatus'))?><?=(_var($disk,'fsStatus')==="Mounted")? (_var($disk,'fsEmpty')==="yes"? ", empty" : ", not empty"):""?>&nbsp;
 
 <?if ($fsTypeImmutable):?>
 _(File system type)_:
