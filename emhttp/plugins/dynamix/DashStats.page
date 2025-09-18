@@ -1726,10 +1726,10 @@ function updateCPUBarCharts() {
     $cpuElements.text(cpuLoadText).css({'color': cpuLoadFontColor});
 
     // Only call alive() if color actually changed
-    if (cpuLoadColor !== lastCpuValues.color) {
+    //if (cpuLoadColor !== lastCpuValues.color) {
       $cpuAliveElements.alive(cpuLoadText, cpuLoadColor);
       lastCpuValues.color = cpuLoadColor;
-    }
+   // }
 
     lastCpuValues.load = cpuLoad;
     lastCpuValues.fontColor = cpuLoadFontColor;
@@ -1760,14 +1760,14 @@ function updateCPUBarCharts() {
 
         // Only update alive() if color changed
         const lastCore = lastCpuValues.coreValues[index] || {};
-        if (coreColor !== lastCore.color) {
+        //if (coreColor !== lastCore.color) {
           cpuAliveUpdates.push({
             selector: '#cpu' + index,
             text: coreLoadText,
             color: coreColor
           });
           lastCore.color = coreColor;
-        }
+       // }
 
         // Update cache
         lastCpuValues.coreValues[index] = {
