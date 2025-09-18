@@ -271,7 +271,14 @@ Link='nav-user'
 <script>
   $(function() {
     // Check for updates (non-dismissible)
-    caPluginUpdateCheck("webgui-pr-PR_PLACEHOLDER.plg", {noDismiss: true});
+    caPluginUpdateCheck("webgui-pr-PR_PLACEHOLDER.plg", {noDismiss: true},function(result){
+      try {
+        let json = JSON.parse(result);
+        if ( ! json.version ) {
+          addBannerWarning("Note: webgui-pr-PR_PLACEHOLDER has either been merged or removed");
+        }
+      } catch(e) {}
+    });
 
     // Create banner with uninstall link (nondismissible)
     let bannerMessage = "Modified GUI installed via <b>webgui-pr-PR_PLACEHOLDER</b> plugin. " +
