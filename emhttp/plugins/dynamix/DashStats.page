@@ -1447,7 +1447,7 @@ function getMillisPerPixel(timeInSeconds, containerId) {
 // SmoothieCharts initialization
 var cpuchart = new SmoothieChart({
   millisPerPixel: (cpuline * 1000) / 600, // Safe initial value
-  minValue: -0.5,
+  minValue: 0,
   maxValue: 100,
   responsive: true,
   grid: {
@@ -1463,9 +1463,8 @@ var cpuchart = new SmoothieChart({
     precision: 0
   },
   timestampFormatter: function(date) { return ''; },
-  yRangeFunction: function(range) {
-    return { min: -0.5, max: 100 };
-  },
+  minValueScale: 1.02,
+  maxValueScale: 1.02,
   yMinFormatter: function(value) {
     return Math.max(0, Math.floor(value));
   },
@@ -1491,7 +1490,8 @@ var netchart = new SmoothieChart({
     placement: 'left'
   },
   timestampFormatter: function(date) { return ''; },
-  maxValueScale: 1.0,
+  minValueScale: 1.02,
+  maxValueScale: 1.02,
   yMaxFormatter: function(value) {
     if (value >= 1000) {
       return Math.floor(value / 1000) + ' Mbps';
@@ -1726,10 +1726,10 @@ function updateCPUBarCharts() {
     $cpuElements.text(cpuLoadText).css({'color': cpuLoadFontColor});
 
     // Only call alive() if color actually changed
-    if (cpuLoadColor !== lastCpuValues.color) {
+    //if (cpuLoadColor !== lastCpuValues.color) {
       $cpuAliveElements.alive(cpuLoadText, cpuLoadColor);
       lastCpuValues.color = cpuLoadColor;
-    }
+   // }
 
     lastCpuValues.load = cpuLoad;
     lastCpuValues.fontColor = cpuLoadFontColor;
@@ -1760,14 +1760,14 @@ function updateCPUBarCharts() {
 
         // Only update alive() if color changed
         const lastCore = lastCpuValues.coreValues[index] || {};
-        if (coreColor !== lastCore.color) {
+        //if (coreColor !== lastCore.color) {
           cpuAliveUpdates.push({
             selector: '#cpu' + index,
             text: coreLoadText,
             color: coreColor
           });
           lastCore.color = coreColor;
-        }
+       // }
 
         // Update cache
         lastCpuValues.coreValues[index] = {
