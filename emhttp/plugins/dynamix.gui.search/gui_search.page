@@ -82,7 +82,7 @@ function closeSearchBox(e) {
 }
 
 function guiSearch() {
-	// If a modal is visible, navigate away from the page
+	// If a modal is visible, don't navigate away from the page
 	if ($('[role="modal"]').is(':visible')) return;
 
 	var searchInfo = $('#guiSearchBox').val().split('**');
