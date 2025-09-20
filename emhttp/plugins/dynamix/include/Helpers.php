@@ -386,7 +386,7 @@ function cpu_list() {
 }
 
 function my_explode($split, $text, $count=2) {
-  return array_pad(explode($split, $text, $count), $count, '');
+  return array_pad(explode($split, $text??"", $count), $count, '');
 }
 
 function my_preg_split($split, $text, $count=2) {
