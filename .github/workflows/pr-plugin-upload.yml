@@ -359,9 +359,9 @@ jobs:
 
             ### 🔄 To Remove:
 
-            Navigate to Plugins → Installed Plugins and remove `webgui-pr-${{ steps.metadata.outputs.version }}`, or run:
+            Navigate to Plugins → Installed Plugins and remove `webgui-pr-${{ steps.metadata.outputs.pr_number }}`, or run:
             ```bash
-            plugin remove webgui-pr-${{ steps.metadata.outputs.version }}
+            plugin remove webgui-pr-${{ steps.metadata.outputs.pr_number }}
             ```
 
             ---
