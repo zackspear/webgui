@@ -58,7 +58,7 @@ function resize(bind) {
     $('#plugin_list').height(s);
     $('#plugin_table tbody tr:first-child td').each(function(){width.push($(this).width());});
     $('#plugin_table thead tr th').each(function(i){$(this).width(width[i]);});
-    if (!bind) $('#plugin_table,#plugin_table tbody').addClass('fixed');
+    if (!bind) $('#plugin_table thead,#plugin_table tbody').addClass('fixed');
   }
 }
 <?endif;?>
