@@ -165,8 +165,8 @@ jq_filter='
 
   # Description
   | .embeds[0].fields += [ { name: "Description", value: $desc_field } ]
-  | if ($desc_field2 | length) > 0 then .embeds[0].fields += [ { name: "Description (cont)", value: $desc_field2 } ]
-  | if ($desc_field3 | length) > 0 then .embeds[0].fields += [ { name: "Description (cont)", value: $desc_field3 } ]
+  | if ($desc_field2 | length) > 0 then .embeds[0].fields += [ { name: "Description (cont)", value: $desc_field2 } ] else . end
+  | if ($desc_field3 | length) > 0 then .embeds[0].fields += [ { name: "Description (cont)", value: $desc_field3 } ] else . end
 
   # Priority
   | .embeds[0].fields += [ { name: "Priority", value: $importance, inline: true } ]
