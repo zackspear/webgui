@@ -505,7 +505,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                                       <?=mk_option("",$port,_($port))?>
                                                   <?endforeach;?>
                                               </select>
-                                              <select name="enter_view" onchange="changeView(this.value)">
+                                              <select name="enter_view" onchange="changeView(this.value)" style="min-width: 100px">
                                                   <?=mk_option("", "0", _("General info"))?>
                                                   <?=mk_option("", "1", _("Counters info"))?>
                                                   <?=mk_option("", "2", _("Errors info"))?>
