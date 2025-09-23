@@ -55,12 +55,6 @@ _(Source folder)_:
 : <span id="dfm_source"></span>
 
 &nbsp;
-: _(copy to)_ ...
-
-_(Target folder)_:
-: <input type="text" id="dfm_target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="HIDE_FILES_FILTER" data-pickmatch="" data-pickroot="" data-picktop="">
-
-&nbsp;
 : <span class="flex flex-col gap-4">
   <label for="dfm_sparse" class="inline-flex flex-wrap items-center gap-4">
     <input type="checkbox" id="dfm_sparse" value="" onchange="this.value=this.checked?'1':''">
@@ -72,6 +66,12 @@ _(Target folder)_:
   </label>
   <span class="dfm_text"></span>
 </span>
+
+&nbsp;
+: _(copy to)_ ...
+
+_(Target folder)_:
+: <input type="text" id="dfm_target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="HIDE_FILES_FILTER" data-pickmatch="" data-pickroot="" data-picktop="">
 
 <div class="dfm_info"><i class="fa fa-warning dfm"></i><?=_("This copies the folder and all its content to another folder")?></div>
 </div>
@@ -81,12 +81,6 @@ _(Source folder)_:
 : <span id="dfm_source"></span>
 
 &nbsp;
-: _(move to)_ ...
-
-_(Target folder)_:
-: <input type="text" id="dfm_target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="HIDE_FILES_FILTER" data-pickmatch="" data-pickroot="" data-picktop="">
-
-&nbsp;
 : <span class="flex flex-col gap-4">
   <label for="dfm_sparse" class="inline-flex flex-wrap items-center gap-4">
     <input type="checkbox" id="dfm_sparse" value="" onchange="this.value=this.checked?'1':''">
@@ -98,6 +92,12 @@ _(Target folder)_:
   </label>
   <span class="dfm_text"></span>
 </span>
+
+&nbsp;
+: _(move to)_ ...
+
+_(Target folder)_:
+: <input type="text" id="dfm_target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="HIDE_FILES_FILTER" data-pickmatch="" data-pickroot="" data-picktop="">
 
 <div class="dfm_info"><i class="fa fa-warning dfm"></i><?=_("This moves the folder and all its content to another folder")?></div>
 </div>
@@ -133,12 +133,6 @@ _(Source file)_:
 : <span id="dfm_source"></span>
 
 &nbsp;
-: _(copy to)_ ...
-
-_(Target file)_:
-: <input type="text" id="dfm_target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="" data-pickmatch="" data-pickroot="" data-picktop="">
-
-&nbsp;
 : <span class="flex flex-col gap-4">
   <label for="dfm_sparse" class="inline-flex flex-wrap items-center gap-4">
     <input type="checkbox" id="dfm_sparse" value="" onchange="this.value=this.checked?'1':''">
@@ -150,6 +144,12 @@ _(Target file)_:
   </label>
   <span class="dfm_text"></span>
 </span>
+
+&nbsp;
+: _(copy to)_ ...
+
+_(Target file)_:
+: <input type="text" id="dfm_target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="" data-pickmatch="" data-pickroot="" data-picktop="">
 
 <div class="dfm_info"><i class="fa fa-warning dfm"></i>_(This copies the selected file)_</div>
 </div>
@@ -159,12 +159,6 @@ _(Source file)_:
 : <span id="dfm_source"></span>
 
 &nbsp;
-: _(move to)_ ...
-
-_(Target file)_:
-: <input type="text" id="dfm_target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="" data-pickmatch="" data-pickroot="" data-picktop="">
-
-&nbsp;
 : <span class="flex flex-col gap-4">
   <label for="dfm_sparse" class="inline-flex flex-wrap items-center gap-4">
     <input type="checkbox" id="dfm_sparse" value="" onchange="this.value=this.checked?'1':''">
@@ -176,6 +170,12 @@ _(Target file)_:
   </label>
   <span class="dfm_text"></span>
 </span>
+
+&nbsp;
+: _(move to)_ ...
+
+_(Target file)_:
+: <input type="text" id="dfm_target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="" data-pickmatch="" data-pickroot="" data-picktop="">
 
 <div class="dfm_info"><i class="fa fa-warning dfm"></i>_(This moves the selected file)_</div>
 </div>
@@ -208,12 +208,6 @@ _(Source)_:
 : <select id="dfm_source"></select>
 
 &nbsp;
-: _(copy to)_ ...
-
-_(Target)_:
-: <input type="text" id="dfm_target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="" data-pickmatch="" data-pickroot="" data-picktop="">
-
-&nbsp;
 : <span class="flex flex-col gap-4">
   <label for="dfm_sparse" class="inline-flex flex-wrap items-center gap-4">
     <input type="checkbox" id="dfm_sparse" value="" onchange="this.value=this.checked?'1':''">
@@ -225,6 +219,12 @@ _(Target)_:
   </label>
   <span class="dfm_text"></span>
 </span>
+
+&nbsp;
+: _(copy to)_ ...
+
+_(Target)_:
+: <input type="text" id="dfm_target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="" data-pickmatch="" data-pickroot="" data-picktop="">
 
 <div class="dfm_info"><i class="fa fa-warning dfm"></i>_(This copies all the selected sources)_</div>
 </div>
@@ -234,12 +234,6 @@ _(Source)_:
 : <select id="dfm_source"></select>
 
 &nbsp;
-: _(move to)_ ...
-
-_(Target)_:
-: <input type="text" id="dfm_target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="" data-pickmatch="" data-pickroot="" data-picktop="">
-
-&nbsp;
 : <span class="flex flex-col gap-4">
   <label for="dfm_sparse" class="inline-flex flex-wrap items-center gap-4">
     <input type="checkbox" id="dfm_sparse" value="" onchange="this.value=this.checked?'1':''">
@@ -251,6 +245,12 @@ _(Target)_:
   </label>
   <span class="dfm_text"></span>
 </span>
+
+&nbsp;
+: _(move to)_ ...
+
+_(Target)_:
+: <input type="text" id="dfm_target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="" data-pickmatch="" data-pickroot="" data-picktop="">
 
 <div class="dfm_info"><i class="fa fa-warning dfm"></i>_(This moves all the selected sources)_</div>
 </div>
