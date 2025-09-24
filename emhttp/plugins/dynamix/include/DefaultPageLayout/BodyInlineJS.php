@@ -504,9 +504,11 @@ $(document).on('mouseenter', 'a.info', function() {
   const tooltip = $(this).find('span');
   if (tooltip.length) {
     const aInfoPosition = $(this).offset();
+    const scrollTop = $(window).scrollTop();
+    const scrollLeft = $(window).scrollLeft();
     const addtionalOffset = 16;
-    const top = aInfoPosition.top + addtionalOffset;
-    const left = aInfoPosition.left + addtionalOffset;
+    const top = aInfoPosition.top - scrollTop + addtionalOffset;
+    const left = aInfoPosition.left - scrollLeft + addtionalOffset;
     tooltip.css({ top, left });
   }
 });
