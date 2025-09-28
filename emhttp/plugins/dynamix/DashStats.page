@@ -399,7 +399,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
 
                     <?
                     foreach ($cpus as $cpu_index=>$package)  {
-                      echo "<td><span class='w72'>"._("Physical")." CPU $cpu_index "._("Power").": <span id='cpu-power0'>N/A</span></td></span></tr>";
+                      echo "<td><span class='w72'>"._("Physical")." CPU $cpu_index "._("Power").": <span id='cpu-power$cpu_index'>N/A</span></td></span></tr>";
                       foreach ($package as $pair) {
                           [$cpu1, $cpu2] = my_preg_split('/[,-]/',$pair);
                           echo "<tr class='cpu_open'>";
