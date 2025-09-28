@@ -346,7 +346,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                         <td>
                             <span class='flex flex-row flex-wrap items-center gap-4'>
                                 <span class="head_info">
-                                    <span id='cpu-total-power'>_(Total Power)_: N/A</span>
+                                    <span id='cpu-total-power'><i class='fa fa-fw  fa-plug'></i>_(Total Power)_: N/A</span>
                                 </span>
                                 <span class="head_info">
                                     <span id='cpu-temp'></span>
