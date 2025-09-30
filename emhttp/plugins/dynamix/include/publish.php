@@ -83,7 +83,6 @@ function publish($endpoint, $message, $len=1, $abort=false, $abortTime=30) {
         $abortStart[$endpoint] = time();
       if ( (time() - $abortStart[$endpoint]) > $abortTime) {
         $script = removeNChanScript();
-        my_logger("$script timed out after $abortTime seconds.  Exiting.", 'publish');
         exit();
       }
       $reply = false; // if no subscribers, force return value to false
