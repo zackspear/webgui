@@ -357,7 +357,7 @@ function anonymize_syslog($file) {
 function anonymize_email($file) {
   global $diag, $all;
 
-  $log = "/$diag/logs/".basename($file);
+  $log = "/$diag/logs/".pathinfo($file, PATHINFO_FILENAME).".txt";
   run("todos <".escapeshellarg($file)." >".escapeshellarg($log));
   if (!$all) {
     run("sed -ri 's/\b[^[:space:]\/<>\"'\'']+@[^[:space:]\/<>\"'\'']+\.[^[:space:]\/<>\"'\'']+/email@removed.com/g' ".escapeshellarg($log));
