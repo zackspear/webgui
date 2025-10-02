@@ -1,6 +1,6 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2023, Lime Technology
+/* Copyright 2005-2025, Lime Technology
  * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
@@ -351,6 +351,17 @@ function anonymize_syslog($file) {
   // truncate syslog if too big
   if (basename($file)=='syslog' && filesize($file)>=$max) run("tail -n 200 ".escapeshellarg("$log.txt")." >".escapeshellarg("$log.last200.txt"));
   run("truncate -s '<$max' ".escapeshellarg("$log.txt"));
+}
+
+// anonymize email addresses
+function anonymize_email($file) {
+  global $diag, $all;
+
+  $log = "/$diag/logs/".basename($file);
+  run("todos <".escapeshellarg($file)." >".escapeshellarg($log));
+  if (!$all) {
+    run("sed -ri 's/\b[^[:space:]\/<>\"'\'']+@[^[:space:]\/<>\"'\'']+\.[^[:space:]\/<>\"'\'']+/email@removed.com/g' ".escapeshellarg($log));
+  }
 }
 
 // diagnostics start
@@ -729,8 +740,7 @@ if (file_exists($phplog)) {
 // copy graphql-api.log
 $graphql = "/var/log/graphql-api.log";
 if (file_exists($graphql)) {
-  $log = "/$diag/logs/graphql-api.txt";
-  run("todos <$graphql >".escapeshellarg($log));
+ anonymize_email($graphql);
 }
 
 // copy vfio-pci log
