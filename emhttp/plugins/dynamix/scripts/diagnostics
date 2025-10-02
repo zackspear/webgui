@@ -90,6 +90,7 @@ function shareDisks($share) {
 function anonymize($text, $select) {
   global $all,$var,$pools,$customShares;
   if ($all) return $text;
+  anonymize_domain($text);
   switch ($select) {
   case 1:
     // remove any stray references to the GUID that may wind up in .ini files (notably Unassigned Devices)
@@ -212,7 +213,7 @@ function geturls_checkhost($host, $hostpriv, $expectedip, $dnsserver) {
 }
 
 function geturls() {
-  global $var,$path,$all;
+  global $var,$path;
   extract(@parse_ini_file("$path/network.ini",true));
   $nginx = @parse_ini_file("$path/nginx.ini");
   $internalip = $internalip_priv = $internalip_msg = _var($eth0,'IPADDR:0');
@@ -320,54 +321,9 @@ function geturls() {
     $dirlisting[1] = "Directory not found";
   }
   $urls .= "\n\n".implode("\n", $dirlisting)."\n";
-  anonymize_domains($urls);
+  anonymize_domain($urls);
+  
   return str_replace("\n", "\r\n", $urls);
-}
-
-function anonymize_domains_file($file) {
-  global $all;
-  
-  if ( ! $all && is_file($file)) {
-    $text = file_get_contents($file);
-    anonymize_domains($text);
-    file_put_contents($file, $text);
-  }
-}
-
-function anonymize_domains(&$text) {
-  global $all;
-  
-  if (!$all) {
-    $text = preg_replace_callback('/\b([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}\b/', function($matches) {
-      $domain = $matches[0];
-      // Skip IP addresses
-      if (preg_match('/^([0-9]{1,3}\.){3}[0-9]{1,3}$/', $domain)) {
-          return $domain;
-      }
-      // Skip .local domains
-      if (strpos($domain, '.local') !== false) {
-          return $domain;
-      }
-      // Skip unraid.net and myunraid.net domains (including standalone)
-      if (strpos($domain, '.unraid.net') !== false || strpos($domain, '.myunraid.net') !== false || $domain === 'unraid.net' || $domain === 'myunraid.net') {
-          return $domain;
-      }
-      // Skip magicdns.ts.net
-      if (strpos($domain, '.ts.net') !== false || $domain === 'ts.net') {
-          return $domain;
-      }
-      // Skip locations.conf
-      if ($domain === 'locations.conf') {
-          return $domain;
-      }
-      // Skip nginx.socket
-      if ($domain === 'nginx.socket') {
-          return $domain;
-      }
-      // Anonymize everything else
-      return 'removed.org';
-    }, $text);
-  }
 }
 
 // anonymize individual syslog files
@@ -398,6 +354,7 @@ function anonymize_syslog($file) {
   // truncate syslog if too big
   if (basename($file)=='syslog' && filesize($file)>=$max) run("tail -n 200 ".escapeshellarg("$log.txt")." >".escapeshellarg("$log.last200.txt"));
   run("truncate -s '<$max' ".escapeshellarg("$log.txt"));
+  anonymize_domain_file("$log.txt");
 }
 
 // anonymize email addresses
@@ -408,6 +365,33 @@ function anonymize_email($file) {
   run("todos <".escapeshellarg($file)." >".escapeshellarg($log));
   if (!$all) {
     run("sed -ri 's/\b[^[:space:]\/<>\"'\'']+@[^[:space:]\/<>\"'\'']+\.[^[:space:]\/<>\"'\'']+/email@removed.com/g' ".escapeshellarg($log));
+  }
+}
+
+function anonymize_domain_file($file) {
+  global $all;
+  
+  if ( !$all ) {
+    $text = @file_get_contents($file);
+    if ( $text !== false) {
+      anonymize_domain($text);
+      file_put_contents($file, $text);
+    }
+  }
+}
+
+function anonymize_domain(&$text) {
+  global $all;
+  static $domain = "";
+
+  if (!$all) {
+    if ($domain == "") {
+      $ident = @parse_ini_file('/boot/config/ident.cfg');
+      $domain = strtolower(is_array($ident) ? ($ident['LOCAL_TLD'] ?? ($ident['LOCAL_TLD'] ?? "local")) : "local");
+    }
+    if ($domain != "local") {
+      $text = str_ireplace($domain,"removed_TLD",$text);
+    }
   }
 }
 
@@ -557,6 +541,8 @@ if (glob("/boot/config/*.conf")) {
 if (glob("/boot/config/*.dat")) {
   run("cp -- /boot/config/*.dat ".escapeshellarg("/$diag/config"));
 }
+// anonymize ident.cfg
+anonymize_domain_file("/$diag/config/ident.cfg");
 
 // handle go files
 foreach (['/boot/config/go', '/boot/config/go.safemode'] as $go) {
@@ -787,7 +773,7 @@ if (file_exists($phplog)) {
 // copy graphql-api.log
 $graphql = "/var/log/graphql-api.log";
 if (file_exists($graphql)) {
- anonymize_email($graphql);
+  anonymize_email($graphql);
 }
 
 // copy vfio-pci log
@@ -823,10 +809,10 @@ newline("/$diag/system/sshd.txt");
 
 // copy servers.conf
 copy("/etc/nginx/conf.d/servers.conf", "/$diag/system/servers.conf.txt");
+anonymize_domain_file("/$diag/system/servers.conf.txt");
 maskIP("/$diag/system/servers.conf.txt");
 run("sed -Ei 's/[01234567890abcdef]+\.((my)?unraid\.net)/hash.\\1/gm;t' ".escapeshellarg("/$diag/system/servers.conf.txt"));
 run("sed -Ei 's/\.[^\.]*\.ts\.net/\.magicdns\.ts\.net/gm' ".escapeshellarg("/$diag/system/servers.conf.txt"));
-anonymize_domains_file("/$diag/system/servers.conf.txt");
 newline("/$diag/system/servers.conf.txt");
 
 // show installed patches
