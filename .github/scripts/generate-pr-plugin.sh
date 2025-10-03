@@ -53,14 +53,11 @@ cat > "$PLUGIN_NAME" << 'EOF'
         icon="wrench"
         support="&github;/pull/&pr;">
 
-<!-- Put the change log within CDATA to handle circumstance if a character which needs to be escaped for xml somehow is added to the changelog -->
 <CHANGES>
-<![CDATA[
 ##&version;
 - Test build for PR #&pr; (commit &commit;)
 - This plugin installs modified files from the PR for testing
 - Original files are backed up and restored upon removal
-]]>
 </CHANGES>
 
 <!-- FILE sections run in the listed order - Check if this is an update prior to installing -->
@@ -271,7 +268,14 @@ Link='nav-user'
 <script>
   $(function() {
     // Check for updates (non-dismissible)
-    caPluginUpdateCheck("webgui-pr-PR_PLACEHOLDER.plg", {noDismiss: true});
+    caPluginUpdateCheck("webgui-pr-PR_PLACEHOLDER.plg", {noDismiss: true},function(result){
+      try {
+        let json = JSON.parse(result);
+        if ( ! json.version ) {
+          addBannerWarning("Note: webgui-pr-PR_PLACEHOLDER has either been merged or removed");
+        }
+      } catch(e) {}
+    });
 
     // Create banner with uninstall link (nondismissible)
     let bannerMessage = "Modified GUI installed via <b>webgui-pr-PR_PLACEHOLDER</b> plugin. " +

@@ -631,7 +631,7 @@ div.title span img {
     background-color: var(--orange-800);
 }
 .nav-item.active:after {
-    background-color: var(--background-color);
+    background-color: var(--header-text-color);
 }
 .nav-user a {
     color: var(--inverse-text-color);

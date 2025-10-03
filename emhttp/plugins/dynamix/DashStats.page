@@ -169,11 +169,16 @@ foreach ($memory_array as $device) {
   if ($base>=1) $memory_maximum += $size*pow(1024,$base);
   if (!$ecc && isset($device['Error Correction Type']) && $device['Error Correction Type']!='None') $ecc = "{$device['Error Correction Type']} ";
 }
+if ($memory_installed >= 1048576) {
+  $memory_installed = round($memory_installed/1048576);
+  $memory_maximum = round($memory_maximum/1048576);
+  $unit = 'TiB';
+} else { 
 if ($memory_installed >= 1024) {
   $memory_installed = round($memory_installed/1024);
   $memory_maximum = round($memory_maximum/1024);
-  $unit = 'GiB';
-} else $unit = 'MiB';
+  $unit = 'GiB';}
+else $unit = 'MiB'; }
 
 // get system resources size
 exec("df --output=size /boot /var/log /var/lib/docker 2>/dev/null|awk '(NR>1){print $1*1024}'",$df);
@@ -196,7 +201,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
 ?>
 
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
-<script src="<?autov('/webGui/javascript/jquery.apexcharts.js')?>"></script>
+<script src="<?autov('/webGui/javascript/smoothie.js')?>"></script>
 <script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
 <script src="<?autov('/plugins/dynamix.docker.manager/javascript/docker.js')?>"></script>
 <script src="<?autov('/plugins/dynamix.vm.manager/javascript/vmmanager.js')?>"></script>
@@ -412,7 +417,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                     ?>
                     <tr id='cpu_chart'>
                         <td>
-                            <div id='cpuchart'></div>
+                            <canvas id='cpuchart' style='width:100%; height:96px'></canvas>
                         </td>
                     </tr>
                 </tbody>
@@ -498,12 +503,18 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                     <div class='section'>
                                         <span class='flex flex-row items-center gap-4'>
                                           <h3 class='tile-header-main'>_(Interface)_</h3>
-                                          <span class="head_gap flex flex-row items-center gap-4">
+                                          <span class="head_gap flex flex-row items-center gap-4 network-selects">
                                               <i class='ups fa fa-angle-double-right'></i>
-                                              <select name="port_select" onchange="portSelect(this.value)">
+                                              <select name="port_select" class="network-select network-interface" onchange="portSelect(this.value)">
                                                   <?foreach ($ports as $port):?>
                                                       <?=mk_option("",$port,_($port))?>
                                                   <?endforeach;?>
+                                              </select>
+                                              <select name="enter_view" class="network-select network-type" onchange="changeView(this.value)">
+                                                  <?=mk_option("", "0", _("General info"))?>
+                                                  <?=mk_option("", "1", _("Counters info"))?>
+                                                  <?=mk_option("", "2", _("Errors info"))?>
+                                                  <?=mk_option("", "3", _("Network traffic"))?>
                                               </select>
                                           </span><br>
                                         </span>
@@ -531,12 +542,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                     <tr>
                         <td>
                             <span class='w26'>
-                                <select name="enter_view" onchange="changeView(this.value)">
-                                    <?=mk_option("", "0", _("General info"))?>
-                                    <?=mk_option("", "1", _("Counters info"))?>
-                                    <?=mk_option("", "2", _("Errors info"))?>
-                                    <?=mk_option("", "3", _("Network traffic"))?>
-                                </select>
+                                &nbsp;
                             </span>
                             <span class='w36'>
                                 <i class='view1'>_(Mode of operation)_</i>
@@ -584,7 +590,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                     ?>
                     <tr class="view4">
                         <td>
-                            <div id="netchart"></div>
+                            <canvas id="netchart" style='width:100%; height:120px'></canvas>
                         </td>
                     </tr>
                 </tbody>
@@ -1427,8 +1433,8 @@ var rxd     = [];
 var txd     = [];
 var cputime = 0;
 var nettime = 0;
-var cpuline = cookie.cpuline||30;
-var netline = cookie.netline||30;
+var cpuline = parseInt(cookie.cpuline)||30;
+var netline = parseInt(cookie.netline)||30;
 var update2 = true;
 var box     = null;
 var startup = true;
@@ -1436,56 +1442,92 @@ var stopgap = '<thead class="stopgap"><tr><td class="stopgap"></td></tr></thead>
 var recall  = null;
 var recover = null;
 
-var options_cpu = {
-  series:[{name:'load', data:cpu.slice()}],
-  chart:{height:120, type:'line', fontFamily:'clear-sans', animations:{enabled:true, easing:'linear', dynamicAnimation:{speed:980}}, toolbar:{show:false}, zoom:{enabled:false},events:{updated:function(){if (cpuchart.customData.updateCount == 0) {cpuchart.customData.animationPending = false}cpuchart.customData.updateCount++;},animationEnd:function(){cpuchart.customData.animationPending = false;updateCPUChart();}}},
-  dataLabels:{enabled:false},
-  tooltip:{enabled:false},
-  stroke:{curve:'smooth', width:1},
-  colors:['#ff8c2f'],
-  markers:{size:0},
-  xaxis:{type:'datetime', range:cpuline-1, labels:{show:false}, axisTicks:{show:false}, axisBorder:{show:false}},
-  yaxis:{max:100, min:0, tickAmount:4, labels:{formatter:function(v,i){return v.toFixed(0)+' %';}, style:{colors:'<?=$color?>'}}, axisBorder:{show:false}, axisTicks:{show:false}},
-  grid:{show:true, borderColor:'<?=$grid?>'},
-  legend:{show:false}
-};
-var options_net = {
-  series:[{name:'receive', data:rxd.slice()},{name:'transmit', data:txd.slice()}],
-  chart:{height:120, type:'line', fontFamily:'clear-sans', animations:{enabled:true, easing:'linear', dynamicAnimation:{speed:980}}, toolbar:{show:false}, zoom:{enabled:false},events:{updated:function(){if (netchart.customData.updateCount == 0) {netchart.customData.animationPending = false}netchart.customData.updateCount++;},animationEnd:function(){netchart.customData.animationPending = false;updateNetChart();}}},
-  dataLabels:{enabled:false},
-  tooltip:{enabled:false},
-  stroke:{curve:'smooth', width:1},
-  colors:['#e22828','#ff8c2f'],
-  markers:{size:0},
-  xaxis:{type:'datetime', range:netline-1, labels:{show:false}, axisTicks:{show:false}, axisBorder:{show:false}},
-  yaxis:{tickAmount:4, labels:{formatter:function(v,i){return autoscale(v,'bps',1);}, style:{colors:'<?=$color?>'}}, axisBorder:{show:false}, axisTicks:{show:false}},
-  grid:{show:true, borderColor:'<?=$grid?>'},
-  legend:{show:false}
-};
+// Helper function to calculate millisPerPixel based on container width
+function getMillisPerPixel(timeInSeconds, containerId) {
+  var container = document.getElementById(containerId);
+  var width = (container && container.offsetWidth > 0) ? container.offsetWidth : 600; // fallback to 600 if not found or zero width
+  return (timeInSeconds * 1000) / width;
+}
 
-var cpuchart = new ApexCharts(document.querySelector('#cpuchart'), options_cpu);
-var netchart = new ApexCharts(document.querySelector('#netchart'), options_net);
+// SmoothieCharts initialization
+var cpuchart = new SmoothieChart({
+  millisPerPixel: (cpuline * 1000) / 600, // Safe initial value
+  minValue: -1,
+  maxValue: 100,
+  responsive: true,
+  grid: {
+    strokeStyle: '<?=$grid?>',
+    fillStyle: 'transparent',
+    lineWidth: 1,
+    millisPerLine: 5000,
+    verticalSections: 4
+  },
+  labels: {
+    fillStyle: '<?=$color?>',
+    fontSize: 11,
+    precision: 0
+  },
+  timestampFormatter: function(date) { return ''; },
+  minValueScale: 1.02,
+  maxValueScale: 1.02,
+  yMinFormatter: function(value) {
+    return Math.max(0, Math.floor(value)) + ' %';
+  },
+  yMaxFormatter: function(value) {
+    return Math.max(0, Math.min(100, Math.ceil(value))) + ' %';
+  }
+});
 
-// Add custom global variable to ncharts (won't affect ApexCharts functionality)
+var netchart = new SmoothieChart({
+  millisPerPixel: (netline * 1000) / 600, // Safe initial value
+  minValue: 0,
+  responsive: true,
+  grid: {
+    strokeStyle: '<?=$grid?>',
+    fillStyle: 'transparent',
+    lineWidth: 1,
+    millisPerLine: 5000,
+    verticalSections: 4
+  },
+  labels: {
+    fillStyle: '<?=$color?>',
+    fontSize: 11,
+    placement: 'left'
+  },
+  timestampFormatter: function(date) { return ''; },
+  minValueScale: 1.02,
+  maxValueScale: 1.02,
+  yMaxFormatter: function(value) {
+    if (value >= 1000) {
+      return Math.floor(value / 1000) + ' Mbps';
+    }
+    return Math.floor(value) + ' kbps';
+  },
+  yMinFormatter: function(value) {
+    return Math.floor(value) + ' kbps';
+  }
+});
+
+// Create TimeSeries for CPU and Network data
+var cpuTimeSeries = new TimeSeries();
+var rxTimeSeries = new TimeSeries();
+var txTimeSeries = new TimeSeries();
+
+// Add TimeSeries to charts with colors
+cpuchart.addTimeSeries(cpuTimeSeries, { strokeStyle: '#ff8c2f', lineWidth: 1 });
+netchart.addTimeSeries(rxTimeSeries, { strokeStyle: '#e22828', lineWidth: 1 });
+netchart.addTimeSeries(txTimeSeries, { strokeStyle: '#ff8c2f', lineWidth: 1 });
+
+// Custom data for chart state management
 netchart.customData = {
-  isVisible: false,
-  BrowserVisibility: true,
-  animationPending: false,
-  netAnimationInterval: null,
-  newData: false,
-  updateCount: 0,
-  initialized: false
+  isVisible: false
 };
 
 cpuchart.customData = {
   isVisible: false,
-  BrowserVisibility: true,
-  animationPending: false,
-  cpuAnimationInterval: null,
   coresVisible: false,
-  newData: false,
-  updateCount: 0,
-  initialized: false
+  cpuData: null,
+  cpuLoad: 0
 };
 
 $(function() {
@@ -1495,9 +1537,9 @@ $(function() {
     entries.forEach(entry => {
       if (entry.target === netchartElement) {
         netchart.customData.isVisible = entry.isIntersecting;
-        // Reset the update count as the chart doesn't always fire animationEnd in this case
+        // Chart visibility changed
         if (netchart.customData.isVisible) {
-          resetNetUpdateCount();
+          // SmoothieCharts handles visibility automatically
         }
       }
     });
@@ -1520,9 +1562,9 @@ $(function() {
     entries.forEach(entry => {
       if (entry.target === cpuchartElement) {
         cpuchart.customData.isVisible = entry.isIntersecting;
-        // Reset the update count as the chart doesn't always fire animationEnd in this case
+        // Chart visibility changed
         if (cpuchart.customData.isVisible) {
-          resetCPUUpdateCount();
+          // SmoothieCharts handles visibility automatically
         }
       }
     });
@@ -1588,8 +1630,9 @@ let viewportResizeTimeout;
 window.addEventListener('resize', function(){
   clearTimeout(viewportResizeTimeout);
   viewportResizeTimeout = setTimeout(function(){
-    resetNetUpdateCount();
-    resetCPUUpdateCount();
+    // Update millisPerPixel based on new container sizes
+    cpuchart.options.millisPerPixel = getMillisPerPixel(cpuline, 'cpuchart');
+    netchart.options.millisPerPixel = getMillisPerPixel(netline, 'netchart');
   }, 250); // Wait 250ms after resize stops before executing
 });
 
@@ -1627,80 +1670,45 @@ function sanitizeMultiCookie(cookieName, delimiter, removeDuplicates=false) {
 }
 
 function initCharts(clear) {
-  // initialize graphs entries
-  var data = [];
-  data.cpu = data.rxd = data.txd = "";
-  
-  var now = new Date().getTime();
-  if (!clear) {
-    var c = data.cpu.split(';');
-    var r = data.rxd.split(';');
-    var t = data.txd.split(';');
-    for (var i=0; i < cpuline; i++) {
-      var x = now + i;
-      var y = c[i]||0; cpu.push({x,y});
-    }
-    cputime = x + 1;
-  } else {
-    // clear network graph
-    var r = ''; var t = '';
-    rxd = []; txd = [];
+  // SmoothieCharts manages its own data through TimeSeries
+  if (clear) {
+    // Clear the TimeSeries data if needed
+    rxTimeSeries.clear();
+    txTimeSeries.clear();
   }
-  for (var i=0; i < netline; i++) {
-    var x = now + i;
-    var y = r[i]||0; rxd.push({x,y});
-    var y = t[i]||0; txd.push({x,y});
-  }
-  nettime = x + 1;
 }
 
 function resetCharts() {
-  // prevent unlimited graph growing - limit to 300 (5 minutes) of data
-  cpu = cpu.slice(-300);
-  rxd = rxd.slice(-300);
-  txd = txd.slice(-300);
+  // SmoothieCharts automatically manages data retention
+  // No manual cleanup needed
 }
 
 function addChartCpu(load) {
-  cputime++;
-  var i = cpu.length - cpuline;
-  if (i > 0) { // clear value outside graph
-    i = i - 1;
-    cpu[i].x = cputime - cpuline;
-    cpu[i].y = 0;
-  }
-  cpu.push({x:cputime, y:load});
+  // Add data point to SmoothieCharts TimeSeries
+  cpuTimeSeries.append(new Date().getTime(), load);
 }
 
 function addChartNet(rx, tx) {
-  nettime++;
-  var i = rxd.length - netline;
-  if (i > 0) { // clear value outside graph
-    i = i - 1;
-    rxd[i].x = nettime - netline;
-    rxd[i].y = 0;
-    txd[i].x = nettime - netline;
-    txd[i].y = 0;
-  }
-  rxd.push({x:nettime, y:rx});
-  txd.push({x:nettime, y:tx});
+  // Add data points to SmoothieCharts TimeSeries (convert bps to kbps)
+  var now = new Date().getTime();
+  rxTimeSeries.append(now, Math.floor(rx / 1000));
+  txTimeSeries.append(now, Math.floor(tx / 1000));
 }
 
-function resetCPUUpdateCount() {
-  cpuchart.customData.updateCount = 0;
-  cpuchart.customData.animationPending = false;
-}
+// Cache for last values to avoid unnecessary DOM updates
+var lastCpuValues = {
+  load: -1,
+  color: '',
+  fontColor: '',
+  coreValues: {}
+};
 
-function resetNetUpdateCount() {
-  netchart.customData.updateCount = 0;
-  netchart.customData.animationPending = false;
-}
 function updateCPUBarCharts() {
   if (!isPageVisible()) {
     return;
   }
   // prevent an initial JS error if the first datapoint isn't available yet
-  // (cpuchart.customData.newData is reset by the updateCPUChart function so can't be used)
+  // Update CPU bar charts based on current data
   const customData = cpuchart.customData;
   if (!customData.cpuData?.cpus || typeof customData.cpuLoad === 'undefined') {
     return;
@@ -1709,90 +1717,91 @@ function updateCPUBarCharts() {
   const cpuLoad = customData.cpuLoad;
   const critical = <?=$display['critical']?>;
   const warning = <?=$display['warning']?>;
-  
-  // Cache DOM elements and calculations for overall CPU load
-  const cpuLoadText = cpuLoad + '%';
-  const cpuLoadColor = setColor(cpuLoad, critical, warning);
-  const cpuLoadFontColor = fontColor(cpuLoad, critical, warning);
-  
-  // Batch DOM updates for overall CPU load
-  const $cpuElements = $('.cpu_, .cpu');
-  const $cpuAliveElements = $('#cpu_, #cpu');
-  
-  $cpuElements.text(cpuLoadText).css({'color': cpuLoadFontColor});
-  $cpuAliveElements.alive(cpuLoadText, cpuLoadColor);
+
+  // Only update DOM if values have changed
+  if (cpuLoad !== lastCpuValues.load) {
+    const cpuLoadText = cpuLoad + '%';
+    const cpuLoadColor = setColor(cpuLoad, critical, warning);
+    const cpuLoadFontColor = fontColor(cpuLoad, critical, warning);
+
+    // Batch DOM updates for overall CPU load
+    const $cpuElements = $('.cpu_, .cpu');
+    const $cpuAliveElements = $('#cpu_, #cpu');
+
+    $cpuElements.text(cpuLoadText).css({'color': cpuLoadFontColor});
+
+    // Only call alive() if color actually changed
+    //if (cpuLoadColor !== lastCpuValues.color) {
+      $cpuAliveElements.alive(cpuLoadText, cpuLoadColor);
+      lastCpuValues.color = cpuLoadColor;
+   // }
+
+    lastCpuValues.load = cpuLoad;
+    lastCpuValues.fontColor = cpuLoadFontColor;
+  }
 
   // Update individual CPU cores if they are visible
   if (customData.coresVisible) {
     const cpus = customData.cpuData.cpus;
-    
+
     // Batch DOM updates for CPU cores
     const cpuCoreUpdates = [];
     const cpuAliveUpdates = [];
-    
+
     cpus.forEach((cpuCore, index) => {
-      const coreLoad = Math.round(cpuCore.percentTotal);
-      const coreLoadText = coreLoad + '%';
-      const coreColor = setColor(coreLoad, critical, warning);
-      const coreFontColor = fontColor(coreLoad, critical, warning);
-      
-      cpuCoreUpdates.push({
-        selector: '.cpu' + index,
-        text: coreLoadText,
-        color: coreFontColor
+      const coreLoad = Math.floor(cpuCore.percentTotal);
+
+      // Only process if value changed
+      if (!lastCpuValues.coreValues[index] || lastCpuValues.coreValues[index].load !== coreLoad) {
+        const coreLoadText = coreLoad + '%';
+        const coreColor = setColor(coreLoad, critical, warning);
+        const coreFontColor = fontColor(coreLoad, critical, warning);
+
+        cpuCoreUpdates.push({
+          selector: '.cpu' + index,
+          text: coreLoadText,
+          color: coreFontColor
+        });
+
+        // Only update alive() if color changed
+        const lastCore = lastCpuValues.coreValues[index] || {};
+        //if (coreColor !== lastCore.color) {
+          cpuAliveUpdates.push({
+            selector: '#cpu' + index,
+            text: coreLoadText,
+            color: coreColor
+          });
+          lastCore.color = coreColor;
+       // }
+
+        // Update cache
+        lastCpuValues.coreValues[index] = {
+          load: coreLoad,
+          color: coreColor,
+          fontColor: coreFontColor
+        };
+      }
+    });
+
+    // Apply batch updates only for changed values
+    if (cpuCoreUpdates.length > 0) {
+      cpuCoreUpdates.forEach(update => {
+        $(update.selector).text(update.text).css({'color': update.color});
       });
-      
-      cpuAliveUpdates.push({
-        selector: '#cpu' + index,
-        text: coreLoadText,
-        color: coreColor
+    }
+
+    if (cpuAliveUpdates.length > 0) {
+      cpuAliveUpdates.forEach(update => {
+        $(update.selector).alive(update.text, update.color);
       });
-    });
-    
-    // Apply all CPU core updates in batches
-    cpuCoreUpdates.forEach(update => {
-      $(update.selector).text(update.text).css({'color': update.color});
-    });
-    
-    cpuAliveUpdates.forEach(update => {
-      $(update.selector).alive(update.text, update.color);
-    });
+    }
   }
 }
 
-function updateCPUChart() {
-  if (!cpuchart.customData.newData || !cpuchart.customData.isVisible || !isPageVisible()) {
-    return;
-  }
-  // Check if the animation is still running and a timeout hasn't been set
-  if (!cpuchart.customData.animationPending) {
-    // No animation running.  Clear out the timeout and update the chart
-    cpuchart.customData.animationPending = true;
-    cpuchart.customData.newData = false;
-    cpuchart.updateSeries([{data:cpu}]);
-  }
-}
-
-function updateNetChart() {
-  if (!netchart.customData.newData || !netchart.customData.isVisible || !isPageVisible()) { 
-    return;
-  }
-  // Check if the animation is still running and a timeout hasn't been set
-  if (!netchart.customData.animationPending) {
-    // No animation running.  Clear out the timeout and update the chart
-    netchart.customData.animationPending = true;
-    netchart.customData.newData = false;
-    netchart.updateSeries([{data:rxd},{data:txd}]);
-  }
-}
 
 function isPageVisible() {
-  // Check if charts are good to go
-  if (netchart.customData.initialized && cpuchart.customData.initialized) {
-    return !document.hidden;
-  } else {
-    return false;
-  }
+  // SmoothieCharts handles visibility automatically
+  return !document.hidden;
 }
 
 <?if ($wireguard):?>
@@ -1905,21 +1914,23 @@ function changeView(item) {
 }
 
 function changeCPUline(val) {
-  cpuline = val;
+  cpuline = parseInt(val);
   if (val==30) delete cookie.cpuline; else cookie.cpuline = val;
   saveCookie();
-  // Reset the update count as the chart doesn't always fire animationEnd
-  resetCPUUpdateCount();
-  cpuchart.updateOptions({xaxis:{range:cpuline-1}});
+  // Update chart range
+  // Update SmoothieChart time window based on actual chart width
+  cpuchart.options.millisPerPixel = getMillisPerPixel(cpuline, 'cpuchart');
+  // No need to stop and restart, just update the option
 }
 
 function changeNetline(val) {
-  netline = val;
+  netline = parseInt(val);
   if (val==30) delete cookie.netline; else cookie.netline = val;
   saveCookie();
-  // Reset the update count as the chart doesn't always fire animationEnd
-  resetNetUpdateCount();
-  netchart.updateOptions({xaxis:{range:netline-1}});
+  // Update chart range
+  // Update SmoothieChart time window based on actual chart width
+  netchart.options.millisPerPixel = getMillisPerPixel(netline, 'netchart');
+  // No need to stop and restart, just update the option
 }
 
 function smartMenu(table) {
@@ -2585,20 +2596,41 @@ dashboard.on('message',function(msg,meta) {
     // rx & tx speeds
     for (let i=0,port; port=get.port[i]; i++) {
       if (port[0] == port_select) {
-        $('#inbound').text(port[1]);
-        $('#outbound').text(port[2]);
+        // Cache for network values to avoid unnecessary DOM updates
+        if (!window.lastNetValues) window.lastNetValues = { inbound: '', outbound: '' };
+
+        // Only update DOM if values changed
+        if (port[1] !== window.lastNetValues.inbound) {
+          $('#inbound').text(port[1]);
+          window.lastNetValues.inbound = port[1];
+        }
+        if (port[2] !== window.lastNetValues.outbound) {
+          $('#outbound').text(port[2]);
+          window.lastNetValues.outbound = port[2];
+        }
+
         // update the netchart but only send to ApexCharts if the chart is visible
-        addChartNet(port[3], port[4]); 
-        netchart.customData.newData = true;
-        updateNetChart();
-      
+        addChartNet(port[3], port[4]);
+
         break;
       }
     }
-    // port counters
-    for (let k=0; k < get.mode.length; k++) $('#main'+k).html(get.mode[k]);
-    for (let k=0; k < get.rxtx.length; k++) $('#port'+k).html(get.rxtx[k]);
-    for (let k=0; k < get.stat.length; k++) $('#link'+k).html(get.stat[k]);
+    // port counters - batch check for changes
+    for (let k=0; k < get.mode.length; k++) {
+      const $elem = $('#main'+k);
+      const newVal = get.mode[k];
+      if ($elem.html() !== newVal) $elem.html(newVal);
+    }
+    for (let k=0; k < get.rxtx.length; k++) {
+      const $elem = $('#port'+k);
+      const newVal = get.rxtx[k];
+      if ($elem.html() !== newVal) $elem.html(newVal);
+    }
+    for (let k=0; k < get.stat.length; k++) {
+      const $elem = $('#link'+k);
+      const newVal = get.stat[k];
+      if ($elem.html() !== newVal) $elem.html(newVal);
+    }
     // current date and time
     $('#current_time').html(get.time[0]);
     $('#current_time_').html(get.time[0]);
@@ -2653,8 +2685,15 @@ $(function() {
 
   initCharts();
 
-  cpuchart.render();
-  netchart.render();
+  // Start SmoothieCharts streaming
+  cpuchart.streamTo(document.getElementById('cpuchart'), 1000);
+  netchart.streamTo(document.getElementById('netchart'), 1000);
+
+  // Set millisPerPixel after DOM is ready and charts are attached
+  setTimeout(function() {
+    cpuchart.options.millisPerPixel = getMillisPerPixel(cpuline, 'cpuchart');
+    netchart.options.millisPerPixel = getMillisPerPixel(netline, 'netchart');
+  }, 100);
 
   addProperties();
 <?if ($group):?>
@@ -2686,13 +2725,11 @@ $(function() {
         next: (result) => {
           if (result.data?.systemMetricsCpu) {
             cpuchart.customData.cpuData = result.data.systemMetricsCpu;
-            cpuchart.customData.cpuLoad = Math.round(cpuchart.customData.cpuData.percentTotal);
+            cpuchart.customData.cpuLoad = Math.floor(cpuchart.customData.cpuData.percentTotal);
 
-            //update cpu chart data 
-            addChartCpu(cpuchart.customData.cpuLoad);            
-            cpuchart.customData.newData = true;
+            //update cpu chart data
+            addChartCpu(cpuchart.customData.cpuLoad);
             updateCPUBarCharts();
-            updateCPUChart();
             
           }
         },
@@ -2731,8 +2768,7 @@ $(function() {
   
   // Inhibit chart updates until DOM quiets down
   setTimeout(function() {
-    netchart.customData.initialized = true;
-    cpuchart.customData.initialized = true;
+    // Charts initialized
   },500);
     
   // Cleanup GraphQL subscription on page unload
