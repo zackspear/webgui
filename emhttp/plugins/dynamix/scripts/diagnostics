@@ -389,7 +389,7 @@ function anonymize_domain(&$text) {
       $ident = @parse_ini_file('/boot/config/ident.cfg');
       $domain = strtolower(is_array($ident) ? ($ident['LOCAL_TLD'] ?? ($ident['LOCAL_TLD'] ?? "local")) : "local");
     }
-    if ($domain != "local") {
+    if (strpos($domain,".") !== false) {
       $text = str_ireplace($domain,"removed_TLD",$text);
     }
   }
