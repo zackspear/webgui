@@ -876,7 +876,7 @@ _(Spin down delay)_:
 <?endif;?>
 <?if (diskType('Data') || (isPool($tag) && !isSubpool($tag))):?>
 _(File system status)_:
-: <?=_(_var($disk, 'fsStatus'))?>&nbsp;
+: <?=_(_var($disk, 'fsStatus'))?><?=(_var($disk,'fsStatus')==="Mounted")? (_var($disk,'fsEmpty')==="yes"? ", empty" : ", not empty"):""?>&nbsp;
 
 <?if ($fsTypeImmutable):?>
 _(File system type)_:
@@ -912,7 +912,6 @@ _(File system type)_:
 echo get_inline_fs_warnings($disk);
 ?>
 <?endif;?>
-
 <?if (diskType('Data') || isPool($tag)):?>
 <div markdown="1" id="profile">
 _(Allocation profile)_:

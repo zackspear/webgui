@@ -180,7 +180,6 @@ function my_error($code) {
 }
 
 function mk_option($select, $value, $text, $extra="") {
-  $value = htmlspecialchars($value);
   $text = htmlspecialchars($text);
   return "<option value='$value'".($value == $select ? " selected" : "").(strlen($extra) ? " $extra" : "").">$text</option>";
 }
@@ -387,7 +386,7 @@ function cpu_list() {
 }
 
 function my_explode($split, $text, $count=2) {
-  return array_pad(explode($split, $text, $count), $count, '');
+  return array_pad(explode($split, $text??"", $count), $count, '');
 }
 
 function my_preg_split($split, $text, $count=2) {

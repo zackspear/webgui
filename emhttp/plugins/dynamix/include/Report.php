@@ -24,6 +24,10 @@ case 'config':
     $filename = $plugin ? "$config/plugins/$name/$name.cfg" : "$config/$name.cfg";
     for ( $i=0;$i<2;$i++) {
       if (($need && !file_exists($filename)) || (file_exists($filename) && !@parse_ini_file($filename))) {
+        if ( ! $need && $plugin && @filesize($filename) === 0) {
+          $flag = 0;
+          break;
+        }
         $flag = 1;
         sleep(1);
       } else {
@@ -32,6 +36,9 @@ case 'config':
       }
     }
     if ($flag) break;
+  }
+  if ($flag) {
+    my_logger("$filename corrupted or missing");
   }
   echo $flag;
   break;
