@@ -20,7 +20,7 @@
                     tabindex="<?= $i === 0 ? '0' : '-1' ?>"
                     aria-selected="<?= $i === 0 ? 'true' : 'false' ?>"
                     <? if ( isset($page['Focus']) ): ?>
-                        data-focus="<?= $page['Focus'] ?>"
+                        data-focus="<?= htmlspecialchars($page['Focus'], ENT_QUOTES, 'UTF-8') ?>"
                     <? endif; ?>
                 >
                     <?= tab_title($title, $page['root'], _var($page, 'Tag', false)) ?>
@@ -142,10 +142,11 @@ tabs.forEach((tab, i) => {
         tab.focus();
         // call the focus function if it exists
         if (tab.getAttribute('data-focus') ) {
-            try {
-                eval(tab.getAttribute('data-focus'));
-            } catch (e) {
-                console.error('Error calling focus function: ' + e);
+            const focusFnName = tab.getAttribute('data-focus');
+            if (typeof window[focusFnName] === 'function') {
+                window[focusFnName]();
+            } else {
+                console.error('Focus function not found: ' + focusFnName);
             }
         }
     });
