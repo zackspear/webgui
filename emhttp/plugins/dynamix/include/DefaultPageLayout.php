@@ -156,7 +156,6 @@ if (count($pages)) {
 </head>
 
 <body>
-<unraid-modals></unraid-modals>
   <?php include "$docroot/webGui/include/DefaultPageLayout/MiscElementsTop.php"; ?>
   <?php include "$docroot/webGui/include/DefaultPageLayout/Header.php"; ?>
   <?php include "$docroot/webGui/include/DefaultPageLayout/Navigation/Main.php"; ?>
