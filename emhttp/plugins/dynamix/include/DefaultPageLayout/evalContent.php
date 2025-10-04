@@ -6,21 +6,26 @@
 // The PHP error logged will also include the path of the .page file for easier debugging
 ob_start();
 try {
-        set_error_handler(function($severity, $message, $file, $line) {
-            // Only convert errors (not warnings, notices, etc.) to exceptions
-            if ($severity & (E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR)) {
-                throw new ErrorException($message, 0, $severity, $file, $line);
-            }
-            // Let warnings and notices be handled normally
-            return false;
-        });
-        eval($evalContent);
-        restore_error_handler();
-        ob_end_flush();
-    } catch (Throwable $e) {
-        restore_error_handler();
-        error_log("Error evaluating content in $evalFile: " . $e->getMessage() . "\nStack trace:\n" . $e->getTraceAsString());
-        ob_clean();
+    set_error_handler(function($severity, $message, $file, $line) {
+        global $evalFile;
+        // Only convert errors (not warnings, notices, etc.) to exceptions
+        if ($severity & (E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR)) {
+            throw new ErrorException($message, 0, $severity, $file, $line);
+        } else {
+            error_log("PHP Warning/notice in $evalFile");
+        }
+        // Let warnings and notices be handled normally
+        return false;
+    });
+    eval($evalContent);
+    restore_error_handler();
+    ob_end_flush();
+} catch (Throwable $e) {
+    restore_error_handler();
+    error_log("Error evaluating content in $evalFile: " . $e->getMessage() . "\nStack trace:\n" . $e->getTraceAsString());
+    ob_clean();
+
+    if ( ! ($evalNoBanner??false) ) {
         echo "
             <script>
             $(function() {
@@ -35,6 +40,8 @@ try {
                 }
             });
             </script>";
-        ob_end_flush();   
     }
+    ob_end_flush();   
+}
+$evalNoBanner = false; // reset the variable
 ?>      
