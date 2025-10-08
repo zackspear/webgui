@@ -26,6 +26,8 @@ try {
     restore_error_handler();
     error_log("Error evaluating content in $evalFile): ".$e->getMessage()."\nStack trace:\n".$e->getTraceAsString());
     ob_clean();
+    echo "<script>console.error('".htmlspecialchars("Error evaluating content in $evalFile: ".$e->getMessage())."');</script>";
     ob_end_flush();   
 }
+
 ?>      
