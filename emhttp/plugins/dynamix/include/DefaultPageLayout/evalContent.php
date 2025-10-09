@@ -15,11 +15,18 @@ if ( ! ($evalContent ?? false) ) {
 ob_start();
 try {
   set_error_handler(function($severity, $message, $file, $line) use ($evalFile) {
-    // Only convert errors (not warnings, notices, etc.) to exceptions
-    if ($severity & (E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR)) {
+    // If error was suppressed with @, error_reporting will be 0
+    if (!(error_reporting() & $severity)) {
+      return true;
+    }
+    // Only convert fatal errors to exceptions
+    $fatalErrors = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR;
+    if ($severity & $fatalErrors) {
+      error_log("PHP Fatal Error (Severity: $severity) in $evalFile: $message");
       throw new ErrorException($message, 0, $severity, $file, $line);
     } else {
-      error_log("PHP Warning/notice in $evalFile");
+      // Log non-fatal errors with evalFile context
+      error_log("PHP Error (Severity: $severity) in $evalFile: $message at $file:$line");
     }
     // Let warnings and notices be handled normally
     return false;
@@ -30,7 +37,8 @@ try {
   ob_end_flush();
 } catch (Throwable $e) {
   restore_error_handler();
-  error_log("Error evaluating content in $evalFile): ".$e->getMessage()."\nStack trace:\n".$e->getTraceAsString());
+  $severity = ($e instanceof ErrorException) ? $e->getSeverity() : 'N/A';
+  error_log("Error evaluating content in $evalFile (severity: $severity): ".$e->getMessage()."\nStack trace:\n".$e->getTraceAsString());
   ob_clean();
   echo "<script>console.error('".htmlspecialchars("Error evaluating content in $evalFile: ".$e->getMessage())."');</script>";
   ob_end_flush();   
