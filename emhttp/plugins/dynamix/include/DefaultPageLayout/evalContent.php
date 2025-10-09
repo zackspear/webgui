@@ -2,7 +2,7 @@
 // This evaluates the contents of PHP code.  Has to be "included" because the code is evaluated in the context of the calling page.
 // $evalContent is the PHP code to evaluate.
 // $evalFile is the file that the code is being evaluated in
-// If an error occurs, a banner warning (disappearing in 10 seconds) is added to the page.
+// Errors will be logged in the console and the php error log
 // The PHP error logged will also include the path of the .page file for easier debugging
 
 $evalSuccess = false;
@@ -40,7 +40,8 @@ try {
   $severity = ($e instanceof ErrorException) ? $e->getSeverity() : 'N/A';
   error_log("Error evaluating content in $evalFile (severity: $severity): ".$e->getMessage()."\nStack trace:\n".$e->getTraceAsString());
   ob_clean();
-  echo "<script>console.error('".htmlspecialchars("Error evaluating content in $evalFile: ".$e->getMessage())."');</script>";
+  $errorMessage = "Error evaluating content in $evalFile: ".$e->getMessage();
+  echo "<script>console.error(".json_encode($errorMessage).");</script>";
   ob_end_flush();   
 }
 ?>      
