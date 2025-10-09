@@ -18,7 +18,11 @@ function get_ini_key($key,$default) {
   $x = strpos($key, '[');
   $var = $x>0 ? substr($key,1,$x-1) : substr($key,1);
   global $$var;
-  eval("\$var=$key;");
+  try {
+    eval("\$var=$key;");
+  } catch (Throwable $e) {
+    return $default;
+  }
   return $var ?: $default;
 }
 
