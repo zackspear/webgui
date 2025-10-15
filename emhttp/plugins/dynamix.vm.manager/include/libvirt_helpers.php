@@ -200,6 +200,10 @@ class Array2XML {
 					'vcpus' => 2,
 					'vcpu' => [0,1],
 				],
+				'media' => [
+					'cdrombus' => 'sata',
+					'driversbus' => 'sata' ,
+				],			
 				'disk' => [
 					[
 						'size' => '64G'
