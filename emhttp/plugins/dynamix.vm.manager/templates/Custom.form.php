@@ -2507,15 +2507,6 @@ $(function() {
 		}
 	});
 
-	$("#vmform #domain_machine").change(function changeMachineEvent(){
-		// Cdrom Bus: select IDE for i440 and SATA for q35
-		if ($(this).val().indexOf('i440fx') != -1) {
-			$('#vmform .cdrom_bus').val('ide');
-		} else {
-			$('#vmform .cdrom_bus').val('sata');
-		}
-	});
-
 	$("#vmform #domain_ovmf").change(function changeBIOSEvent(){
 		// using OVMF - disable vmvga vnc option
 		if ($(this).val() != '0' && $("#vmform #vncmodel").val() == 'vmvga') {
