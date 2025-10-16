@@ -467,7 +467,7 @@ function loadlist() {
 
       // Handle table header resizing when window is resized with debouncing
       var resizeTimeout;
-      $(window).bind('resize',function(){
+      $(window).off('resize.vmTableResize').on('resize.vmTableResize',function(){
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(function(){
           tableHeaderResize();
