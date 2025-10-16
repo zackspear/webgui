@@ -2333,7 +2333,11 @@ div#title.ud {
         color: var(--text-color);
         background-color: var(--opac-background-color);
     }
-
+    
+    select option:disabled {
+        color: var(--disabled-text-color);
+    }
+    
     select[disabled] {
         color: var(--disabled-text-color);
         border-color: var(--disabled-input-border-color);
