@@ -346,11 +346,13 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                         <td>
                             <span class='flex flex-row flex-wrap items-center gap-4'>
                                 <span class="head_info">
-                                    <span id='cpu-total-power'><i class='fa fa-fw  fa-plug'></i>_(Total Power)_: N/A</span>
+                                    <span id='cpu-total-power'><i class='fa fa-fw  fa-plug'></i>_(Total)_ _(Power)_: N/A</span>
                                 </span>
+                                <?if (count($cpus)<2):?>
                                 <span class="head_info">
-                                    <span id='cpu-temp'></span>
+                                   _(Temp)_:  <span id='cpu-temp0'></span>
                                 </span>
+                                <?endif;?>
                                 <span class="switch">
                                     _(Load)_:<span class="head_bar">
                                     <span class='cpu_ load'>0%</span>
@@ -399,7 +401,11 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
 
                     <?
                     foreach ($cpus as $cpu_index=>$package)  {
-                      echo "<td><span class='w72'>"._("Physical")." CPU $cpu_index "._("Power").": <span id='cpu-power$cpu_index'>N/A</span></td></span></tr>";
+                      if (count($cpus) > 1) {
+                        echo "<td><span class='cpu_open w72'>"._("Physical")." CPU $cpu_index "._("Power").": <span id='cpu-power$cpu_index'>N/A </span> ";
+                        if (count($cpus)>1) echo _("Temp").": <span id='cpu-temp$cpu_index'>N/A</span>";
+                        echo "</td></span></tr>";
+                      }
                       foreach ($package as $pair) {
                           [$cpu1, $cpu2] = my_preg_split('/[,-]/',$pair);
                           echo "<tr class='cpu_open'>";
@@ -1696,6 +1702,36 @@ function addChartNet(rx, tx) {
   txTimeSeries.append(now, Math.floor(tx / 1000));
 }
 
+function updateCPUPower() {
+  if (!cpupower) return;
+
+  // Update total power
+  const totalEl = document.getElementById('cpu-total-power');
+  const totalPower = cpupower.totalPower ?? 0;
+  if (totalEl) {
+    totalEl.innerHTML = `<i class="fa fa-fw fa-plug"></i> _(Total)_ _(Power)_: ${totalPower.toFixed(2)} W`;
+  }
+
+  // Update each core's span
+  const cpuspower = cpupower.power ?? [];
+  cpuspower.forEach((power, index) => {
+    const coreEl = document.getElementById(`cpu-power${index}`);
+    const coreTempEl = document.getElementById(`cpu-temp${index}`);
+    if (coreEl) {
+      coreEl.innerHTML = `${power.toFixed(2)} W`;
+    }
+  });
+
+  const cpustemps = cpupower.temp ?? [];
+  cpustemps.forEach((temp, index) => {
+    const coreTempEl = document.getElementById(`cpu-temp${index}`);
+      if (coreTempEl) {
+      coreTempEl.innerHTML =  `${temp.toFixed(0)} C`;;
+    }
+  });
+
+}
+
 // Cache for last values to avoid unnecessary DOM updates
 var lastCpuValues = {
   load: -1,
@@ -2771,6 +2807,60 @@ $(function() {
   setTimeout(function() {
     // Charts initialized
   },500);
+
+ 
+
+  // Start GraphQL CPU power subscription with retry logic
+  let cpuInitPWRAttempts = 0, cpuPWRRetryMs = 100;
+  function initPwrCpuSubscription() {
+  
+
+    if (window.gql && window.apolloClient) {
+      // Define the subscription query when GraphQL is available
+      // corepower has the temps currently.
+      CPU_POWER_SUBSCRIPTION = window.gql(`
+        subscription SystemMetricsCpuTelemetry {
+           systemMetricsCpuTelemetry {
+            totalPower,
+            power,
+            temp,
+            }
+          }
+      `);
+      cpuPowerSubscription = window.apolloClient.subscribe({
+        query: CPU_POWER_SUBSCRIPTION
+      }).subscribe({
+        next: (result) => {
+
+
+          if (result.data?.systemMetricsCpuTelemetry){
+            cpupower = result.data.systemMetricsCpuTelemetry;
+            
+  	   updateCPUPower();
+          }
+        },
+        error: (err) => {
+          console.error('CPU power subscription error:', err);
+          // Try to resubscribe with capped backoff
+          if (cpuPowerSubscription) { try { cpuPowerSubscription.unsubscribe(); } catch(e){} }
+          setTimeout(initPwrCpuSubscription, Math.min(cpuPWRRetryMs *= 2, 5000));
+        }
+      });
+    } else {
+      // Retry with capped backoff if GraphQL client not ready
+      cpuPWRInitAttempts++;
+      setTimeout(initPwrCpuSubscription, Math.min(cpuPWRRetryMs *= 2, 2000));
+    }
+  }
+  initPwrCpuSubscription();
+  // Cleanup GraphQL subscription on page unload
+  $(window).on('beforeunload', function() {
+    if (cpuPowerSubscription) {
+      cpuPowerSubscription.unsubscribe();
+    }
+  });
+  
+
     
   // Cleanup GraphQL subscription on page unload
   $(window).on('beforeunload', function() {
