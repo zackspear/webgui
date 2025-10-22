@@ -95,7 +95,6 @@ foreach ($devs as $disk) {
 
 $array_percent = number_format(100*$array_used/($array_size ?: 1),1,$dot,'');
 $cpus=get_cpu_packages();
-$cpus[] = ["16,17"];
 $wg_up      = $wireguard ? exec("wg show interfaces") : '';
 $wg_up      = $wg_up ? explode(' ',$wg_up) : [];
 $up         = count($wg_up);
@@ -1455,7 +1454,6 @@ var stopgap = '<thead class="stopgap"><tr><td class="stopgap"></td></tr></thead>
 var recall  = null;
 var recover = null;
 var tempunit="<?=_var($display,'unit','C');?>";
-
 
 // Helper function to calculate millisPerPixel based on container width
 function getMillisPerPixel(timeInSeconds, containerId) {
