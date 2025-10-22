@@ -2,6 +2,7 @@ Menu="Tasks:70"
 Type="xmenu"
 Code="e918"
 Lock="true"
+Tabs="true"
 Cond="exec(\"grep -o '^SERVICE=.enable' /boot/config/domain.cfg 2>/dev/null\")"
 ---
 <?PHP
@@ -28,9 +29,3 @@ Cond="exec(\"grep -o '^SERVICE=.enable' /boot/config/domain.cfg 2>/dev/null\")"
 <? if ($noticeMessage): ?>
   <p class="notice"><?= $noticeMessage ?></p>
 <? endif; ?>
-
-<?
-if (count($pages) == 2) {
-  $tabbed = false;
-}
-?>

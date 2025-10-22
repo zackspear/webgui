@@ -611,9 +611,17 @@ const displayOptions = <?= json_encode($arrDisplayOptions, JSON_HEX_TAG | JSON_H
 			<?
 			echo mk_option($arrConfig['domain']['mem'], 128 * 1024, '128 MB');
 			echo mk_option($arrConfig['domain']['mem'], 256 * 1024, '256 MB');
+
 			for ($i = 1; $i <= ($maxmem*2); $i++) {
-				$label = ($i * 512).' MB';
-				$value = $i * 512 * 1024;
+				$sizeMB = $i * 512;
+				$value = $sizeMB * 1024;
+
+				if ($sizeMB >= 1024) {
+					$label = number_format($sizeMB / 1024, 1) . ' GB';
+				} else {
+					$label = $sizeMB . ' MB';
+				}
+
 				echo mk_option($arrConfig['domain']['mem'], $value, $label);
 			}
 			?>
@@ -623,9 +631,17 @@ const displayOptions = <?= json_encode($arrDisplayOptions, JSON_HEX_TAG | JSON_H
 			<?
 			echo mk_option($arrConfig['domain']['maxmem'], 128 * 1024, '128 MB');
 			echo mk_option($arrConfig['domain']['maxmem'], 256 * 1024, '256 MB');
+
 			for ($i = 1; $i <= ($maxmem*2); $i++) {
-				$label = ($i * 512).' MB';
-				$value = $i * 512 * 1024;
+				$sizeMB = $i * 512;
+				$value = $sizeMB * 1024;
+
+				if ($sizeMB >= 1024) {
+					$label = number_format($sizeMB / 1024, 1) . ' GB';
+				} else {
+					$label = $sizeMB . ' MB';
+				}
+
 				echo mk_option($arrConfig['domain']['maxmem'], $value, $label);
 			}
 			?>
@@ -2488,15 +2504,6 @@ $(function() {
 	$("#vmform #domain_maxmem").change(function changeMaxMemEvent(){
 		if (parseFloat($(this).val()) < parseFloat($("#vmform #domain_mem").val())) {
 			$("#vmform #domain_mem").val($(this).val());
-		}
-	});
-
-	$("#vmform #domain_machine").change(function changeMachineEvent(){
-		// Cdrom Bus: select IDE for i440 and SATA for q35
-		if ($(this).val().indexOf('i440fx') != -1) {
-			$('#vmform .cdrom_bus').val('ide');
-		} else {
-			$('#vmform .cdrom_bus').val('sata');
 		}
 	});
 

@@ -169,11 +169,16 @@ foreach ($memory_array as $device) {
   if ($base>=1) $memory_maximum += $size*pow(1024,$base);
   if (!$ecc && isset($device['Error Correction Type']) && $device['Error Correction Type']!='None') $ecc = "{$device['Error Correction Type']} ";
 }
+if ($memory_installed >= 1048576) {
+  $memory_installed = round($memory_installed/1048576);
+  $memory_maximum = round($memory_maximum/1048576);
+  $unit = 'TiB';
+} else { 
 if ($memory_installed >= 1024) {
   $memory_installed = round($memory_installed/1024);
   $memory_maximum = round($memory_maximum/1024);
-  $unit = 'GiB';
-} else $unit = 'MiB';
+  $unit = 'GiB';}
+else $unit = 'MiB'; }
 
 // get system resources size
 exec("df --output=size /boot /var/log /var/lib/docker 2>/dev/null|awk '(NR>1){print $1*1024}'",$df);
@@ -510,14 +515,14 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                     <div class='section'>
                                         <span class='flex flex-row items-center gap-4'>
                                           <h3 class='tile-header-main'>_(Interface)_</h3>
-                                          <span class="head_gap flex flex-row items-center gap-4">
+                                          <span class="head_gap flex flex-row items-center gap-4 network-selects">
                                               <i class='ups fa fa-angle-double-right'></i>
-                                              <select name="port_select" onchange="portSelect(this.value)">
+                                              <select name="port_select" class="network-select network-interface" onchange="portSelect(this.value)">
                                                   <?foreach ($ports as $port):?>
                                                       <?=mk_option("",$port,_($port))?>
                                                   <?endforeach;?>
                                               </select>
-                                              <select name="enter_view" onchange="changeView(this.value)" style="min-width: 100px">
+                                              <select name="enter_view" class="network-select network-type" onchange="changeView(this.value)">
                                                   <?=mk_option("", "0", _("General info"))?>
                                                   <?=mk_option("", "1", _("Counters info"))?>
                                                   <?=mk_option("", "2", _("Errors info"))?>

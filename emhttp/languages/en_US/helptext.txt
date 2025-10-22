@@ -1548,7 +1548,6 @@ provided the following conditions are met:
 * The Primary storage for a share is set to a pool.
 * The Secondary storage for a share is set to **none**.
 * The share exists on a single volume.
-* The share is **not** exported over NFS.
 
 The advantage of *exclusive* shares is that transfers bypass the FUSE layer which may significantly
 increase I/O performance.
