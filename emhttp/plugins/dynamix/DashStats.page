@@ -2857,7 +2857,7 @@ $(function() {
       });
     } else {
       // Retry with capped backoff if GraphQL client not ready
-      cpuPInitPWRAttempts++;
+      cpuInitPWRAttempts++;
       setTimeout(initPwrCpuSubscription, Math.min(cpuPWRRetryMs *= 2, 2000));
     }
   }
