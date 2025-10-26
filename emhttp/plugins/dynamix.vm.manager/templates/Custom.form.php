@@ -2484,6 +2484,13 @@ $(function() {
 	});
 	<?endif?>
 
+	$("#vmform #domain_machine").change(function changeMachineEvent(){
+		// Cdrom Bus: select IDE for i440 and SATA for q35
+		if ($(this).val().indexOf('q35') != -1) {		
+			$('#vmform .cdrom_bus').val('sata');
+		}
+	});
+
 	$("#vmform .domain_vcpu").change(function changeVCPUEvent(){
 		var $cores = $("#vmform .domain_vcpu:checked");
 		if ($cores.length < 1) {
