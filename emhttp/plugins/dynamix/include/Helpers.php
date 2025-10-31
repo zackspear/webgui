@@ -565,9 +565,8 @@ function dmidecode($key, $n, $all=true) {
 }
 
 function is_intel_cpu() {
-  $cpu_vendor = exec("grep -Pom1 '^model name\s+:\s*\K.+' /proc/cpuinfo")  ?? "";
-  $is_intel_cpu = stripos($cpu_vendor, "intel") !== false ? true : false;
-  return $is_intel_cpu;
+  $cpu_vendor_check = exec("grep -Pom1 '^model name\s+:\s*\K.+' /proc/cpuinfo") ?? "";
+  return stripos($cpu_vendor_check, "intel") !== false;
 }
 
 // Load saved PCI data
