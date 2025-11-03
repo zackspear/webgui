@@ -35,7 +35,7 @@
 # This script takes three parameters:
 #   <Domain:Bus:Device.Function> i.e. dddd:bb:dd.f
 #   <Vendor:Device> i.e. vvvv:dddd
-#   <Number of VFs
+#   <Number of VFs>
 # and then:
 #
 #  (1) If both <Vendor:Device> and <Domain:Bus:Device.Function> were provided,
@@ -87,6 +87,11 @@ do
     fi
 done
 
+if [[ -z "$BDF" ]]; then
+    echo "Error: No valid Bus:Device.Function provided" 1>&2
+    exit 1
+fi
+
 TARGET_DEV_SYSFS_PATH="/sys/bus/pci/devices/$BDF"
 
 if [[ ! -d $TARGET_DEV_SYSFS_PATH ]]; then
@@ -111,10 +116,7 @@ else
     echo "Warning: You did not specify a Vendor:Device (vvvv:dddd), unable to validate ${BDF}" 1>&2
 fi
 
-
-
 printf "\nSetting...\n"
-
 
 # Capture stderr output from echo into a variable
 error_msg=$( (echo "$NUMVFS" > "$TARGET_DEV_SYSFS_PATH/sriov_numvfs") 2>&1 )
@@ -127,8 +129,4 @@ if [[ $? -ne 0 ]]; then
 fi
 
 printf "\n"
-
-
 echo "Device ${VD} at ${BDF} set numvfs to ${NUMVFS}"
-
-

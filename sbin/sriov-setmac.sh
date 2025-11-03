@@ -35,13 +35,15 @@
 # This script takes three parameters:
 #   <Domain:Bus:Device.Function> i.e. dddd:bb:dd.f
 #   <Vendor:Device> i.e. vvvv:dddd
-#   <Number of VFs
+#   <MAC Address> 
 # and then:
 #
 #  (1) If both <Vendor:Device> and <Domain:Bus:Device.Function> were provided,
 #      validate that the requested <Vendor:Device> exists at <Domain:Bus:Device.Function>
 #
-#  (2) Set nu to value supplied as 3rd parameter:
+#  (2) Set MAC to value supplied as 3rd parameter:
+#
+#  (3) Unbind and rebind network driver for change to take effect.
 #
 
 BDF_REGEX="^[[:xdigit:]]{2}:[[:xdigit:]]{2}.[[:xdigit:]]$"
@@ -53,7 +55,7 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
-if [[ -z "$@" ]]; then
+if [[ $# -eq 0 ]]; then
     echo "Error: Please provide Domain:Bus:Device.Function (dddd:bb:dd.f) and/or Vendor:Device (vvvv:dddd)" 1>&2
     exit 1
 fi
@@ -62,7 +64,7 @@ fi
 if [[ $# -ne 3 ]]; then
     echo "Error: Expected 3 parameters, but got $#." 1>&2
     echo "Usage: $0 <param1> <param2> <param3>" 1>&2
-    echo "Example: $0 0000:01:00.0 10de:1fb8 numvfs" 1>&2
+    echo "Example: $0 0000:01:00.0 10de:1fb8 62:00:01:00:00:99" 1>&2
     exit 1
 fi
 
@@ -111,26 +113,7 @@ else
     echo "Warning: You did not specify a Vendor:Device (vvvv:dddd), unable to validate ${BDF}" 1>&2
 fi
 
-
-
 printf "\nSetting...\n"
-
-: '
-# Capture stderr output from echo into a variable
-error_msg=$( (echo "$NUMVFS" > "$TARGET_DEV_SYSFS_PATH/sriov_numvfs") 2>&1 )
-
-if [[ $? -ne 0 ]]; then
-    echo "Error: Failed to set sriov_numvfs at $TARGET_DEV_SYSFS_PATH" >&2
-    clean_msg=$(echo "$error_msg" | sed -n 's/.*error: \(.*\)/\1/p')
-    echo "System message: $clean_msg" >&2
-    exit 1
-fi
-
-printf "\n"
-
-
-echo "Device ${VD} at ${BDF} set numvfs to ${NUMVFS}"
-'
 
 # Locate PF device
 
@@ -187,8 +170,10 @@ if [ -n "$VF_DRIVER" ]; then
 fi
 
 # Set MAC
-#echo "$PF_IFACE" vf "$VF_INDEX" mac "$MAC"
-ip link set "$PF_IFACE" vf "$VF_INDEX" mac "$MAC"
+if ! ip link set "$PF_IFACE" vf "$VF_INDEX" mac "$MAC"; then
+    echo "Error: Failed to set MAC address $MAC on VF $VF_INDEX" >&2
+    exit 1
+fi
 
 # Rebind VF to driver if it was bound before
 if [ -n "$VF_DRIVER" ]; then
