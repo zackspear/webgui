@@ -46,6 +46,100 @@ function applyCfg() {
     $("#applycfg").attr("disabled",true);
   });
 }
+
+function saveMACConfig(pciId,vd) {
+  var message = "_(System Devices)_: _(A reboot is required to apply changes)_";
+  var mac = document.getElementById("vfmac" + pciId).value;
+
+  $.post( "/plugins/dynamix/include/update.sriov-cfg.php", { type:"sriovmac", pciid: pciId, vd:vd, mac:mac } )
+  .done(function(d) {
+    if (d==1) {
+      addRebootNotice(message);
+      document.getElementById("warning").innerHTML = "<b>_(ALERT)_: _(Changes saved)_. _(Reboot to take effect)_.</b>";
+          swal("MACs Saved", "success");
+    } else {
+      removeRebootNotice(message);
+      document.getElementById("warning").innerHTML = "<b>_(No changes)_.</b>";
+    }
+  });
+}
+function saveVFsConfig(pciId,vd) {
+  var message = "_(System Devices)_: _(A reboot is required to apply changes)_";
+  var numvfs = document.getElementById("vf" + pciId).value;
+
+  $.post( "/plugins/dynamix/include/update.sriov-cfg.php", { type:"sriov", pciid: pciId, vd:vd, numvfs:numvfs } )
+  .done(function(d) {
+    if (d==1) {
+      addRebootNotice(message);
+      document.getElementById("warning").innerHTML = "<b>_(ALERT)_: _(Changes saved)_. _(Reboot to take effect)_.</b>";
+      swal("VFs Saved ","success");
+    } else {
+      removeRebootNotice(message);
+      document.getElementById("warning").innerHTML = "<b>_(No changes)_.</b>";
+    }
+  });
+}
+
+function generateMAC(pciId) {
+  if (!pciId) {
+    swal("Error", "No PCI ID provided to generateMAC()", "error");
+    return;
+  }
+
+  // Validate PCI ID format
+  var pciPattern = /^([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9a-fA-F]{2})\.([0-7])$/;
+  var match = pciId.match(pciPattern);
+  if (!match) {
+    swal("Invalid PCI ID", "Expected format: 0000:03:00.2", "error");
+    return;
+  }
+
+  // Ask for host ID using Unraid swal input
+  swal({
+    title: "Enter Host ID",
+    text: "Provide a 2-digit hex host ID (e.g. 01)",
+    type: "input",
+    showCancelButton: true,
+    closeOnConfirm: false,
+    inputPlaceholder: "00"
+  }, function(hostId) {
+    if (hostId === false) return; // cancelled
+    if (!/^[0-9a-fA-F]{1,2}$/.test(hostId)) {
+      swal.showInputError("Please enter 1–2 hex digits (00–ff)");
+      return false;
+    }
+
+    // Extract PCI parts
+    var domain = match[1];
+    var bus = match[2];
+    var dev = match[3];
+    var func = match[4];
+    var dom_lo = ("0" + (parseInt(domain, 16) & 0xFF).toString(16)).slice(-2);
+
+    // Format: 62:<domain>:<bus>:<device>:<function>:<host>
+    var mac = [
+      "62",
+      dom_lo,
+      bus.padStart(2, "0"),
+      dev.padStart(2, "0"),
+      func.padStart(2, "0"),
+      hostId.padStart(2, "0")
+    ].join(":").toUpperCase();
+
+    // Build target input ID (e.g., #vfmac0000:04:11.1)
+    var inputId = "vfmac" + pciId;
+
+    // Update the field if it exists
+    var $field = $("#" + CSS.escape(inputId));
+    if ($field.length) {
+      $field.val(mac);
+    }
+
+    swal("MAC Generated", mac, "success");
+  });
+}
+
+
 function formatFullInput(input) {
     return input
         .split(';')

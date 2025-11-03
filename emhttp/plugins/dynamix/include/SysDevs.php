@@ -19,6 +19,7 @@ $_SERVER['REQUEST_URI'] = 'tools';
 require_once "$docroot/webGui/include/Translations.php";
 
 $pci_device_diffs = comparePCIData();
+$allowedPCIClass = ['0x02','0x03'];
 
 function usb_physical_port($usbbusdev) {
   if (preg_match('/^Bus (?P<bus>\S+) Device (?P<dev>\S+): ID (?P<id>\S+)(?P<name>.*)$/', $usbbusdev, $usbMatch)) {
@@ -35,6 +36,183 @@ function usb_physical_port($usbbusdev) {
   }
   return($physical_busid);
 }
+
+/**
+ * Enumerate SR-IOV capable PCI devices (keyed by PCI address).
+ *
+ * Example JSON:
+ * {
+ *   "0000:03:00.0": {
+ *     "class": "Ethernet controller",
+ *     "class_id": "0x0200",
+ *     "name": "Intel Corporation X710 for 10GbE SFP+",
+ *     "driver": "i40e",
+ *     "module": "i40e",
+ *     "vf_param": "max_vfs",
+ *     "total_vfs": 64,
+ *     "num_vfs": 8,
+ *     "vfs": [
+ *       {"pci": "0000:03:10.0", "iface": "enp3s0f0v0", "mac": "52:54:00:aa:00:01"}
+ *     ]
+ *   }
+ * }
+ */
+
+function getSriovInfoJson(bool $includeVfDetails = true): string {
+    $results = [];
+    $paths = glob('/sys/bus/pci/devices/*/sriov_totalvfs') ?: [];
+
+    foreach ($paths as $totalvfFile) {
+        $devdir = dirname($totalvfFile);
+        $pci = basename($devdir);
+
+        $total_vfs = (int) @file_get_contents($totalvfFile);
+        $num_vfs   = (int) @file_get_contents("$devdir/sriov_numvfs");
+
+        // Driver/module detection
+        $driver = $module = $vf_param = null;
+        $driver_link = "$devdir/driver";
+        if (is_link($driver_link)) {
+            $driver = basename(readlink($driver_link));
+            $module_link = "$driver_link/module";
+            $module = is_link($module_link) ? basename(readlink($module_link)) : $driver;
+            $vf_param = detectVfParam($driver);
+        }
+
+        // Device class + numeric class + name
+        [$class, $class_id, $name] = getPciClassNameAndId($pci);
+
+        // Virtual functions
+        $vfs = [];
+        foreach (glob("$devdir/virtfn*") as $vf) {
+            if (!is_link($vf)) continue;
+            $vf_pci = basename(readlink($vf));
+            $vf_entry = ['pci' => $vf_pci];
+
+            if ($includeVfDetails) {
+                // Network interface info
+                $net = glob("/sys/bus/pci/devices/{$vf_pci}/net/*");
+                if ($net && isset($net[0])) {
+                    $iface = basename($net[0]);
+                    $vf_entry['iface'] = $iface;
+                    $macFile = "/sys/class/net/{$iface}/address";
+                    if (is_readable($macFile)) {
+                        $vf_entry['mac'] = trim(file_get_contents($macFile));
+                    }
+                }
+
+                // IOMMU group
+                $iommu_link = "/sys/bus/pci/devices/{$vf_pci}/iommu_group";
+                if (is_link($iommu_link)) {
+                    $vf_entry['iommu_group'] = basename(readlink($iommu_link));
+                } else {
+                    $vf_entry['iommu_group'] = null;
+                }
+            }
+            $vfs[] = $vf_entry;
+        }
+
+        $results[$pci] = [
+            'class' => $class,
+            'class_id' => $class_id,
+            'name' => $name,
+            'driver' => $driver,
+            'module' => $module,
+            'vf_param' => $vf_param,
+            'total_vfs' => $total_vfs,
+            'num_vfs' => $num_vfs,
+            'vfs' => $vfs
+        ];
+    }
+
+    ksort($results, SORT_NATURAL);
+    return json_encode($results, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+}
+
+function detectVfParam(string $driver): ?string {
+    if (!function_exists('shell_exec')) return null;
+    $out = @shell_exec('modinfo ' . escapeshellarg($driver) . ' 2>/dev/null');
+    if (!$out) return null;
+
+    $lines = explode("\n", strtolower($out));
+    $params = [];
+    foreach ($lines as $line) {
+        if (preg_match('/^parm:\s+(\S+)/', $line, $m)) $params[] = $m[1];
+    }
+
+    foreach (['max_vfs', 'num_vfs', 'sriov_numvfs', 'sriov_vfs'] as $key)
+        if (in_array($key, $params, true)) return $key;
+
+    foreach ($params as $p)
+        if (preg_match('/vf/', $p)) return $p;
+
+    return null;
+}
+
+/**
+ * Robustly get PCI class (text + numeric ID) and device name from lspci/sysfs.
+ */
+function getPciClassNameAndId(string $pci): array {
+    $class = 'Unknown';
+    $class_id = null;
+    $name = 'Unknown';
+
+    // Numeric class code from sysfs
+    $classFile = "/sys/bus/pci/devices/{$pci}/class";
+    if (is_readable($classFile)) {
+        $raw = trim(file_get_contents($classFile));
+        $class_id = sprintf("0x%04x", (hexdec($raw) >> 8) & 0xFFFF);
+    }
+
+    // Try lspci -mm for machine-readable info
+    $out = trim(@shell_exec('lspci -mm -s ' . escapeshellarg($pci) . ' 2>/dev/null'));
+    if ($out && preg_match('/"([^"]+)"\s+"([^"]+)"\s+"([^"]+)"/', $out, $m)) {
+        $class = $m[1];
+        $name = trim($m[3]);
+        return [$class, $class_id, $name];
+    }
+
+    // Fallback to regular lspci output
+    $alt = trim(@shell_exec('lspci -s ' . escapeshellarg($pci) . ' 2>/dev/null'));
+    if ($alt && preg_match('/^[\da-fA-F:.]+\s+([^:]+):\s+(.+)/', $alt, $m)) {
+        $class = trim($m[1]);
+        $name = trim($m[2]);
+    }
+
+    return [$class, $class_id, $name];
+}
+
+/* --- CLI Entry --- */
+  $sriov =  json_decode(getSriovInfoJson(true),true);
+
+/**
+ * Enumerate all VFs and group them by IOMMU group
+ * Output: associative array or JSON with keys like "IOMMU group 29"
+ */
+function getVfListByIommuGroup(): array {
+    $groups = [];
+
+    foreach (glob('/sys/bus/pci/devices/*/physfn') as $vf_physfn) {
+        $vf_dir = dirname($vf_physfn);
+        $vf_pci = basename($vf_dir);
+
+        $iommu_link = "$vf_dir/iommu_group";
+        if (is_link($iommu_link)) {
+            $iommu_group = basename(readlink($iommu_link));
+        } else {
+            $iommu_group = "unknown";
+        }
+
+        $groups[]  = "IOMMU group " . $iommu_group;
+        $groups[] = $vf_pci;
+    }
+
+    ksort($groups, SORT_NATURAL);
+    return $groups;
+}
+
+$sriovvfs = getVfListByIommuGroup();
+
 
 switch ($_POST['table']) {
 case 't1':
@@ -70,6 +248,48 @@ case 't1':
         }
       }
       $vfio_cfg_devices = array_values(array_unique($vfio_cfg_devices, SORT_STRING));
+    }
+
+    $DBDF_SRIOV_REGEX = '/^[[:xdigit:]]{4}:[[:xdigit:]]{2}:[[:xdigit:]]{2}\.[[:xdigit:]]\|[[:xdigit:]]{4}:[[:xdigit:]]{4}\|[[:xdigit:]]+$/';
+
+    $DBDF_SRIOV_MAC_REGEX = '/^[[:xdigit:]]{4}:[[:xdigit:]]{2}:[[:xdigit:]]{2}\.[[:xdigit:]]\|[[:xdigit:]]{4}:[[:xdigit:]]{4}\|([[:xdigit:]]{2}:){5}[[:xdigit:]]{2}$/';
+
+    $sriov_devices = array ();
+    if (is_file("/boot/config/sriov.cfg")) {
+      // accepts space-separated list of <Bus:Device.Function> or <Domain:Bus:Device.Function> followed by an optional "|" and <Vendor:Device>
+      // example: VFS=0000:04:00.1|8086:1521|3 0000:04:00.0|8086:1521|2
+      // this front-end does not accept <Vendor:Device> by itself, altough the underlying vfio-pci script does
+      $file = file_get_contents("/boot/config/sriov.cfg");
+      $file = trim(str_replace("VFS=", "", $file));
+      $file_contents = explode(" ", $file);
+      foreach ($file_contents as $sriov_device) {
+        if (preg_match($DBDF_SRIOV_REGEX, $sriov_device)) {
+            // full <Domain:Bus:Device.Function> was provided (may be followed by optional <Vendor:Device> too)
+            $sriov_devices[] = $sriov_device;
+        } else {
+          // entry in wrong format, discard
+        }
+      }
+      $sriov_devices = array_values(array_unique($sriov_devices, SORT_STRING));
+    }
+    $sriov_devices_mac = array ();
+    if (is_file("/boot/config/sriovvfs.cfg")) {
+      // accepts space-separated list of <Bus:Device.Function> or <Domain:Bus:Device.Function> followed by an optional "|" and <Vendor:Device>
+      // example:VFMAC=0000:04:11.5|8086:1520|62:00:04:11:05:01
+      // this front-end does not accept <Vendor:Device> by itself, altough the underlying vfio-pci script does
+      $file = file_get_contents("/boot/config/sriovvfs.cfg");
+      $file = trim(str_replace("VFMAC=", "", $file));
+      $file_contents = explode(" ", $file);
+
+      foreach ($file_contents as $sriov_device_mac) {
+        if (preg_match($DBDF_SRIOV_MAC_REGEX, $sriov_device_mac)) {
+          // full <Domain:Bus:Device.Function> was provided (may be followed by optional <Vendor:Device> too)
+          $sriov_devices_mac[] = $sriov_device_mac;
+        } else {
+          // entry in wrong format, discard
+        }
+      }
+      $sriov_devices_mac = array_values(array_unique($sriov_devices_mac, SORT_STRING));
     }
     $disks = (array)parse_ini_file('state/disks.ini',true);
     $devicelist = array_column($disks, 'device');
@@ -126,8 +346,10 @@ case 't1':
       $groups[] = "\tR[{$removeddata['device']['vendor_id']}:{$removeddata['device']['device_id']}] ".str_replace("0000:","",$removedpci)." ".trim($removeddata['device']['description'],"\n");
     }
     $ackparm = "";
+    #echo "<tr><td>";var_dump($sriov, $sriovvfs);echo"</td></tr>";
     foreach ($groups as $line) {
       if (!$line) continue;
+      if (in_array($line,$sriovvfs)) continue;
       if ($line[0]=='I') {
         if (isset($spacer)) echo "<tr><td colspan='2' class='thin'></td>"; else $spacer = true;
         echo "</tr><tr><td>$line:</td><td>";
@@ -143,6 +365,7 @@ case 't1':
           // By default lspci does not output the <Domain> when the only domain in the system is 0000. Add it back.
           $pciaddress = "0000:".$pciaddress;
         }
+        if ( in_array($pciaddress,$sriovvfs)) continue;
         echo ($append) ? "" : "<tr><td></td><td>";
         exec("lspci -v -s $pciaddress", $outputvfio);
         if (preg_grep("/vfio-pci/i", $outputvfio)) {
@@ -179,6 +402,112 @@ case 't1':
             echo "</td></tr>";
           }
         }
+      
+
+        if (array_key_exists($pciaddress,$sriov) && in_array(substr($sriov[$pciaddress]['class_id'],0,4),$allowedPCIClass)) {
+          echo "<tr><td></td><td></td><td></td><td></td><td>";
+          echo "SRIOV Available VFs:{$sriov[$pciaddress]['total_vfs']}";
+          $num_vfs= $sriov[$pciaddress]['num_vfs'];
+          
+          $matches = array_filter($sriov_devices, function($entry) use ($pciaddress) {
+            return explode('|', $entry)[0] === $pciaddress;
+          });
+
+          if ($matches) {
+            $match = reset($matches); // first matching entry
+            $file_numvfs = explode('|', $match)[2];
+          } else $file_numvfs = 0;
+
+          echo '<label for="vf_select"> Select number of VFs: </label>';
+          echo '<select class="narrow" name="vf'.$pciaddress.'" id="vf'.$pciaddress.'">';
+
+          // First option: None
+          $selected = ($file_numvfs == 0) ? ' selected' : '';
+          echo "<option value=\"0\"$selected>None</option>";
+
+          // Generate numeric options
+          for ($i = 1; $i <= $sriov[$pciaddress]['total_vfs']; $i++) {
+          $selected = ($file_numvfs == $i) ? ' selected' : '';
+          echo "<option value=\"$i\"$selected>$i</option>";
+          }
+
+          echo '</select>';
+          echo " -> ".$num_vfs;
+          echo ' <a class="info" href="#" title="'._("Save VFs config").'" onclick="saveVFsConfig(\''.htmlentities($pciaddress).'\',\''.htmlentities($vd).'\'); return false;"><i class="fa fa-save"> </i></a>';
+          echo ' <a class="info" href="#" title="'._("Action VFs update").'" onclick="applyVFsConfig(\''.htmlentities($pciaddress).'\',\''.htmlentities($vd).'\'); return false;"><i title="Apply now" class="fa fa-play"></i></a>';
+
+          if ($file_numvfs != $num_vfs) echo " <span id='vfnotice".$pciaddress."'><i class=\"fa fa-warning fa-fw orange-text\"></i> ".sprintf(_("Pending action or reboot"));
+
+          echo "</td></tr>";
+          foreach($sriov[$pciaddress]['vfs'] as $vrf) {
+            $pciaddress = $vrf['pci'];
+            if ($removed) $line=preg_replace('/R/', '', $line, 1);
+            if (preg_match($BDF_REGEX, $pciaddress)) {
+              // By default lspci does not output the <Domain> when the only domain in the system is 0000. Add it back.
+              $pciaddress = "0000:".$pciaddress;
+            }
+            echo "<tr><td></td><td>";
+            $outputvfio = $vrfline =[];
+            exec('lspci -ns "'.$pciaddress.'"|awk \'BEGIN{ORS=" "}{print "["$3"]"}\';lspci -s "'.$pciaddress.'"',$vrfline);
+      
+            $vd = trim(explode(" ", $vrfline[0])[0], "[]");
+            exec("lspci -v -s $pciaddress", $outputvfio);
+            if (preg_grep("/vfio-pci/i", $outputvfio)) {
+              echo "<i class=\"fa fa-circle orb green-orb middle\" title=\"",_('Kernel driver in use: vfio-pci'),"\"></i>";
+              $isbound = "true";
+            }
+            echo "</td><td>";
+            if ((strpos($line, 'Host bridge') === false) && (strpos($line, 'PCI bridge') === false)) {
+              if (file_exists('/sys/bus/pci/devices/'.$pciaddress.'/reset')) echo "<i class=\"fa fa-retweet grey-orb middle\" title=\"",_('Function Level Reset (FLR) supported'),".\"></i>";
+              echo "</td><td>";
+              if (!$removed) {
+              echo '<input type="checkbox" class="iommu'.$vrf['iommu_group'].'" value="'.$pciaddress."|".$vd.'" ';
+              // check config file for two formats: <Domain:Bus:Device.Function>|<Vendor:Device> or just <Domain:Bus:Device.Function>
+              echo (in_array($pciaddress."|".$vd, $vfio_cfg_devices) || in_array($pciaddress, $vfio_cfg_devices)) ? " checked>" : ">";
+              } 
+            } else { echo "</td><td>"; }
+            echo '</td><td title="';
+            foreach ($outputvfio as $line2) echo htmlentities($line2,ENT_QUOTES)."&#10;";
+            echo '">IOMMU Group '.$vrf['iommu_group'].": ",$vrfline[0],'</td></tr>';
+            if (array_key_exists($pciaddress,$pci_device_diffs)) {
+              echo "<tr><td></td><td><td></td><td></td><td>";
+              echo "<i class=\"fa fa-warning fa-fw orange-text\" title=\""._('PCI Change')."\n"._('Click to acknowledge').".\" onclick=\"ackPCI('".htmlentities($pciaddress)."','".htmlentities($pci_device_diffs[$pciaddress]['status'])."')\"></i>";
+              echo _("PCI Device change");
+              echo " "._("Action").":".ucfirst(_($pci_device_diffs[$pciaddress]['status']))." ";
+              $ackparm .= $pciaddress.",".$pci_device_diffs[$pciaddress]['status'].";";
+              if ($pci_device_diffs[$pciaddress]['status']!="removed") echo $pci_device_diffs[$pciaddress]['device']['description'];
+              echo "</td></tr>";
+              if ($pci_device_diffs[$pciaddress]['status']=="changed") {
+                echo "<tr><td></td><td><td></td><td></td><td>";
+                echo _("Differences");
+                foreach($pci_device_diffs[$pciaddress]['differences'] as $key => $changes){
+                  echo " $key "._("before").":{$changes['old']} "._("after").":{$changes['new']} ";
+                }
+                echo "</td></tr>";
+              }
+            }         
+            $matches = array_filter($sriov_devices_mac, function($entry) use ($pciaddress) {
+                  return explode('|', $entry)[0] === $pciaddress;
+              });
+
+            if ($matches) {
+                $match = reset($matches); // first matching entry
+                $mac = explode('|', $match)[2];
+            } else {
+                $mac = null;
+            }
+            $placeholder = empty($mac) ? 'Undefined dynamic allocation' : '';
+            $value_attr  = empty($mac) ? '' : htmlspecialchars($mac, ENT_QUOTES);
+            echo "<tr><td></td><td></td><td></td><td></td><td>";
+            echo '<label for="mac_address">MAC Address:</label>';
+            echo "<input class='narrow' type=\"text\" name=\"vfmac$pciaddress\" id=\"vfmac$pciaddress\" value=\"$value_attr\" placeholder=\"$placeholder\">";
+            echo '<a class="info" href="#" title="'._("Generate MAC").'" onclick="generateMAC(\''.htmlentities($pciaddress).'\'); return false;"><i class="fa fa-refresh mac_generate"> </i></a>';
+            echo '<a class="info" href="#" title="'._("Save MAC config").'" onclick="saveMACConfig(\''.htmlentities($pciaddress).'\',\''.htmlentities($vd).'\'); return false;"><i class="fa fa-save"> </i></a>';
+            echo "-> {$vrf['mac']}";
+            echo "</td></tr>";  
+          }
+        }
+
         unset($outputvfio);
         switch (true) {
           case (strpos($line, 'USB controller') !== false):
