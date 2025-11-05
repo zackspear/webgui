@@ -369,10 +369,10 @@ function shutdown_now(form, cmd) {
         <? if (is_file("/var/log/plugins/tailscale.plg") || is_file("/var/log/plugins/tailscale-preview.plg" || is_file("/var/log/plugins/dynamix.unraid.net.plg"))): ?>
           text += "  _(If you use Tailscale or Unraid Connect Remote Access to access the webGUI or services of the server, this access will be lost.)_";
           <? if ($tailscaleUI): ?>
-            text += "\n\n<span class='font-bold'>_(You are currently accessing the webGUI of the server via Tailscale.)_</span>";
+            text += "\n\n<span class='strong'>_(You are currently accessing the webGUI of the server via Tailscale.)_</span>";
           <? endif; ?>
           <? if ($connectRemote): ?>
-            text += "\n\n<span class='font-bold'>_(You are currently accessing the webGUI of the server via Unraid Connect Remote Access.)_</span>";
+            text += "\n\n<span class='strong'>_(You are currently accessing the webGUI of the server via Unraid Connect Remote Access.)_</span>";
           <? endif; ?>
         <? endif; ?>
       } else {
