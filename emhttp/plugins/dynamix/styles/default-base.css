@@ -1902,6 +1902,10 @@ span#wlan0 {
     position: relative;
 }
 
+.font-bold {
+    font-weight: bold;
+}
+
 .font-mono {
     font-family: bitstream, monospace;
 }

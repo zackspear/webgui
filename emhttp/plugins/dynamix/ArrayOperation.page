@@ -348,8 +348,33 @@ function shutdown_now(form, cmd) {
   $(form).append('<input type="hidden" name="cmd" value="'+cmd+'">');
 <?if ($confirm['down']):?>
   switch (cmd) {
-    case 'reboot': var text = "_(This will reboot the system)_"; break;
-    case 'shutdown': var text = "_(This will shutdown the system)_"; break;
+    case 'reboot': 
+      if ($('input[name="safemode"]').prop('checked')) {
+        <?
+          $nginx = parse_ini_file("/var/local/emhttp/nginx.ini");
+          $tailscaleUI = false;
+          foreach ($nginx as $key => $value) {
+            if (stripos($key, 'tailscale') !== false && $value == $_SERVER['HTTP_HOST'])  {
+              $tailscaleUI = true;
+              break;
+            }
+          }
+        ?>
+        var text = "_(This will reboot the system in safe mode)_\n\n";
+        var text = text.concat("_(No plugins will be loaded in safe mode.)_");
+        <? if (is_file("/var/log/plugins/tailscale.plg") || is_file("/var/log/plugins/tailscale-preview.plg")): ?>
+          var text = text.concat("  _(If you use Tailscale to access the GUI or services of the server, this access will be lost.)_");
+          <? if ($tailscaleUI): ?>
+            var text = text.concat("\n\n<span class='font-bold'>_(You are currently accessing the GUI of the server via Tailscale.)_</span>");
+          <? endif; ?>
+        <? endif; ?>
+      } else {
+        var text = "_(This will reboot the system)_";
+      }
+      break;
+    case 'shutdown': 
+      var text = "_(This will shutdown the system)_";
+      break;
   }
   swal({
     title:"_(Proceed)_?",
