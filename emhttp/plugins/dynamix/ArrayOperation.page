@@ -351,7 +351,7 @@ function shutdown_now(form, cmd) {
     case 'reboot': 
       if ($('input[name="safemode"]').prop('checked')) {
         <?
-          $nginx = parse_ini_file("/var/local/emhttp/nginx.ini");
+          $nginx = @parse_ini_file("/var/local/emhttp/nginx.ini") ?: [];
           $tailscaleUI = false;
           $connectRemote = false;
           foreach ($nginx as $key => $value) {
