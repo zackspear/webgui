@@ -14,6 +14,9 @@
 # run & log functions
 . /etc/rc.d/rc.runlog
 
+# LimeTech - setup selected devices for sriov
+/usr/local/sbin/sriov 1>/var/log/sriov 2>/var/log/sriov-errors
+
 # import CA proxy
 UNPROXY=/boot/config/plugins/dynamix/outgoingproxy.cfg
 CAPROXY=/boot/config/plugins/community.applications/proxy.cfg

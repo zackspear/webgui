@@ -432,7 +432,8 @@ case 't1':
           }
 
           echo '</select>';
-          echo " -> ".$num_vfs;
+          echo " "._("Current:").$num_vfs;
+          #sprintf(" "._("Current").":%1s",$num_vfs);
           echo ' <a class="info" href="#" title="'._("Save VFs config").'" onclick="saveVFsConfig(\''.htmlentities($pciaddress).'\',\''.htmlentities($vd).'\'); return false;"><i class="fa fa-save"> </i></a>';
           echo ' <a class="info" href="#" title="'._("Action VFs update").'" onclick="applyVFsConfig(\''.htmlentities($pciaddress).'\',\''.htmlentities($vd).'\'); return false;"><i title="Apply now" class="fa fa-play"></i></a>';
 
@@ -461,7 +462,7 @@ case 't1':
               if (file_exists('/sys/bus/pci/devices/'.$pciaddress.'/reset')) echo "<i class=\"fa fa-retweet grey-orb middle\" title=\"",_('Function Level Reset (FLR) supported'),".\"></i>";
               echo "</td><td>";
               if (!$removed) {
-              echo '<input type="checkbox" class="iommu'.$vrf['iommu_group'].'" value="'.$pciaddress."|".$vd.'" ';
+              echo '<input type="checkbox" class="vfiommu'.$vrf['iommu_group'].'" value="'.$pciaddress."|".$vd.'" ';
               // check config file for two formats: <Domain:Bus:Device.Function>|<Vendor:Device> or just <Domain:Bus:Device.Function>
               echo (in_array($pciaddress."|".$vd, $vfio_cfg_devices) || in_array($pciaddress, $vfio_cfg_devices)) ? " checked>" : ">";
               } 
@@ -503,7 +504,7 @@ case 't1':
             echo "<input class='narrow' type=\"text\" name=\"vfmac$pciaddress\" id=\"vfmac$pciaddress\" value=\"$value_attr\" placeholder=\"$placeholder\">";
             echo '<a class="info" href="#" title="'._("Generate MAC").'" onclick="generateMAC(\''.htmlentities($pciaddress).'\'); return false;"><i class="fa fa-refresh mac_generate"> </i></a>';
             echo '<a class="info" href="#" title="'._("Save MAC config").'" onclick="saveMACConfig(\''.htmlentities($pciaddress).'\',\''.htmlentities($vd).'\'); return false;"><i class="fa fa-save"> </i></a>';
-            echo "-> {$vrf['mac']}";
+            echo _("Current").": {$vrf['mac']}";
             echo "</td></tr>";  
           }
         }

@@ -13,9 +13,6 @@
 # run & log functions
 . /etc/rc.d/rc.runlog
 
-# LimeTech - setup selected devices for sriov
-/usr/local/sbin/sriov 1>/var/log/sriov 2>/var/log/sriov-errors
-
 # LimeTech - bind selected devices to vfio-pci
 /usr/local/sbin/vfio-pci 1>/var/log/vfio-pci 2>/var/log/vfio-pci-errors
 
