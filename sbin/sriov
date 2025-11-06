@@ -12,7 +12,7 @@
 # accepts space-separated list of <Bus:Device.Function> or <Domain:Bus:Device.Function> followed by an optional "|" and <Vendor:Device> | <Number of VFs>
 # example: VFS=0000:04:00.1|8086:1521|3 0000:04:00.0|8086:1521|2
 # accepts space-separated list of <Bus:Device.Function> or <Domain:Bus:Device.Function> followed by an optional "|" and <Vendor:Device> | <MAC Address>
-# example:VFMAC=0000:04:11.5|8086:1520|62:00:04:11:05:01
+# example:VFSETTINGS=0000:04:11.5|8086:1520|62:00:04:11:05:01
 
 SRIOV_ENABLED_FILE=/boot/config/sriov_enabled
 if [[ ! -f $SRIOV_ENABLED_FILE ]] ; then
@@ -52,8 +52,8 @@ printf "\n"
 CFG_VFS=/boot/config/sriovvfs.cfg
 
 [[ ! -f "$CFG_VFS" ]] && exit
-grep -q "^VFMAC=" "$CFG_VFS" || exit
-echo "Loading MAC config from $CFG_VFS"
+grep -q "VFSETTINGS=" "$CFG_VFS" || exit
+echo "Loading settings config from $CFG_VFS"
 cat "$CFG_VFS"
 echo "---"
 
@@ -62,14 +62,20 @@ if [[ ! "$(ls -A /sys/kernel/iommu_groups/ 2>/dev/null)" ]]; then
     exit 1
 fi
 
-# Fix the VFMAC parsing
-VFMAC_LINE=$(grep "^VFMAC=" "$CFG_VFS" | cut -d= -f2- | tr -d '"')
+VFSETTINGS_LINE=$(grep "^VFSETTINGS=" "$CFG_VFS" | cut -d= -f2- | tr -d '"')
 
-for PARAM_VFS in $VFMAC_LINE; do
-    IFS='|' read -r arg1 arg2 arg3 <<< "$PARAM_VFS"
-    echo "Processing $arg1 $arg2 set Mac to $arg3"
-    /usr/local/sbin/sriov-setmac.sh "$arg1" "$arg2" "$arg3"
+for PARAM_VFS in $VFSETTINGS_LINE; do
+    IFS='|' read -r arg1 arg2 arg3 arg4 <<< "$PARAM_VFS"
+    echo "Processing $arg1 $arg2 set Mac to $arg4"
+    /usr/local/sbin/sriov-setmac.sh "$arg1" "$arg2" "$arg4"
     echo "---"
+
+    if [[ "$arg3" == "1" ]]; then
+        /usr/local/sbin/vfio-pci-bind.sh "$arg1" "$arg2" \
+            1>>/var/log/vfio-pci \
+            2>>/var/log/vfio-pci-errors
+    fi
+
 done
 
 

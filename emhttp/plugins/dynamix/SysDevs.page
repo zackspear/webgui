@@ -25,14 +25,21 @@ $(function(){
 function applyCfg() {
   var message = "_(System Devices)_: _(A reboot is required to apply changes)_";
   var string = "BIND=";
+  var vfstring = "BIND=";
   var elements = document.getElementById("vfiopci").elements;
   for (var i = 0, element; element = elements[i++];) {
-    if (element.type === "checkbox"  && element.checked === true)
+    if (element.type === "checkbox"  && element.checked === true && element.className.substring(0, 5) === "iommu")
     string = string + element.value + " ";
+    if (element.type === "checkbox"  && element.checked === true && element.className.substring(0, 7) === "vfiommu")
+    vfstring = vfstring + element.value + " ";
   }
   string = string.trim();
   if (string === "BIND=") {
     string = "";
+  }
+  vfstring = vfstring.trim();
+  if (vfstring === "BIND=") {
+    vfstring = "";
   }
   $.post( "/plugins/dynamix/include/update.vfio-pci-cfg.php", { cfg: string } )
   .done(function(d) {
@@ -47,11 +54,12 @@ function applyCfg() {
   });
 }
 
-function saveMACConfig(pciId,vd) {
+function saveVFSettingsConfig(pciId,vd) {
   var message = "_(System Devices)_: _(A reboot is required to apply changes)_";
   var mac = document.getElementById("vfmac" + pciId).value;
+  var vfio = document.getElementById("vfio" + pciId).value;
 
-  $.post( "/plugins/dynamix/include/update.sriov-cfg.php", { type:"sriovmac", pciid: pciId, vd:vd, mac:mac } )
+  $.post( "/plugins/dynamix/include/update.sriov-cfg.php", { type:"sriovmac", pciid: pciId, vd:vd, vfio:vfio, mac:mac } )
   .done(function(d) {
     if (d==1) {
       addRebootNotice(message);
@@ -73,6 +81,7 @@ function saveVFsConfig(pciId,vd) {
       addRebootNotice(message);
       document.getElementById("warning").innerHTML = "<b>_(ALERT)_: _(Changes saved)_. _(Reboot to take effect)_.</b>";
       swal("VFs Saved ","success");
+      docum
     } else {
       removeRebootNotice(message);
       document.getElementById("warning").innerHTML = "<b>_(No changes)_.</b>";

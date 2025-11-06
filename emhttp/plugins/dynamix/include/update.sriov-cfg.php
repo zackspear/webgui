@@ -12,7 +12,7 @@
 ?>
 <?
 
-#VFMAC=0000:04:11.5|8086:1520|62:00:04:11:05:01 0000:04:10.5|8086:1520|62:00:04:10:05:01
+#VFSETTINGS=0000:04:11.5|8086:1520|0|62:00:04:11:05:01 0000:04:10.5|8086:1520|1|62:00:04:10:05:01
 #VFS=0000:04:00.1|8086:1521|3 0000:04:00.0|8086:1521|2
 
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
@@ -53,25 +53,26 @@ if (isset($pciid) && isset($vd)) {
         $new = "VFS=".implode(" ",$newexplode);
         $file = $sriov; 
         break;
-      case "sriovmac":
+      case "sriovsettings":
         $old  = is_file($sriovvfs) ? rtrim(file_get_contents($sriovvfs)) : '';
-        $newexplode = explode(" ",str_replace("VFMAC=","",$old));
+        $newexplode = explode(" ",str_replace("VFSETTINGS=","",$old));
         $mac= _var($_POST,'mac');
+        $vfio= _var($_POST,'vfio');
         $found = false;
         foreach($newexplode as $key => $newelement) {
           if (strpos($newelement,$newelement_check) !== false) {
              $found = true;
-            if($mac == "") {
+            if($mac == "" && $vfio == 0) {
               unset($newexplode[$key]) ;
               break;
             } else {
-              $newexplode[$key] = $newelement_check.$mac;
+              $newexplode[$key] = $newelement_check.$vfio."|".$mac;
               break;
             }
           }
         }
-          if (!$found) $newexplode[] = $newelement_check.$mac;
-          $new = "VFMAC=".implode(" ",$newexplode);
+          if (!$found) $newexplode[] = $newelement_check.$vfio."|".$mac;
+          $new = "VFSETTINGS=".implode(" ",$newexplode);
           $file = $sriovvfs; 
           break;
   }

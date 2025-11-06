@@ -108,6 +108,14 @@ function getSriovInfoJson(bool $includeVfDetails = true): string {
                 } else {
                     $vf_entry['iommu_group'] = null;
                 }
+
+                // --- Current driver ---
+                $driver_link = "/sys/bus/pci/devices/{$vf_pci}/driver";
+                if (is_link($driver_link)) {
+                    $vf_entry['driver'] = basename(readlink($driver_link));
+                } else {
+                    $vf_entry['driver'] = null; // no driver bound
+                }
             }
             $vfs[] = $vf_entry;
         }
@@ -250,47 +258,60 @@ case 't1':
       $vfio_cfg_devices = array_values(array_unique($vfio_cfg_devices, SORT_STRING));
     }
 
-    $DBDF_SRIOV_REGEX = '/^[[:xdigit:]]{4}:[[:xdigit:]]{2}:[[:xdigit:]]{2}\.[[:xdigit:]]\|[[:xdigit:]]{4}:[[:xdigit:]]{4}\|[[:xdigit:]]+$/';
+$DBDF_SRIOV_REGEX = '/^[[:xdigit:]]{4}:[[:xdigit:]]{2}:[[:xdigit:]]{2}\.[[:xdigit:]]\|[[:xdigit:]]{4}:[[:xdigit:]]{4}\|[[:digit:]]+$/';
+$DBDF_SRIOV_SETTINGS_REGEX = '/^[[:xdigit:]]{4}:[[:xdigit:]]{2}:[[:xdigit:]]{2}\.[[:xdigit:]]\|[[:xdigit:]]{4}:[[:xdigit:]]{4}\|[01]\|([[:xdigit:]]{2}:){5}[[:xdigit:]]{2}$/';
 
-    $DBDF_SRIOV_MAC_REGEX = '/^[[:xdigit:]]{4}:[[:xdigit:]]{2}:[[:xdigit:]]{2}\.[[:xdigit:]]\|[[:xdigit:]]{4}:[[:xdigit:]]{4}\|([[:xdigit:]]{2}:){5}[[:xdigit:]]{2}$/';
+// ----------------------
+// Parse SR-IOV VF counts
+// ----------------------
+$sriov_devices = [];
 
-    $sriov_devices = array ();
-    if (is_file("/boot/config/sriov.cfg")) {
-      // accepts space-separated list of <Bus:Device.Function> or <Domain:Bus:Device.Function> followed by an optional "|" and <Vendor:Device>
-      // example: VFS=0000:04:00.1|8086:1521|3 0000:04:00.0|8086:1521|2
-      // this front-end does not accept <Vendor:Device> by itself, altough the underlying vfio-pci script does
-      $file = file_get_contents("/boot/config/sriov.cfg");
-      $file = trim(str_replace("VFS=", "", $file));
-      $file_contents = explode(" ", $file);
-      foreach ($file_contents as $sriov_device) {
-        if (preg_match($DBDF_SRIOV_REGEX, $sriov_device)) {
-            // full <Domain:Bus:Device.Function> was provided (may be followed by optional <Vendor:Device> too)
-            $sriov_devices[] = $sriov_device;
-        } else {
-          // entry in wrong format, discard
+if (is_file("/boot/config/sriov.cfg")) {
+    $file = trim(file_get_contents("/boot/config/sriov.cfg"));
+    $file = preg_replace('/^VFS=/', '', $file); // Remove prefix
+    $entries = preg_split('/\s+/', $file, -1, PREG_SPLIT_NO_EMPTY);
+
+    foreach ($entries as $entry) {
+        if (preg_match($DBDF_SRIOV_REGEX, $entry)) {
+            // Format: <DBDF>|<Vendor:Device>|<VF_count>
+            [$dbdf, $ven_dev, $vf_count] = explode('|', $entry);
+            $sriov_devices[$dbdf] = [
+                'dbdf'     => $dbdf,
+                'vendor'   => $ven_dev,
+                'vf_count' => (int)$vf_count,
+            ];
         }
-      }
-      $sriov_devices = array_values(array_unique($sriov_devices, SORT_STRING));
     }
-    $sriov_devices_mac = array ();
-    if (is_file("/boot/config/sriovvfs.cfg")) {
-      // accepts space-separated list of <Bus:Device.Function> or <Domain:Bus:Device.Function> followed by an optional "|" and <Vendor:Device>
-      // example:VFMAC=0000:04:11.5|8086:1520|62:00:04:11:05:01
-      // this front-end does not accept <Vendor:Device> by itself, altough the underlying vfio-pci script does
-      $file = file_get_contents("/boot/config/sriovvfs.cfg");
-      $file = trim(str_replace("VFMAC=", "", $file));
-      $file_contents = explode(" ", $file);
 
-      foreach ($file_contents as $sriov_device_mac) {
-        if (preg_match($DBDF_SRIOV_MAC_REGEX, $sriov_device_mac)) {
-          // full <Domain:Bus:Device.Function> was provided (may be followed by optional <Vendor:Device> too)
-          $sriov_devices_mac[] = $sriov_device_mac;
-        } else {
-          // entry in wrong format, discard
+   # $sriov_devices = array_values(array_unique($sriov_devices, SORT_REGULAR));
+}
+
+// ---------------------------------
+// Parse SR-IOV VF settings (VFIO+MAC)
+// ---------------------------------
+$sriov_devices_settings = [];
+
+if (is_file("/boot/config/sriovvfs.cfg")) {
+    $file = trim(file_get_contents("/boot/config/sriovvfs.cfg"));
+    $file = preg_replace('/^VFSETTINGS=/', '', $file); // Remove prefix
+    $entries = preg_split('/\s+/', $file, -1, PREG_SPLIT_NO_EMPTY);
+
+    foreach ($entries as $entry) {
+        if (preg_match($DBDF_SRIOV_SETTINGS_REGEX, $entry)) {
+            // Format: <DBDF>|<Vendor:Device>|<VFIO_flag>|<MAC>
+            [$dbdf, $ven_dev, $vfio_flag, $mac] = explode('|', $entry);
+            $sriov_devices_settings[$dbdf] = [
+                'dbdf'     => $dbdf,
+                'vendor'   => $ven_dev,
+                'vfio'     => (int)$vfio_flag,
+                'mac'      => strtoupper($mac),
+            ];
         }
-      }
-      $sriov_devices_mac = array_values(array_unique($sriov_devices_mac, SORT_STRING));
     }
+
+   # $sriov_devices_settings = array_values(array_unique($sriov_devices_settings, SORT_REGULAR));
+}
+
     $disks = (array)parse_ini_file('state/disks.ini',true);
     $devicelist = array_column($disks, 'device');
     $lines = array ();
@@ -346,7 +367,7 @@ case 't1':
       $groups[] = "\tR[{$removeddata['device']['vendor_id']}:{$removeddata['device']['device_id']}] ".str_replace("0000:","",$removedpci)." ".trim($removeddata['device']['description'],"\n");
     }
     $ackparm = "";
-    #echo "<tr><td>";var_dump($sriov, $sriovvfs);echo"</td></tr>";
+   # echo "<tr><td>";var_dump($sriov, $sriov_devices_settings);echo"</td></tr>";
     foreach ($groups as $line) {
       if (!$line) continue;
       if (in_array($line,$sriovvfs)) continue;
@@ -409,14 +430,10 @@ case 't1':
           echo "SRIOV Available VFs:{$sriov[$pciaddress]['total_vfs']}";
           $num_vfs= $sriov[$pciaddress]['num_vfs'];
           
-          $matches = array_filter($sriov_devices, function($entry) use ($pciaddress) {
-            return explode('|', $entry)[0] === $pciaddress;
-          });
 
-          if ($matches) {
-            $match = reset($matches); // first matching entry
-            $file_numvfs = explode('|', $match)[2];
-          } else $file_numvfs = 0;
+          if (isset($sriov_devices[$pciaddress])) 
+            $file_numvfs = $sriov_devices[$pciaddress]['vf_count'];
+          else $file_numvfs = 0;
 
           echo '<label for="vf_select"> Select number of VFs: </label>';
           echo '<select class="narrow" name="vf'.$pciaddress.'" id="vf'.$pciaddress.'">';
@@ -487,13 +504,8 @@ case 't1':
                 echo "</td></tr>";
               }
             }         
-            $matches = array_filter($sriov_devices_mac, function($entry) use ($pciaddress) {
-                  return explode('|', $entry)[0] === $pciaddress;
-              });
-
-            if ($matches) {
-                $match = reset($matches); // first matching entry
-                $mac = explode('|', $match)[2];
+            if (isset($sriov_devices_settings[$pciaddress])) {
+                $mac = $sriov_devices_settings[$pciaddress]['mac'];
             } else {
                 $mac = null;
             }
@@ -504,7 +516,9 @@ case 't1':
             echo "<input class='narrow' type=\"text\" name=\"vfmac$pciaddress\" id=\"vfmac$pciaddress\" value=\"$value_attr\" placeholder=\"$placeholder\">";
             echo '<a class="info" href="#" title="'._("Generate MAC").'" onclick="generateMAC(\''.htmlentities($pciaddress).'\'); return false;"><i class="fa fa-refresh mac_generate"> </i></a>';
             echo '<a class="info" href="#" title="'._("Save MAC config").'" onclick="saveMACConfig(\''.htmlentities($pciaddress).'\',\''.htmlentities($vd).'\'); return false;"><i class="fa fa-save"> </i></a>';
-            echo _("Current").": {$vrf['mac']}";
+            if ($vrf['driver'] == "vfio-pci") 
+            echo _("Current").": ";
+            echo $vrf['driver'] == "vfio-pci" ? _("Bound to VFIO") : strtoupper($vrf['mac']);
             echo "</td></tr>";  
           }
         }
