@@ -1,6 +1,7 @@
 Menu="Notifications:3"
 Title="Notification Agents"
 Tag="rss-square"
+Focus="initDropdown"
 ---
 <?php
 /* Copyright 2005-2023, Lime Technology
@@ -21,12 +22,8 @@ var disabledAgents = new Object();
 var openPage = true;
 
 <?$width = [166,300]?>
-<?if ($tabbed):?>
-$('#tab3').bind({click:function(){initDropdown();}});
-$(function(){if ($('#tab3').is(':checked')) initDropdown();});
-<?else:?>
+
 $(function(){initDropdown();});
-<?endif;?>
 
 if (!String.prototype.format) {
   String.prototype.format = function() {
