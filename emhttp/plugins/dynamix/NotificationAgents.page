@@ -4,7 +4,7 @@ Tag="rss-square"
 Focus="initDropdown"
 ---
 <?php
-/* Copyright 2005-2023, Lime Technology
+/* Copyright 2005-2025, Lime Technology
  * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,9 @@ var openPage = true;
 
 <?$width = [166,300]?>
 
+<? if (!$tabbed): ?>
 $(function(){initDropdown();});
+<? endif; ?>
 
 if (!String.prototype.format) {
   String.prototype.format = function() {
