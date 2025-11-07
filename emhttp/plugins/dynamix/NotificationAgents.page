@@ -25,6 +25,10 @@ var openPage = true;
 
 <? if (!$tabbed): ?>
 $(function(){initDropdown();});
+<? else: ?>
+$(function(){
+  if ( $('#tab3').attr('checked') ) initDropdown();
+});
 <? endif; ?>
 
 if (!String.prototype.format) {
