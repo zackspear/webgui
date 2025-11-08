@@ -2563,7 +2563,7 @@ div#title.ud {
         padding: 0;
     }
 
-    .LanguageButton {
+    .Theme--nav-top .LanguageButton {
         font-size: 12px !important;
     } /* Fix Switch Language Being Cut-Off */
 
