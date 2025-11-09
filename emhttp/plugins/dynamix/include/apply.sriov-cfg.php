@@ -35,23 +35,34 @@ if (isset($pciid) && isset($vd)) {
         $newexplode = explode(" ",str_replace("VFS=","",$old));
         $new = $old;
         $numvfs= _var($_POST,'numvfs');
+        $currentvfs = _var($_POST,'currentvfs');
         $newelement_change = $newelement_check.$numfs;
         $found = false;
-        foreach($newexplode as $key => $newelement) {
-          if (strpos($newelement,$newelement_check) !== false) {
-            $found = true;
-            if($numvfs == "0") {
-              unset($newexplode[$key]) ;
-              break;
-            } else {
-              $newexplode[$key] = $newelement_check.$numvfs;
-              break;
-            }
-          }
+        $filepath = "/sys/bus/pci/devices/$pciid/sriov_numvfs";
+        if ($numvfs == 0) {
+          file_put_contents($filepath,0);
+        echo 1;
+        return;
         }
-        if (!$found) $newexplode[] = $newelement_check.$numvfs;
-        $new = "VFS=".implode(" ",$newexplode);
-        $file = $sriov; 
+        if ($numvfs != $currentvfs) {
+          file_put_contents($filepath,0);
+          file_put_contents($filepath,$numvfs);
+          # Apply VF changes.
+          # foreach VF.
+        echo 1;
+        return;
+        }
+        file_put_contents($filepath,$numvfs);
+        # Apply VF changes.
+        # foreach VF.
+        echo 1;
+        return;
+
+        #else action numvfs > pf
+
+        #Apply VF settings.
+
+ 
         break;
       case "sriovsettings":
         $old  = is_file($sriovvfs) ? rtrim(file_get_contents($sriovvfs)) : '';
@@ -79,12 +90,5 @@ if (isset($pciid) && isset($vd)) {
   }
 }
 
-$reply = 0;
-if ($new != $old) {
-  if ($old) copy($file,"$file.bak");
-  if ($new) file_put_contents($file,$new); else @unlink($file);
-  $reply = 1;
-}
 
-echo $reply;
 ?>

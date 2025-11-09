@@ -67,15 +67,8 @@ VFSETTINGS_LINE=$(grep "^VFSETTINGS=" "$CFG_VFS" | cut -d= -f2- | tr -d '"')
 for PARAM_VFS in $VFSETTINGS_LINE; do
     IFS='|' read -r arg1 arg2 arg3 arg4 <<< "$PARAM_VFS"
     echo "Processing $arg1 $arg2 set Mac to $arg4"
-    /usr/local/sbin/sriov-setmac.sh "$arg1" "$arg2" "$arg4"
+    /usr/local/sbin/sriov-vfsettings.sh "$arg1" "$arg2" "$arg3" "$arg4"
     echo "---"
-
-    if [[ "$arg3" == "1" ]]; then
-        /usr/local/sbin/vfio-pci-bind.sh "$arg1" "$arg2" \
-            1>>/var/log/vfio-pci \
-            2>>/var/log/vfio-pci-errors
-    fi
-
 done
 
 
