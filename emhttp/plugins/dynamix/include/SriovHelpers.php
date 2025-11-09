@@ -69,6 +69,13 @@ function getSriovInfoJson(bool $includeVfDetails = true): string {
             $vf_entry = ['pci' => $vf_pci];
 
             if ($includeVfDetails) {
+                // Vendor:Device formatted string
+                $vendorFile = "/sys/bus/pci/devices/{$vf_pci}/vendor";
+                $deviceFile = "/sys/bus/pci/devices/{$vf_pci}/device";
+                $vendor = is_readable($vendorFile) ? trim(file_get_contents($vendorFile)) : null;
+                $device = is_readable($deviceFile) ? trim(file_get_contents($deviceFile)) : null;
+                $vf_entry['vd'] = ($vendor && $device) ? sprintf('%s:%s', substr($vendor, 2), substr($device, 2)) : null;
+
                 // Network interface info
                 $net = glob("/sys/bus/pci/devices/{$vf_pci}/net/*");
                 if ($net && isset($net[0])) {

@@ -78,7 +78,7 @@ function saveVFsConfig(pciId,vd,interactive=1) {
       removeRebootNotice(message);
       document.getElementById("warning").innerHTML = "<b>_(No changes)_.</b>";
     }
-    $('#t1').load('/webGui/include/SysDevs.php', { table: 't1' });
+    if (interactive == 1)  $('#t1').load('/webGui/include/SysDevs.php', { table: 't1' });
   });
 
 }
@@ -165,38 +165,59 @@ function applyVFSettings(pciId,vd) {
 function applyVFsConfig(pciId, vd, vfs) {
   saveVFsConfig(pciId,vd,0);
   var message = "_(System Devices)_: _(A reboot is required to apply changes)_";
-  var numvfs = document.getElementById("vf" + pciId).value;
+  var numvfs = parseInt(document.getElementById("vf" + pciId).value, 10);
+  vfs = parseInt(vfs, 10);
 
   // Case 1: VFs will be removed
-  if (vfs != 0 && numvfs == 0) {
+  if (vfs !== 0 && numvfs === 0) {
     swal({
       title: "VFs will be removed",
       text: "Card will reset.",
       type: "warning",
-      showCancelButton: false,
-      confirmButtonColor: "#3085d6",
+      showCancelButton: true,
       confirmButtonText: "OK",
       closeOnConfirm: true
-    }, function() {
+    },  function(isConfirm) {
+    if (isConfirm) {
+      // User clicked OK
+      sleep(2000);
       doApply(pciId, vd, numvfs, message);
+    } else {
+      // User clicked Cancel — optionally show feedback
+      swal("Cancelled", "No changes were made.", "info");
+    }
+
     });
     return;
   }
 
   // Case 2: Number of VFs changed
-  if (vfs != numvfs && numvfs != 0) {
+  if (vfs !== numvfs && vfs !== 0) {
     swal({
       title: "Number of VFs changed",
       text: "Will need to remove and re-add VFs.",
       type: "warning",
-      showCancelButton: false,
-      confirmButtonColor: "#3085d6",
+      showCancelButton: true,
       confirmButtonText: "OK",
       closeOnConfirm: true
-    }, function() {
+    },  function(isConfirm) {
+    if (isConfirm) {
+      // User clicked OK
+      sleep(2000);
       doApply(pciId, vd, numvfs, message);
+    } else {
+      // User clicked Cancel — optionally show feedback
+      swal("Cancelled", "No changes were made.", "info");
+    }
+    return;
     });
   }
+
+  if (vfs !== numvfs && vfs === 0) doApply(pciId, vd, numvfs, message);
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function doApply(pciId, vd, numvfs, message) {
@@ -206,7 +227,8 @@ function doApply(pciId, vd, numvfs, message) {
     text: "Please wait while configuration is applied.",
     type: "info",
     showConfirmButton: false,
-    allowOutsideClick: false
+    allowOutsideClick: false,
+    closeOnConfirm: false
   });
 
   // Perform the POST

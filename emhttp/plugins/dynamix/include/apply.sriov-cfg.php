@@ -18,6 +18,26 @@
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/webGui/include/Secure.php";
 require_once "$docroot/webGui/include/Wrappers.php";
+require_once "$docroot/webGui/include/SriovHelpers.php";
+
+function action_settings($pciid) {
+  $sriov = json_decode(getSriovInfoJson(),true);  
+  $sriov_devices_settings=parseVFSettings();
+  $vfs = $sriov[$pciid]['vfs'];
+  file_put_contents('/tmp/vfaction',"");
+  foreach($vfs as $vf) {
+    if (array_key_exists($vf['pci'],$sriov_devices_settings)) {
+      $vfpci = $vf['pci'];
+      $vfio = $sriov_devices_settings[$vfpci]['vfio'];
+      $mac = $sriov_devices_settings[$vfpci]['mac'];
+      $action_cmd = "/usr/local/sbin/sriov-vfsettings.sh ".escapeshellarg($vf['pci'])." ".escapeshellarg($vf['vd'])." ".escapeshellarg($vfio)." ".escapeshellarg($mac);
+      file_put_contents('/tmp/vfaction',$action_cmd,FILE_APPEND);
+      $action_result = shell_exec($action_cmd);
+
+      #if ($action_result == "error") return $action_result;
+    }
+  }
+}
 
 $sriov = '/boot/config/sriov.cfg';
 $sriovvfs = '/boot/config/sriovvfs.cfg';
@@ -47,22 +67,14 @@ if (isset($pciid) && isset($vd)) {
         if ($numvfs != $currentvfs) {
           file_put_contents($filepath,0);
           file_put_contents($filepath,$numvfs);
-          # Apply VF changes.
-          # foreach VF.
+          action_settings($pciid);
         echo 1;
         return;
         }
         file_put_contents($filepath,$numvfs);
-        # Apply VF changes.
-        # foreach VF.
+        action_settings($pciid);
         echo 1;
         return;
-
-        #else action numvfs > pf
-
-        #Apply VF settings.
-
- 
         break;
       case "sriovsettings":
         $old  = is_file($sriovvfs) ? rtrim(file_get_contents($sriovvfs)) : '';

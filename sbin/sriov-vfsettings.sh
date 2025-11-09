@@ -60,17 +60,17 @@ if [[ $# -eq 0 ]]; then
     exit 1
 fi
 
-# Check that 3 parameters are supplied
-if [[ $# -ne 3 ]]; then
-    echo "Error: Expected 3 parameters, but got $#." 1>&2
-    echo "Usage: $0 <param1> <param2> <param3>" 1>&2
-    echo "Example: $0 0000:01:00.0 10de:1fb8 62:00:01:00:00:99" 1>&2
+# Check that 4 parameters are supplied
+if [[ $# -ne 4 ]]; then
+    echo "Error: Expected 4 parameters, but got $#." 1>&2
+    echo "Usage: $0 <param1> <param2> <param3> <parm4>" 1>&2
+    echo "Example: $0 0000:01:00.0 10de:1fb8 1 62:00:01:00:00:99" 1>&2
+    echi "parm3 is binding to VFIO, parm 4 is mac address."
     exit 1
 fi
 
-unset VD BDF MAC
-for arg in "$@"
-do
+unset VD BDF VFIO MAC
+for arg in "$@"; do
     if [[ $arg =~ $VD_REGEX ]]; then
         VD=$arg
     elif [[ $arg =~ $DBDF_REGEX ]]; then
@@ -78,14 +78,15 @@ do
     elif [[ $arg =~ $BDF_REGEX ]]; then
         BDF="0000:${arg}"
         echo "Warning: You did not supply a PCI domain, assuming ${BDF}" 1>&2
+    elif [[ $arg =~ ^[01]$ ]]; then
+        # 3rd argument: VFIO flag (0 or 1)
+        VFIO=$arg
+    elif [[ $arg =~ ^([[:xdigit:]]{2}:){5}[[:xdigit:]]{2}$ ]]; then
+        # 4th argument: MAC address
+        MAC=$arg
     else
-        # Treat as 3rd parameter (not a PCI ID)
-        if [[ -z $MAC ]]; then
-            MAC=$arg
-        else
-            echo "Error: Unrecognized argument '$arg'" 1>&2
-            exit 1
-        fi
+        echo "Error: Unrecognized argument '$arg'" 1>&2
+        exit 1
     fi
 done
 
@@ -181,4 +182,13 @@ if [ -n "$VF_DRIVER" ]; then
     echo "$VF_PCI" > "/sys/bus/pci/drivers/$VF_DRIVER/bind"
 fi
 
-echo "Done."
+echo "MAC Address set"
+
+    if [[ "$VFIO" == "1" ]]; then
+        echo "Binding VF to vfio"
+        /usr/local/sbin/vfio-pci-bind.sh "$BDF" "$VD" \
+            1>>/var/log/vfio-pci \
+            2>>/var/log/vfio-pci-errors
+    fi
+
+
