@@ -57,13 +57,14 @@ if (isset($pciid) && isset($vd)) {
         $old  = is_file($sriovvfs) ? rtrim(file_get_contents($sriovvfs)) : '';
         $newexplode = explode(" ",str_replace("VFSETTINGS=","",$old));
         $mac= _var($_POST,'mac');
+        if ($mac == "") $mac = "00:00:00:00:00:00";
         $vfio= _var($_POST,'vfio');
         if ($vfio == "true") $vfio = 1; else $vfio = 0;
         $found = false;
         foreach($newexplode as $key => $newelement) {
           if (strpos($newelement,$newelement_check) !== false) {
              $found = true;
-            if($mac == "" && $vfio == 0) {
+            if($mac == "00:00:00:00:00:00" && $vfio == 0) {
               unset($newexplode[$key]) ;
               break;
             } else {

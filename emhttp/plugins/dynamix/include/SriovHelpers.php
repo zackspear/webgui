@@ -13,8 +13,28 @@
 ?>
 <?
 
+
 #$allowedPCIClass = ['0x02','0x03'];
 $allowedPCIClass = ['0x02'];
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt.php";
+require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
+
+
+
+
+/**
+ * Get available kernel modules for this PCI device based on its modalias
+ */
+function getModulesFromModalias(string $pci): array {
+    $modaliasFile = "/sys/bus/pci/devices/{$pci}/modalias";
+    if (!is_readable($modaliasFile)) return [];
+    $alias = trim(file_get_contents($modaliasFile));
+    $cmd = sprintf('modprobe -R %s 2>/dev/null', escapeshellarg($alias));
+    $out = trim(shell_exec($cmd));
+    return $out ? preg_split('/\s+/', $out) : [];
+}
+
 
 /**
  * Enumerate SR-IOV capable PCI devices (keyed by PCI address).
@@ -102,8 +122,10 @@ function getSriovInfoJson(bool $includeVfDetails = true): string {
                 } else {
                     $vf_entry['driver'] = null; // no driver bound
                 }
+                // Kernel modules (from modalias)
+                $vf_entry['modules'] = getModulesFromModalias($vf_pci);
             }
-            $vfs[] = $vf_entry;
+            $vfs[$vf_pci] = $vf_entry;
         }
 
         $results[$pci] = [
@@ -122,6 +144,58 @@ function getSriovInfoJson(bool $includeVfDetails = true): string {
     ksort($results, SORT_NATURAL);
     return json_encode($results, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 }
+
+function rebindVfDriver($vf, $sriov, $target = 'original')
+{
+    $res = ['pci'=>$vf,'success'=>false,'error'=>null,'details'=>[]];
+    $vf_path = "/sys/bus/pci/devices/$vf";
+    $physfn = "$vf_path/physfn";
+    if (!is_link($physfn)) return $res + ['error'=>"Missing physfn link"];
+    $pf = basename(readlink($physfn));
+    $vf_info = $sriov[$pf]['vfs'][$vf] ?? null;
+    if (!$vf_info) return $res + ['error'=>"VF not found in \$sriov for PF $pf"];
+
+    $orig_mod = $vf_info['modules'][0] ?? $sriov[$pf]['module'] ?? null;
+    $curr_drv = $vf_info['driver'] ?? null;
+    if (!$orig_mod) return $res + ['error'=>"No module info for $vf"];
+
+    $drv_override = "$vf_path/driver_override";
+
+    // Determine target driver
+    $new_drv = ($target === 'vfio-pci') ? 'vfio-pci' : $orig_mod;
+
+    // Step 1: Unbind current driver
+    $curr_unbind = "/sys/bus/pci/drivers/$curr_drv/unbind";
+    if (is_writable($curr_unbind))
+        @file_put_contents($curr_unbind, $vf);
+
+    // Step 2: Load target driver if needed
+    $target_bind = "/sys/bus/pci/drivers/$new_drv/bind";
+    if (!file_exists($target_bind))
+        exec("modprobe $new_drv 2>/dev/null");
+
+    // Step 3: Override driver binding
+    if (is_writable($drv_override))
+        @file_put_contents($drv_override, "$new_drv");
+    @file_put_contents("/sys/bus/pci/drivers_probe", $vf);
+    if (is_writable($drv_override))
+        @file_put_contents($drv_override, "\n");
+
+    // Step 4: Verify binding
+    $drv_link = "$vf_path/driver";
+    if (is_link($drv_link)) {
+        $bound = basename(readlink($drv_link));
+        if ($bound === $new_drv) {
+            $res['success'] = true;
+            $res['details'][] = "Bound to $new_drv";
+            return $res;
+        }
+        return $res + ['error'=>"Bound to $bound instead of $new_drv"];
+    }
+
+    return $res + ['error'=>"No driver link after reprobe"];
+}
+
 
 function detectVfParam(string $driver): ?string {
     if (!function_exists('shell_exec')) return null;
@@ -245,6 +319,7 @@ function parseVFSettings() {
           if (preg_match($DBDF_SRIOV_SETTINGS_REGEX, $entry)) {
               // Format: <DBDF>|<Vendor:Device>|<VFIO_flag>|<MAC>
               [$dbdf, $ven_dev, $vfio_flag, $mac] = explode('|', $entry);
+              if ($mac == "00:00:00:00:00:00") $mac = "";
               $sriov_devices_settings[$dbdf] = [
                   'dbdf'     => $dbdf,
                   'vendor'   => $ven_dev,
@@ -258,4 +333,195 @@ function parseVFSettings() {
     return $sriov_devices_settings;
   }
 }
+
+/**
+ * Safely set a MAC address for a VF.
+ * Automatically detects PF, interface, and VF index.
+ *
+ * @param string      $vf_pci   PCI ID of VF (e.g. 0000:02:00.2)
+ * @param string      $mac      MAC address to assign
+ * @param string|null $rebindDriver  Driver to bind after change:
+ *                                   - null → rebind to original driver
+ *                                   - 'none' → leave unbound
+ *                                   - 'vfio-pci' → bind to vfio-pci
+ *
+ * @return array  Result info (for JSON or logs)
+ */
+function setVfMacAddress(string $vf_pci, string $mac, ?string $rebindDriver = null): array {
+    $vf_path = "/sys/bus/pci/devices/{$vf_pci}";
+    $result = [
+        'vf_pci' => $vf_pci,
+        'mac' => $mac,
+        'pf_pci' => null,
+        'pf_iface' => null,
+        'vf_index' => null,
+        'driver_before' => null,
+        'driver_after' => null,
+        'unbind' => false,
+        'mac_set' => false,
+        'rebind' => false,
+        'error' => null
+    ];
+
+    if (!is_dir($vf_path)) {
+        $result['error'] = "VF path not found: $vf_path";
+        return $result;
+    }
+
+    // --- Find parent PF (Physical Function) ---
+    $pf_link = "$vf_path/physfn";
+    if (!is_link($pf_link)) {
+        $result['error'] = "No PF link for $vf_pci (not an SR-IOV VF?)";
+        return $result;
+    }
+    $pf_pci = basename(readlink($pf_link));
+    $result['pf_pci'] = $pf_pci;
+
+    // --- Detect PF network interface name ---
+    $pf_net = glob("/sys/bus/pci/devices/{$pf_pci}/net/*");
+    $pf_iface = ($pf_net && isset($pf_net[0])) ? basename($pf_net[0]) : null;
+    if (!$pf_iface) {
+        $result['error'] = "Could not detect PF interface for $pf_pci";
+        return $result;
+    }
+    $result['pf_iface'] = $pf_iface;
+
+    // --- Detect VF index ---
+    $vf_index = getVfIndex($pf_pci, $vf_pci);
+    if ($vf_index === null) {
+        $result['error'] = "Could not determine VF index for $vf_pci under $pf_pci";
+        return $result;
+    }
+    $result['vf_index'] = $vf_index;
+
+    // --- Detect current driver ---
+    $driver_link = "$vf_path/driver";
+    $vf_driver = is_link($driver_link) ? basename(readlink($driver_link)) : null;
+    $result['driver_before'] = $vf_driver;
+
+    // --- Unbind from current driver ---
+    if ($vf_driver) {
+        $unbind_path = "/sys/bus/pci/drivers/{$vf_driver}/unbind";
+        if (is_writable($unbind_path)) {
+            file_put_contents($unbind_path, $vf_pci);
+            $result['unbind'] = true;
+        } else {
+            $result['error'] = "Cannot unbind VF $vf_pci from $vf_driver (permissions)";
+            return $result;
+        }
+    }
+
+    // --- Set MAC ---
+    if ($mac=="") $mac="00:00:00:00:00:00";
+    $cmd = sprintf(
+        'ip link set %s vf %d mac %s 2>&1',
+        escapeshellarg($pf_iface),
+        $vf_index,
+        escapeshellarg($mac)
+    );
+    exec($cmd, $output, $ret);
+
+    if ($ret === 0) {
+        $result['mac_set'] = true;
+    } else {
+        $result['error'] = "Failed to set MAC: " . implode("; ", $output);
+    }
+
+    // --- Rebind logic ---
+    if ($rebindDriver !== "none") {
+        $target_driver = $rebindDriver ?? $vf_driver;
+        if ($target_driver) {
+            $bind_path = "/sys/bus/pci/drivers/{$target_driver}/bind";
+            if (is_writable($bind_path)) {
+                file_put_contents($bind_path, $vf_pci);
+                $result['rebind'] = true;
+                $result['driver_after'] = $target_driver;
+            } else {
+                $result['error'] = "Cannot rebind VF $vf_pci to $target_driver (permissions)";
+            }
+        }
+    }
+    if (!isset($result['error'])) $result['success'] = true;
+    return $result;
+}
+
+/**
+ * Helper: Determine VF index from PF/VF relationship
+ */
+function getVfIndex(string $pf_pci, string $vf_pci): ?int {
+    $pf_path = "/sys/bus/pci/devices/{$pf_pci}";
+    foreach (glob("$pf_path/virtfn*") as $vf_link) {
+        if (is_link($vf_link)) {
+            $target = basename(readlink($vf_link));
+            if ($target === $vf_pci) {
+                return (int)preg_replace('/[^0-9]/', '', basename($vf_link));
+            }
+        }
+    }
+    return null;
+}
+
+function build_pci_active_vm_map() {
+    global $lv;
+    $pcitovm = [];
+
+    $vms = $lv->get_domains();
+    foreach ($vms as $vm) {
+        $vmpciids = $lv->domain_get_vm_pciids($vm);
+        $res = $lv->get_domain_by_name($vm);
+        $dom = $lv->domain_get_info($res);
+        $state = $lv->domain_state_translate($dom['state']);
+        if ($state === 'shutoff') continue;
+
+        foreach ($vmpciids as $pciid => $pcidetail) {
+            $pcitovm["0000:" . $pciid][$vm] = $state;
+        }
+    }
+
+    return $pcitovm;
+}
+
+function is_pci_inuse($pciid, $type) {
+    $actives = build_pci_active_vm_map();
+    $sriov = json_decode(getSriovInfoJson(true), true);
+    $inuse = false;
+    $vms = [];
+
+    switch ($type) {
+        case "VF":
+            if (isset($actives[$pciid])) {
+                $inuse = true;
+                $vms = array_keys($actives[$pciid]);
+            }
+            break;
+
+        case "PF":
+            if (isset($sriov[$pciid])) {
+                $vfs = $sriov[$pciid]['vfs'] ?? [];
+                foreach ($vfs as $vf) {
+                    $vf_pci = $vf['pci'];
+                    if (isset($actives[$vf_pci])) {
+                        $inuse = true;
+                        $vms = array_merge($vms, array_keys($actives[$vf_pci]));
+                    }
+                }
+            }
+            break;
+    }
+
+    // Remove duplicate VM names (in case multiple VFs from same VM)
+    $vms = array_values(array_unique($vms));
+
+    // Output consistent JSON structure
+    $result = [
+        "inuse" => $inuse,
+        "vms"   => $vms
+    ];
+
+    header('Content-Type: application/json');
+    echo json_encode($result, JSON_PRETTY_PRINT);
+    exit;
+}
+
+
 ?>

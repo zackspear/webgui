@@ -184,11 +184,11 @@ fi
 
 echo "MAC Address set"
 
-    if [[ "$VFIO" == "1" ]]; then
-        echo "Binding VF to vfio"
-        /usr/local/sbin/vfio-pci-bind.sh "$BDF" "$VD" \
-            1>>/var/log/vfio-pci \
-            2>>/var/log/vfio-pci-errors
-    fi
+if [[ "$VFIO" == "1" ]]; then
+    echo "Binding VF to vfio"
+    /usr/local/sbin/vfio-pci-bind.sh "$BDF" "$VD" \
+        1>>/var/log/vfio-pci \
+        2>>/var/log/vfio-pci-errors
+fi
 
 

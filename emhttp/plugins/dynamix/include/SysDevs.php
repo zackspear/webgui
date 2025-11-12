@@ -15,13 +15,14 @@
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/SriovHelpers.php";
+require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 
 // add translations
 $_SERVER['REQUEST_URI'] = 'tools';
 require_once "$docroot/webGui/include/Translations.php";
 
 $pci_device_diffs = comparePCIData();
-$allowedPCIClass = ['0x02','0x03'];
+
 
 function usb_physical_port($usbbusdev) {
   if (preg_match('/^Bus (?P<bus>\S+) Device (?P<dev>\S+): ID (?P<id>\S+)(?P<name>.*)$/', $usbbusdev, $usbMatch)) {
@@ -137,7 +138,7 @@ case 't1':
       $groups[] = "\tR[{$removeddata['device']['vendor_id']}:{$removeddata['device']['device_id']}] ".str_replace("0000:","",$removedpci)." ".trim($removeddata['device']['description'],"\n");
     }
     $ackparm = "";
-   # echo "<tr><td>";var_dump($sriov, $sriov_devices_settings);echo"</td></tr>";
+    #echo "<tr><td>";var_dump( $sriov_devices_settings);echo"</td></tr>";
     foreach ($groups as $line) {
       if (!$line) continue;
       if (in_array($line,$sriovvfs)) continue;
@@ -218,7 +219,7 @@ case 't1':
           }
 
           echo '</select>';
-          echo " "._("Current:").$num_vfs;
+          echo " "._("Current").":".$num_vfs;
           #sprintf(" "._("Current").":%1s",$num_vfs);
           echo ' <a class="info" href="#" title="'._("Save VFs config").'" onclick="saveVFsConfig(\''.htmlentities($pciaddress).'\',\''.htmlentities($vd).'\'); return false;"><i class="fa fa-save"> </i></a>';
           echo ' <a class="info" href="#" title="'._("Action VFs update").'" onclick="applyVFsConfig(\''.htmlentities($pciaddress).'\',\''.htmlentities($vd).'\',\''.htmlentities($num_vfs).'\'); return false;"><i title="Apply now" class="fa fa-play"></i></a>';
@@ -278,16 +279,17 @@ case 't1':
             } else {
                 $mac = null;
             }
-            $placeholder = empty($mac) ? 'Undefined dynamic allocation' : '';
+            $placeholder = empty($mac) ? 'Dynamic allocation' : '';
             $value_attr  = empty($mac) ? '' : htmlspecialchars($mac, ENT_QUOTES);
             echo "<tr><td></td><td></td><td></td><td></td><td>";
             echo '<label for="mac_address">MAC Address:</label>';
             echo "<input class='narrow' type=\"text\" name=\"vfmac$pciaddress\" id=\"vfmac$pciaddress\" value=\"$value_attr\" placeholder=\"$placeholder\">";
-            echo '<a class="info" href="#" title="'._("Generate MAC").'" onclick="generateMAC(\''.htmlentities($pciaddress).'\'); return false;"><i class="fa fa-refresh mac_generate"> </i></a>';
-            echo '<a class="info" href="#" title="'._("Save MAC config").'" onclick="saveVFSettingsConfig(\''.htmlentities($pciaddress).'\',\''.htmlentities($vd).'\'); return false;"><i class="fa fa-save"> </i></a>';
-            if ($vrf['driver'] == "vfio-pci") 
-            echo _("Current").": ";
+            echo ' <a class="info" href="#" title="'._("Generate MAC").'" onclick="generateMAC(\''.htmlentities($pciaddress).'\'); return false;"><i class="fa fa-refresh mac_generate"> </i></a>';
+            echo ' <a class="info" href="#" title="'._("Save MAC config").'" onclick="saveVFSettingsConfig(\''.htmlentities($pciaddress).'\',\''.htmlentities($vd).'\'); return false;"><i class="fa fa-save"> </i></a>';
+            echo ' <a class="info" href="#" title="'._("Action VFs update").'" onclick="applyVFSettings(\''.htmlentities($pciaddress).'\',\''.htmlentities($vd).'\',\''.htmlentities($sriov_devices_settings[$pciaddress]['vfio'] == 1 ? 'true':'false').'\',\''.$value_attr.'\'); return false;"><i title="Apply now VFIO and MAC Address" class="fa fa-play"></i></a> ';
+            if ($vrf['driver'] != "vfio-pci") echo _("Current").": ";
             echo $vrf['driver'] == "vfio-pci" ? _("Bound to VFIO") : strtoupper($vrf['mac']);
+            echo " <span id=vfstatus$pciaddress></span>";
             echo "</td></tr>";  
           }
         }
