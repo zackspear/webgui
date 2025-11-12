@@ -2594,8 +2594,10 @@ div#title.ud {
     }
 
     .usage-bar {
-        position: relative;
-        width: 6.4rem;
+        POSITION: absolute;
+        bottom: .5rem;
+        left: 50%;
+        width: 14rem;
         margin: 0;
         padding: 0;
     }
