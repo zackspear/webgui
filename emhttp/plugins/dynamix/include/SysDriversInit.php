@@ -1,4 +1,4 @@
-  #!/usr/bin/php
+#!/usr/bin/php
 <?PHP
 function SysDriverslog($m, $type='NOTICE') {
   if ($type == 'DEBUG') return;

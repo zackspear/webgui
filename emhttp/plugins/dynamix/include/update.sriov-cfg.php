@@ -49,7 +49,7 @@ if (isset($pciid) && isset($vd)) {
             }
           }
         }
-        if (!$found) $newexplode[] = $newelement_check.$numvfs;
+        if (!$found  && $numvfs != "0") $newexplode[] = $newelement_check.$numvfs;
         $new = "VFS=".implode(" ",$newexplode);
         $file = $sriov; 
         break;
@@ -73,10 +73,10 @@ if (isset($pciid) && isset($vd)) {
             }
           }
         }
-          if (!$found) $newexplode[] = $newelement_check.$vfio."|".$mac;
-          $new = "VFSETTINGS=".implode(" ",$newexplode);
-          $file = $sriovvfs; 
-          break;
+        if (!$found  && $vfio != 0) $newexplode[] = $newelement_check.$vfio."|".$mac;
+        $new = "VFSETTINGS=".implode(" ",$newexplode);
+        $file = $sriovvfs; 
+        break;
   }
 }
 

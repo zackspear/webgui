@@ -20,6 +20,7 @@ require_once "$docroot/webGui/include/Secure.php";
 require_once "$docroot/webGui/include/Wrappers.php";
 require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 require_once "$docroot/webGui/include/SriovHelpers.php";
+require_once "$docroot/webGui/include/Translations.php";
 
 function json_response($success, $error = null, $details = [])
 {
@@ -41,8 +42,27 @@ function json_response($success, $error = null, $details = [])
         'details' => $details
     ];
 
-    echo json_encode($response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+    $json = json_encode($response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+    file_put_contents("/tmp/vfactionjson",$json);
+    echo $json;
     exit;
+}
+
+function safe_file_put_contents($path, $data)
+{
+    // Check that the file or its directory is writable
+    $dir = is_dir($path) ? $path : dirname($path);
+    if (!is_writable($dir)) {
+        throw new RuntimeException("Path not writable: $path");
+    }
+
+    $result = @file_put_contents($path, $data);
+    if ($result === false) {
+        $err = error_get_last();
+        throw new RuntimeException("Failed to write to $path: " . ($err['message'] ?? 'unknown error'));
+    }
+
+    return $result;
 }
 
 
@@ -64,6 +84,8 @@ function action_settings($pciid)
         // Skip if no action needed
         if ($vfio == 0 && $mac == "") continue;
 
+        if ($mac == "") $mac="00:00:00:00:00:00";
+
         $cmd = "/usr/local/sbin/sriov-vfsettings.sh " .
                escapeshellarg($vfpci) . " " .
                escapeshellarg($vf['vd']) . " " .
@@ -77,19 +99,17 @@ function action_settings($pciid)
         // Clean output: remove blank lines and trim whitespace
         $output = array_filter(array_map('trim', $output));
 
-        file_put_contents("/tmp/vfaction", "$ret\n$cmd\n" . json_encode($output) . "\n");
-
         if ($ret !== 0) {
             // Only include relevant lines for error reporting
-            $results[] = [
+            $results[$vfpci] = [
                 'success' => false,
-                'error'   => implode("\n", $output) ?: "Unknown error (exit code $ret)"
+                'error'   => implode("\n", $output) ?: sprintf(_("Unknown error (exit code %s)"),$ret)
             ];
         } else {
             // Success: include minimal details or last few lines
-            $results[] = [
+            $results[$vfpci] = [
                 'success' => true,
-                'details' => 'Applied VF settings'
+                'details' => _('Applied VF settings')
             ];
         }
     }
@@ -103,46 +123,62 @@ $pciid = _var($_POST, 'pciid');
 $vd = _var($_POST, 'vd');
 
 if (!isset($pciid) || !isset($vd)) {
-    echo json_response(false, "Missing PCI ID or virtual device");
+    echo json_response(false, _("Missing PCI ID or virtual device"));
     exit;
 }
+
+
 
 switch ($type) {
     // --------------------------------------------------------
     // SR-IOV enable/disable & VF count changes
     // --------------------------------------------------------
     case "sriov":
-        $numvfs = _var($_POST, 'numvfs');
+        $numvfs     = _var($_POST, 'numvfs');
         $currentvfs = _var($_POST, 'currentvfs');
-        $filepath = "/sys/bus/pci/devices/$pciid/sriov_numvfs";
+        $filepath   = "/sys/bus/pci/devices/$pciid/sriov_numvfs";
 
         if (!is_writable($filepath)) {
-            echo json_response(false, "Cannot modify $filepath");
-            break;
+            json_response(false, "Cannot modify $filepath");
         }
 
         try {
+            // Disable all VFs
             if ($numvfs == 0) {
-                file_put_contents($filepath, 0);
-                echo json_response(true, null, ["Disabled all VFs"]);
-                break;
+                safe_file_put_contents($filepath, 0);
+                json_response(true, null, [_("Disabled all VFs")]);
             }
 
+            // Change VF count
             if ($numvfs != $currentvfs) {
-                file_put_contents($filepath, 0);
-                file_put_contents($filepath, $numvfs);
+                safe_file_put_contents($filepath, 0);
+                safe_file_put_contents($filepath, $numvfs);
+
                 $results = action_settings($pciid);
-                echo json_response(true, null, ["Changed VF count to $numvfs", $results]);
-                break;
+
+                $all_success = array_reduce($results, fn($ok, $r) => $ok && ($r['success'] ?? false), true);
+
+                safe_file_put_contents(
+                    "/tmp/vfactionres2",
+                    json_encode(['all_success' => $all_success, 'results' => $results], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+                );
+
+                json_response(true, null, [sprintf(_("Changed VF count to %d"), $numvfs), $results]);
             }
 
-            file_put_contents($filepath, $numvfs);
+            // Reapply VF settings
+            safe_file_put_contents($filepath, $numvfs);
             $results = action_settings($pciid);
-            echo json_response(true, null, ["Reapplied VF settings", $results]);
+            json_response(true, null, [_("Reapplied VF settings"), $results]);
+
         } catch (Throwable $e) {
-            echo json_response(false, "Failed to change VF count: " . $e->getMessage());
+            // Log internal details for debugging
+            @file_put_contents("/tmp/vfaction_error.log", date('c') . " " . $e->getMessage() . "\n", FILE_APPEND);
+
+            json_response(false, _("Failed to change VF count") . ": " . $e->getMessage());
         }
         break;
+
 
     // --------------------------------------------------------
     // VF driver binding, MAC changes
@@ -181,9 +217,9 @@ switch ($type) {
             }
 
             // Nothing changed
-            echo json_response(true, null, ["No changes detected"]);
+            echo json_response(true, null, [_("No changes detected")]);
         } catch (Throwable $e) {
-            echo json_response(false, "Error applying VF settings: " . $e->getMessage());
+            echo json_response(false, _("Error applying VF settings").": ".$e->getMessage());
         }
         break;
 
@@ -197,7 +233,7 @@ switch ($type) {
         break;
 
     default:
-        echo json_response(false, "Unknown request type: $type");
+        echo json_response(false, _("Unknown request type").": $type");
         break;
 }
 

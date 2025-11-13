@@ -59,8 +59,8 @@ function saveVFSettingsConfig(pciId,vd,interactive=1) {
      // document.getElementById("warning").innerHTML = "<b>_(ALERT)_: _(Changes saved)_. _(Reboot to take effect)_.</b>";
       if (interactive == 1)         
         swal({
-          title: _("VF Settings"),
-          text: _("Configuration saved") + ".",
+          title: "VF Settings",
+          text: "Configuration saved.",
           type: "success",
           timer: 3000,
           showConfirmButton: false
@@ -83,7 +83,7 @@ function saveVFsConfig(pciId,vd,interactive=1) {
       if (interactive == 1) 
         swal({
           title: "VFs",
-          text: _("Configuration saved") + ".",
+          text: "Configuration saved.",
           type: "success",
           timer: 3000,
           showConfirmButton: false
@@ -99,7 +99,7 @@ function saveVFsConfig(pciId,vd,interactive=1) {
 
 function generateMAC(pciId) {
   if (!pciId) {
-    swal("Error", _("No PCI ID provided to generateMAC()"), "error");
+    swal("Error", "No PCI ID provided to generateMAC()", "error");
     return;
   }
 
@@ -107,7 +107,7 @@ function generateMAC(pciId) {
   var pciPattern = /^([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9a-fA-F]{2})\.([0-7])$/;
   var match = pciId.match(pciPattern);
   if (!match) {
-    swal(_("Invalid PCI ID"), _("Expected format: 0000:03:00.2"), "error");
+    swal("Invalid PCI ID", "Expected format: 0000:03:00.2", "error");
     return;
   }
 
@@ -434,48 +434,37 @@ function doVFApply(pciId, vd, numvfs, message) {
       vd: vd, 
       numvfs: numvfs 
   })
-  .done(function (data) {
-    // Parse JSON safely
-    if (typeof data === "string") {
-      try { data = JSON.parse(data); }
-      catch (e) {
-        data = { success: false, error: "Invalid JSON: " + e.message };
-      }
+.done(function (data) {
+  // Normalize to JSON
+  if (typeof data === "string") {
+    try { data = JSON.parse(data); }
+    catch (e) {
+      data = { success: false, error: "Invalid JSON: " + e.message };
     }
+  }
 
-    // Helper: recursively format details to plain text
-    function formatDetails(obj, indent = 0) {
-      const pad = "  ".repeat(indent);
-      if (obj == null) return "";
-      if (typeof obj === "string") return pad + obj;
-      if (typeof obj === "number" || typeof obj === "boolean") return pad + obj;
-      if (Array.isArray(obj)) return obj.map(x => formatDetails(x, indent)).join("\n");
-      if (typeof obj === "object") {
-        return Object.entries(obj).map(([key, val]) => {
-          if (typeof val === "object" && val !== null) {
-            // Special case for VF result objects
-            if ("success" in val || "error" in val || "details" in val) {
-              const symbol = val.success ? "✔" : "✖";
-              const msg = val.error || val.details || "";
-              return `${pad}${key}\n${pad}  ${symbol} ${msg}`;
-            }
-            return `${pad}${key}:\n${formatDetails(val, indent + 1)}`;
-          }
-          return `${pad}${key}: ${val}`;
-        }).join("\n");
-      }
-      return pad + String(obj);
-    }
+  // Extract a clean message
+  //let msg = "Configuration successfully applied.";
 
-    // Build message
-    let msg = "";
-    if (data.error) {
-      msg = "Error: " + data.error;
-    } else if (data.details) {
-      msg = formatDetails(data.details);
-    } else {
-      msg = "Configuration successfully applied.";
+  if (data.error) {
+    msg = "Error: " + data.error;
+  } else if (data.details) {
+    if (Array.isArray(data.details)) {
+      msg = data.details.join("\n");
+    } else if (typeof data.details === "object") {
+      msg = Object.entries(data.details)
+        .map(([k, v]) => `${k}: ${JSON.stringify(v, null, 2)}`)
+        .join("\n\n");
+    } else if (typeof data.details === "string") {
+      msg = data.details;
     }
+  }
+
+  // Build the message
+  let msg = "";
+  if (data.error) msg = "Error: " + data.error;
+  else if (data.details) msg = formatDetails(data.details);
+  else msg = "Configuration successfully applied.";
 
   // Show alert
   const ok = data.success === true || data.success === 1;
@@ -486,7 +475,7 @@ function doVFApply(pciId, vd, numvfs, message) {
     title: ok ? "Update Complete" : "Update Failed",
     text: msg,
     type: ok ? "success" : "error",
-    timer: ok ? 3000: null,
+    timer: ok ? 3000 : null,
     showConfirmButton: !ok
   });
 

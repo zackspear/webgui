@@ -90,6 +90,11 @@ for arg in "$@"; do
     fi
 done
 
+if [[ -z "$BDF" ]]; then
+    echo "Error: No valid Bus:Device.Function provided" 1>&2
+    exit 1
+fi
+
 TARGET_DEV_SYSFS_PATH="/sys/bus/pci/devices/$BDF"
 
 if [[ ! -d $TARGET_DEV_SYSFS_PATH ]]; then

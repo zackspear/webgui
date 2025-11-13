@@ -14,7 +14,7 @@
 # accepts space-separated list of <Bus:Device.Function> or <Domain:Bus:Device.Function> followed by an optional "|" and <Vendor:Device> | <MAC Address>
 # example:VFSETTINGS=0000:04:11.5|8086:1520|62:00:04:11:05:01
 
-SRIOV_ENABLED_FILE=/boot/config/sriov_enabled
+SRIOV_DISABLED_FILE=/boot/config/sriov_disabled
 if [[ -f $SRIOV_DISABLED_FILE ]] ; then
     echo 'SRIOV Processing disabled.'
     exit

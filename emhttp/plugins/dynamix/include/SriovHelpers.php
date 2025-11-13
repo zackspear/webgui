@@ -13,15 +13,10 @@
 ?>
 <?
 
-
-#$allowedPCIClass = ['0x02','0x03'];
 $allowedPCIClass = ['0x02'];
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt.php";
 require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
-
-
-
 
 /**
  * Get available kernel modules for this PCI device based on its modalias
@@ -34,7 +29,6 @@ function getModulesFromModalias(string $pci): array {
     $out = trim(shell_exec($cmd));
     return $out ? preg_split('/\s+/', $out) : [];
 }
-
 
 /**
  * Enumerate SR-IOV capable PCI devices (keyed by PCI address).
@@ -150,14 +144,14 @@ function rebindVfDriver($vf, $sriov, $target = 'original')
     $res = ['pci'=>$vf,'success'=>false,'error'=>null,'details'=>[]];
     $vf_path = "/sys/bus/pci/devices/$vf";
     $physfn = "$vf_path/physfn";
-    if (!is_link($physfn)) return $res + ['error'=>"Missing physfn link"];
+    if (!is_link($physfn)) return $res + ['error'=>_("Missing physfn link")];
     $pf = basename(readlink($physfn));
     $vf_info = $sriov[$pf]['vfs'][$vf] ?? null;
-    if (!$vf_info) return $res + ['error'=>"VF not found in \$sriov for PF $pf"];
+    if (!$vf_info) return $res + ['error'=>_("VF not found in sriov for PF")." $pf"];
 
     $orig_mod = $vf_info['modules'][0] ?? $sriov[$pf]['module'] ?? null;
     $curr_drv = $vf_info['driver'] ?? null;
-    if (!$orig_mod) return $res + ['error'=>"No module info for $vf"];
+    if (!$orig_mod) return $res + ['error'=>_("No module info for")." $vf"];
 
     $drv_override = "$vf_path/driver_override";
 
@@ -187,13 +181,12 @@ function rebindVfDriver($vf, $sriov, $target = 'original')
         $bound = basename(readlink($drv_link));
         if ($bound === $new_drv) {
             $res['success'] = true;
-            $res['details'][] = "Bound to $new_drv";
+            $res['details'][] = _("Bound to")." $new_drv";
             return $res;
         }
-        return $res + ['error'=>"Bound to $bound instead of $new_drv"];
+        return $res + ['error'=> sprintf(_("Bound to %s instead of %s"),$bound,$new_drv)];
     }
-
-    return $res + ['error'=>"No driver link after reprobe"];
+    return $res + ['error'=>_("No driver link after reprobe")];
 }
 
 
@@ -268,7 +261,7 @@ function getVfListByIommuGroup(): array {
             $iommu_group = "unknown";
         }
 
-        $groups[]  = "IOMMU group " . $iommu_group;
+        $groups[] = "IOMMU group " . $iommu_group;
         $groups[] = $vf_pci;
     }
 
@@ -280,28 +273,26 @@ function getVfListByIommuGroup(): array {
 // Parse SR-IOV VF counts
 // ----------------------
 function parseVFvalues() {
-  $sriov_devices = [];
-  $DBDF_SRIOV_REGEX = '/^[[:xdigit:]]{4}:[[:xdigit:]]{2}:[[:xdigit:]]{2}\.[[:xdigit:]]\|[[:xdigit:]]{4}:[[:xdigit:]]{4}\|[[:digit:]]+$/';
-  if (is_file("/boot/config/sriov.cfg")) {
-      $file = trim(file_get_contents("/boot/config/sriov.cfg"));
-      $file = preg_replace('/^VFS=/', '', $file); // Remove prefix
-      $entries = preg_split('/\s+/', $file, -1, PREG_SPLIT_NO_EMPTY);
+    $sriov_devices = [];
+    $DBDF_SRIOV_REGEX = '/^[[:xdigit:]]{4}:[[:xdigit:]]{2}:[[:xdigit:]]{2}\.[[:xdigit:]]\|[[:xdigit:]]{4}:[[:xdigit:]]{4}\|[[:digit:]]+$/';
+    if (is_file("/boot/config/sriov.cfg")) {
+        $file = trim(file_get_contents("/boot/config/sriov.cfg"));
+        $file = preg_replace('/^VFS=/', '', $file); // Remove prefix
+        $entries = preg_split('/\s+/', $file, -1, PREG_SPLIT_NO_EMPTY);
 
-      foreach ($entries as $entry) {
-          if (preg_match($DBDF_SRIOV_REGEX, $entry)) {
-              // Format: <DBDF>|<Vendor:Device>|<VF_count>
-              [$dbdf, $ven_dev, $vf_count] = explode('|', $entry);
-              $sriov_devices[$dbdf] = [
-                  'dbdf'     => $dbdf,
-                  'vendor'   => $ven_dev,
-                  'vf_count' => (int)$vf_count,
-              ];
-          }
-      }
-
-    # $sriov_devices = array_values(array_unique($sriov_devices, SORT_REGULAR));
+        foreach ($entries as $entry) {
+            if (preg_match($DBDF_SRIOV_REGEX, $entry)) {
+                // Format: <DBDF>|<Vendor:Device>|<VF_count>
+                [$dbdf, $ven_dev, $vf_count] = explode('|', $entry);
+                $sriov_devices[$dbdf] = [
+                    'dbdf'     => $dbdf,
+                    'vendor'   => $ven_dev,
+                    'vf_count' => (int)$vf_count,
+                ];
+            }
+        }
+    }
     return $sriov_devices;
-  }
 }
 
 // ---------------------------------
@@ -311,27 +302,25 @@ function parseVFSettings() {
   $sriov_devices_settings = [];
   $DBDF_SRIOV_SETTINGS_REGEX = '/^[[:xdigit:]]{4}:[[:xdigit:]]{2}:[[:xdigit:]]{2}\.[[:xdigit:]]\|[[:xdigit:]]{4}:[[:xdigit:]]{4}\|[01]\|([[:xdigit:]]{2}:){5}[[:xdigit:]]{2}$/';
   if (is_file("/boot/config/sriovvfs.cfg")) {
-      $file = trim(file_get_contents("/boot/config/sriovvfs.cfg"));
-      $file = preg_replace('/^VFSETTINGS=/', '', $file); // Remove prefix
-      $entries = preg_split('/\s+/', $file, -1, PREG_SPLIT_NO_EMPTY);
+        $file = trim(file_get_contents("/boot/config/sriovvfs.cfg"));
+        $file = preg_replace('/^VFSETTINGS=/', '', $file); // Remove prefix
+        $entries = preg_split('/\s+/', $file, -1, PREG_SPLIT_NO_EMPTY);
 
-      foreach ($entries as $entry) {
-          if (preg_match($DBDF_SRIOV_SETTINGS_REGEX, $entry)) {
-              // Format: <DBDF>|<Vendor:Device>|<VFIO_flag>|<MAC>
-              [$dbdf, $ven_dev, $vfio_flag, $mac] = explode('|', $entry);
-              if ($mac == "00:00:00:00:00:00") $mac = "";
-              $sriov_devices_settings[$dbdf] = [
-                  'dbdf'     => $dbdf,
-                  'vendor'   => $ven_dev,
-                  'vfio'     => (int)$vfio_flag,
-                  'mac'      => strtoupper($mac),
-              ];
-          }
-      }
-
-    # $sriov_devices_settings = array_values(array_unique($sriov_devices_settings, SORT_REGULAR));
+        foreach ($entries as $entry) {
+            if (preg_match($DBDF_SRIOV_SETTINGS_REGEX, $entry)) {
+                // Format: <DBDF>|<Vendor:Device>|<VFIO_flag>|<MAC>
+                [$dbdf, $ven_dev, $vfio_flag, $mac] = explode('|', $entry);
+                if ($mac == "00:00:00:00:00:00") $mac = "";
+                $sriov_devices_settings[$dbdf] = [
+                    'dbdf'     => $dbdf,
+                    'vendor'   => $ven_dev,
+                    'vfio'     => (int)$vfio_flag,
+                    'mac'      => strtoupper($mac),
+                ];
+            }
+        }
+    }
     return $sriov_devices_settings;
-  }
 }
 
 /**
@@ -364,14 +353,14 @@ function setVfMacAddress(string $vf_pci, string $mac, ?string $rebindDriver = nu
     ];
 
     if (!is_dir($vf_path)) {
-        $result['error'] = "VF path not found: $vf_path";
+        $result['error'] = _("VF path not found").": $vf_path";
         return $result;
     }
 
     // --- Find parent PF (Physical Function) ---
     $pf_link = "$vf_path/physfn";
     if (!is_link($pf_link)) {
-        $result['error'] = "No PF link for $vf_pci (not an SR-IOV VF?)";
+        $result['error'] = sprintf("No PF link for %s (not an SR-IOV VF?)",$vf_pci);
         return $result;
     }
     $pf_pci = basename(readlink($pf_link));
@@ -381,7 +370,7 @@ function setVfMacAddress(string $vf_pci, string $mac, ?string $rebindDriver = nu
     $pf_net = glob("/sys/bus/pci/devices/{$pf_pci}/net/*");
     $pf_iface = ($pf_net && isset($pf_net[0])) ? basename($pf_net[0]) : null;
     if (!$pf_iface) {
-        $result['error'] = "Could not detect PF interface for $pf_pci";
+        $result['error'] = _("Could not detect PF interface for")." $pf_pci";
         return $result;
     }
     $result['pf_iface'] = $pf_iface;
@@ -389,7 +378,7 @@ function setVfMacAddress(string $vf_pci, string $mac, ?string $rebindDriver = nu
     // --- Detect VF index ---
     $vf_index = getVfIndex($pf_pci, $vf_pci);
     if ($vf_index === null) {
-        $result['error'] = "Could not determine VF index for $vf_pci under $pf_pci";
+        $result['error'] = sprintf(_("Could not determine VF index for %s under %s"),$vf_pci,$pf_pci);
         return $result;
     }
     $result['vf_index'] = $vf_index;
@@ -406,7 +395,7 @@ function setVfMacAddress(string $vf_pci, string $mac, ?string $rebindDriver = nu
             file_put_contents($unbind_path, $vf_pci);
             $result['unbind'] = true;
         } else {
-            $result['error'] = "Cannot unbind VF $vf_pci from $vf_driver (permissions)";
+            $result['error'] = sprintf(_("Cannot unbind VF %s from %s (permissions)"),$vf_pci,$vf_driver);
             return $result;
         }
     }
@@ -424,7 +413,7 @@ function setVfMacAddress(string $vf_pci, string $mac, ?string $rebindDriver = nu
     if ($ret === 0) {
         $result['mac_set'] = true;
     } else {
-        $result['error'] = "Failed to set MAC: " . implode("; ", $output);
+        $result['error'] = _("Failed to set MAC").": " . implode("; ", $output);
     }
 
     // --- Rebind logic ---
@@ -437,7 +426,7 @@ function setVfMacAddress(string $vf_pci, string $mac, ?string $rebindDriver = nu
                 $result['rebind'] = true;
                 $result['driver_after'] = $target_driver;
             } else {
-                $result['error'] = "Cannot rebind VF $vf_pci to $target_driver (permissions)";
+                $result['error'] = sprintf(_("Cannot rebind VF %s to %s (permissions)"),$vf_pci,$target_driver);
             }
         }
     }
