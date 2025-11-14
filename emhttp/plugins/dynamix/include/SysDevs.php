@@ -23,7 +23,6 @@ require_once "$docroot/webGui/include/Translations.php";
 
 $pci_device_diffs = comparePCIData();
 
-
 function usb_physical_port($usbbusdev) {
   if (preg_match('/^Bus (?P<bus>\S+) Device (?P<dev>\S+): ID (?P<id>\S+)(?P<name>.*)$/', $usbbusdev, $usbMatch)) {
     //udevadm info -a --name=/dev/bus/usb/003/002 | grep KERNEL==
@@ -40,12 +39,10 @@ function usb_physical_port($usbbusdev) {
   return($physical_busid);
 }
 
-
 $sriov =  json_decode(getSriovInfoJson(true),true);
 $sriovvfs = getVfListByIommuGroup();
 $sriov_devices=parseVFvalues();
 $sriov_devices_settings=parseVFSettings();
-
 
 switch ($_POST['table']) {
 case 't1':
@@ -138,7 +135,6 @@ case 't1':
       $groups[] = "\tR[{$removeddata['device']['vendor_id']}:{$removeddata['device']['device_id']}] ".str_replace("0000:","",$removedpci)." ".trim($removeddata['device']['description'],"\n");
     }
     $ackparm = "";
-    #echo "<tr><td>";var_dump( $sriov_devices_settings);echo"</td></tr>";
     foreach ($groups as $line) {
       if (!$line) continue;
       if (in_array($line,$sriovvfs)) continue;
@@ -198,14 +194,14 @@ case 't1':
 
         if (array_key_exists($pciaddress,$sriov) && in_array(substr($sriov[$pciaddress]['class_id'],0,4),$allowedPCIClass)) {
           echo "<tr><td></td><td></td><td></td><td></td><td>";
-          echo "SRIOV Available VFs:{$sriov[$pciaddress]['total_vfs']}";
+          echo _("SRIOV Available VFs").":{$sriov[$pciaddress]['total_vfs']}";
           $num_vfs= $sriov[$pciaddress]['num_vfs'];
           
           if (isset($sriov_devices[$pciaddress])) 
             $file_numvfs = $sriov_devices[$pciaddress]['vf_count'];
           else $file_numvfs = 0;
 
-          echo '<label for="vf_select"> Select number of VFs: </label>';
+          echo '<label for="vf_select"> '._('Select number of VFs').': </label>';
           echo '<select class="narrow" name="vf'.$pciaddress.'" id="vf'.$pciaddress.'">';
 
           // First option: None
@@ -220,7 +216,6 @@ case 't1':
 
           echo '</select>';
           echo " "._("Current").":".$num_vfs;
-          #sprintf(" "._("Current").":%1s",$num_vfs);
           echo ' <a class="info" href="#" title="'._("Save VFs config").'" onclick="saveVFsConfig(\''.htmlentities($pciaddress).'\',\''.htmlentities($vd).'\'); return false;"><i class="fa fa-save"> </i></a>';
           echo ' <a class="info" href="#" title="'._("Action VFs update").'" onclick="applyVFsConfig(\''.htmlentities($pciaddress).'\',\''.htmlentities($vd).'\',\''.htmlentities($num_vfs).'\'); return false;"><i title="Apply now" class="fa fa-play"></i></a>';
 
@@ -279,10 +274,10 @@ case 't1':
             } else {
                 $mac = null;
             }
-            $placeholder = empty($mac) ? 'Dynamic allocation' : '';
+            $placeholder = empty($mac) ? _('Dynamic allocation') : '';
             $value_attr  = empty($mac) ? '' : htmlspecialchars($mac, ENT_QUOTES);
             echo "<tr><td></td><td></td><td></td><td></td><td>";
-            echo '<label for="mac_address">MAC Address:</label>';
+            echo '<label for="mac_address">'._("MAC Address").':</label>';
             echo "<input class='narrow' type=\"text\" name=\"vfmac$pciaddress\" id=\"vfmac$pciaddress\" value=\"$value_attr\" placeholder=\"$placeholder\">";
             echo ' <a class="info" href="#" title="'._("Generate MAC").'" onclick="generateMAC(\''.htmlentities($pciaddress).'\'); return false;"><i class="fa fa-refresh mac_generate"> </i></a>';
             echo ' <a class="info" href="#" title="'._("Save MAC config").'" onclick="saveVFSettingsConfig(\''.htmlentities($pciaddress).'\',\''.htmlentities($vd).'\'); return false;"><i class="fa fa-save"> </i></a>';

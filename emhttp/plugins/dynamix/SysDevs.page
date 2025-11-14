@@ -55,8 +55,6 @@ function saveVFSettingsConfig(pciId,vd,interactive=1) {
   $.post( "/plugins/dynamix/include/update.sriov-cfg.php", { type:"sriovsettings", pciid: pciId, vd:vd, vfio:vfio, mac:mac } )
   .done(function(d) {
     if (d==1) {
-      //addRebootNotice(message);
-     // document.getElementById("warning").innerHTML = "<b>_(ALERT)_: _(Changes saved)_. _(Reboot to take effect)_.</b>";
       if (interactive == 1)         
         swal({
           title: _("VF Settings"),
@@ -65,10 +63,7 @@ function saveVFSettingsConfig(pciId,vd,interactive=1) {
           timer: 3000,
           showConfirmButton: false
         });
-    } else {
-//removeRebootNotice(message);
-//document.getElementById("warning").innerHTML = "<b>_(No changes)_.</b>";
-    }
+    } 
   });
 }
 function saveVFsConfig(pciId,vd,interactive=1) {
@@ -78,8 +73,6 @@ function saveVFsConfig(pciId,vd,interactive=1) {
   $.post( "/plugins/dynamix/include/update.sriov-cfg.php", { type:"sriov", pciid: pciId, vd:vd, numvfs:numvfs } )
   .done(function(d) {
     if (d==1) {
-     // addRebootNotice(message);
-     // document.getElementById("warning").innerHTML = "<b>_(ALERT)_: _(Changes saved)_. _(Reboot to take effect)_.</b>";
       if (interactive == 1) 
         swal({
           title: "VFs",
@@ -88,10 +81,7 @@ function saveVFsConfig(pciId,vd,interactive=1) {
           timer: 3000,
           showConfirmButton: false
         });
-    } else {
-    //  removeRebootNotice(message);
-     // document.getElementById("warning").innerHTML = "<b>_(No changes)_.</b>";
-    }
+    } 
     if (interactive == 1)  $('#t1').load('/webGui/include/SysDevs.php', { table: 't1' });
   });
 
@@ -112,17 +102,32 @@ function generateMAC(pciId) {
   }
 
   // Ask for host ID using Unraid swal input
-  swal({
-    title: "Enter Host ID",
-    text: "Provide a 2-digit hex host ID (e.g. 01)",
-    type: "input",
-    showCancelButton: true,
-    closeOnConfirm: false,
-    inputPlaceholder: "00"
+swal({
+  title: _("Enter Host ID"),
+  text: _("Provide a 2-digit hex host ID (e.g. 01)"),
+  type: "input",
+  showCancelButton: true,
+  closeOnConfirm: false,
+  inputPlaceholder: "00",
+  customClass: "swal-hostid-input",
+  onOpen: function() {
+    const input = document.querySelector(".sa-input");
+    if (input) {
+      input.maxLength = 2;                // Limit to 2 chars
+      input.style.textTransform = "uppercase"; // Auto uppercase
+      input.pattern = "[0-9A-Fa-f]{2}";   // Hex pattern
+      input.autocomplete = "off";
+
+      // Optional: restrict keypresses to hex characters only
+      input.addEventListener("keypress", function (e) {
+        if (!/[0-9A-Fa-f]/.test(e.key)) e.preventDefault();
+      });
+    }
+  }
   }, function(hostId) {
     if (hostId === false) return; // cancelled
     if (!/^[0-9a-fA-F]{1,2}$/.test(hostId)) {
-      swal.showInputError("Please enter 1–2 hex digits (00–ff)");
+      swal.showInputError(_("Please enter 1–2 hex digits (00–ff)"));
       return false;
     }
 
@@ -188,19 +193,19 @@ function applyVFsConfig(pciId, vd, vfs) {
         vmListText = "No VM names returned.";
       }
 
-      const plural = vmCount === 1 ? "VM is" : "VMs are";
+      const plural = vmCount === 1 ? _("VM is") : _("VMs are");
       const messageText =
-        `The following ${plural} currently using this device:\n\n` +
+        _("The following") + plural + _("currently using this device") + ":\n\n" +
         vmListText +
-        "\n\nPlease stop " +
+        "\n\n"._("Please stop") +  " " +
         (vmCount === 1 ? "it" : "them") +
-        " before applying changes.";
+        _(" before applying changes.");
 
       swal({
-        title: "Active VMs Detected",
+        title: _("Active VMs Detected"),
         text: messageText,
         type: "warning",
-        confirmButtonText: "OK",
+        confirmButtonText: _("OK"),
         closeOnConfirm: true
       });
 
@@ -212,12 +217,12 @@ function applyVFsConfig(pciId, vd, vfs) {
     // Case 1: VFs will be removed
     if (vfs !== 0 && numvfs === 0) {
       swal({
-        title: "VFs will be removed",
-        text: "Card will reset.",
+        title: _("VFs will be removed"),
+        text: _("Physical card will reset."),
         type: "warning",
         showCancelButton: true,
-        confirmButtonText: "OK",
-        cancelButtonText: "Cancel",
+        confirmButtonText: _("OK"),
+        cancelButtonText: _("Cancel"),
         closeOnConfirm: true
       }, function(isConfirm) {
         if (isConfirm) {
@@ -225,7 +230,7 @@ function applyVFsConfig(pciId, vd, vfs) {
             doVFApply(pciId, vd, numvfs, message);
           }, 300);
         } else {
-          swal("Cancelled", "No changes were made.", "info");
+          swal(_("Cancelled", "No changes were made.", "info"));
         }
       });
       return;
@@ -234,12 +239,12 @@ function applyVFsConfig(pciId, vd, vfs) {
     // Case 2: Number of VFs changed
     if (vfs !== numvfs && vfs !== 0) {
       swal({
-        title: "Number of VFs changed",
-        text: "Will need to remove and re-add VFs.",
+        title: _("Number of VFs changed"),
+        text: _("Will need to remove and re-add VFs."),
         type: "warning",
         showCancelButton: true,
-        confirmButtonText: "OK",
-        cancelButtonText: "Cancel",
+        confirmButtonText: _("OK"),
+        cancelButtonText: _("Cancel"),
         closeOnConfirm: true
       }, function(isConfirm) {
         if (isConfirm) {
@@ -261,8 +266,8 @@ function applyVFsConfig(pciId, vd, vfs) {
   .fail(function (xhr, status, error) {
     console.error("Active check failed:", status, error, xhr.responseText);
     swal({
-      title: "Error",
-      text: "Could not verify active device state.",
+      title: _("Error"),
+      text: _("Could not verify active device state."),
       type: "error",
       showConfirmButton: true
     });
@@ -296,19 +301,19 @@ function applyVFSettings(pciId, vd, currentvfio, currentmac) {
         vmListText = "No VM names returned.";
       }
 
-      const plural = vmCount === 1 ? "VM is" : "VMs are";
+      const plural = vmCount === 1 ? _("VM is") : _("VMs are");
       const messageText =
-        `The following ${plural} currently using this device:\n\n` +
+        _("The following") + plural + _("currently using this device") + ":\n\n" +
         vmListText +
-        "\n\nPlease stop " +
+        "\n\n"._("Please stop") +  " " +
         (vmCount === 1 ? "it" : "them") +
-        " before applying changes.";
+        _(" before applying changes.");
 
       swal({
-        title: "Active VMs Detected",
+        title: _("Active VMs Detected"),
         text: messageText,
         type: "warning",
-        confirmButtonText: "OK",
+        confirmButtonText: _("OK"),
         closeOnConfirm: true
       });
 
@@ -319,8 +324,8 @@ function applyVFSettings(pciId, vd, currentvfio, currentmac) {
   .fail(function (xhr, status, error) {
     console.error("Active check failed:", status, error, xhr.responseText);
     swal({
-      title: "Error",
-      text: "Could not verify active device state.",
+      title: _("Error"),
+      text: _("Could not verify active device state."),
       type: "error",
       showConfirmButton: true
     });
@@ -330,8 +335,8 @@ function applyVFSettings(pciId, vd, currentvfio, currentmac) {
 function doVFSettingApply(pciId, vd, vfio, mac, currentvfio, currentmac, message) {
   // Show "updating" alert
   swal({
-    title: "Updating...",
-    text: "Please wait while configuration is applied.",
+    title: _("Updating..."),
+    text: _("Please wait while configuration is applied."),
     type: "info",
     showConfirmButton: false,
     allowOutsideClick: false,
@@ -356,8 +361,8 @@ function doVFSettingApply(pciId, vd, vfio, mac, currentvfio, currentmac, message
       data = (typeof response === "string") ? JSON.parse(response) : response;
     } catch (e) {
       swal({
-        title: "Error",
-        text: "Invalid JSON response from server.",
+        title: _("Error"),
+        text: _("Invalid JSON response from server."),
         type: "error",
         showConfirmButton: true
       });
@@ -371,8 +376,8 @@ function doVFSettingApply(pciId, vd, vfio, mac, currentvfio, currentmac, message
       //  "<b>_(ALERT)_: _(Changes saved)_. _(Reboot to take effect)_.</b>";
       saveVFSettingsConfig(pciId, vd, 0);
       swal({
-        title: "Update Complete",
-        text: data.details ? data.details.join("\n") : "Configuration successfully applied.",
+        title: _("Update Complete"),
+        text: data.details ? data.details.join("\n") : _("Configuration successfully applied."),
         type: "success",
         timer: 3000,
         showConfirmButton: false
@@ -383,7 +388,7 @@ function doVFSettingApply(pciId, vd, vfio, mac, currentvfio, currentmac, message
       document.getElementById("warning").innerHTML = "<b>" + errorMsg + "</b>";
 
       swal({
-        title: "Operation Failed",
+        title: _("Operation Failed"),
         text: errorMsg,
         type: "error",
         showConfirmButton: true
@@ -395,8 +400,8 @@ function doVFSettingApply(pciId, vd, vfio, mac, currentvfio, currentmac, message
   })
   .fail(function (xhr, status, error) {
     swal({
-      title: "Network Error",
-      text: "Failed to communicate with the server.\n" + (error || status),
+      title: _("Network Error"),
+      text: _("Failed to communicate with the server.") + "\n" + (error || status),
       type: "error",
       showConfirmButton: true
     });
@@ -419,8 +424,8 @@ function doVFSettingApply(pciId, vd, vfio, mac, currentvfio, currentmac, message
 function doVFApply(pciId, vd, numvfs, message) {
   // Show "updating" alert
   swal({
-    title: "Updating...",
-    text: "Please wait while configuration is applied.",
+    title: _("Updating..."),
+    text: _("Please wait while configuration is applied."),
     type: "info",
     showConfirmButton: false,
     allowOutsideClick: false,
@@ -483,7 +488,7 @@ function doVFApply(pciId, vd, numvfs, message) {
   saveVFsConfig(pciId, vd, 0);
 
   swal({
-    title: ok ? "Update Complete" : "Update Failed",
+    title: ok ? _("Update Complete") : _("Update Failed"),
     text: msg,
     type: ok ? "success" : "error",
     timer: ok ? 3000: null,
@@ -495,8 +500,8 @@ function doVFApply(pciId, vd, numvfs, message) {
 })
 .fail(function (xhr, status, error) {
   swal({
-    title: "Network Error",
-    text: "Failed to communicate with the server.\n" + (error || status),
+    title: _("Network Error"),
+    text: _("Failed to communicate with the server.") + "\n" + (error || status),
     type: "error",
     showConfirmButton: true
   });
@@ -541,7 +546,7 @@ function ackPCI(pcidevice, action) {
     }
 
     swal({
-      title: "Are you sure?",
+      title: _("Are you sure?"),
       text: swaltext,
       type: "warning",
       html: true,
@@ -557,6 +562,20 @@ function ackPCI(pcidevice, action) {
 }
 
 </script>
+<style>
+
+.sweet-alert.swal-hostid-input input {
+    width: 60px !important;
+    margin: 12px auto 0 auto !important; /* top margin added */
+    text-align: center !important;
+    display: block !important;
+
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    box-sizing: border-box !important;
+}
+
+</style>
 
 <?exec('ls /sys/kernel/iommu_groups/',$groups); ?>
 <?if (count($groups) > 0):?>
