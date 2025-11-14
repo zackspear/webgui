@@ -8,7 +8,6 @@
 #
 # LimeTech - modified for Unraid OS
 # Bergware - modified for Unraid OS, October 2023
-# Simon Fairweather - modified for Unraid OS, November 25(SRIOV)
 
 # run & log functions
 . /etc/rc.d/rc.runlog
