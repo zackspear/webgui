@@ -451,7 +451,8 @@ function getVfIndex(string $pf_pci, string $vf_pci): ?int {
 }
 
 function build_pci_active_vm_map() {
-    global $lv;
+    global $lv, $libvirt_running;
+    if ($libvirt_running !== "yes") return [];
     $pcitovm = [];
 
     $vms = $lv->get_domains();

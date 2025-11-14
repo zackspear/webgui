@@ -35,7 +35,6 @@ if (isset($pciid) && isset($vd)) {
         $newexplode = explode(" ",str_replace("VFS=","",$old));
         $new = $old;
         $numvfs= _var($_POST,'numvfs');
-        $newelement_change = $newelement_check.$numfs;
         $found = false;
         foreach($newexplode as $key => $newelement) {
           if (strpos($newelement,$newelement_check) !== false) {
