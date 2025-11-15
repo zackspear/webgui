@@ -331,7 +331,6 @@ function applyVFSettings(pciId, vd, currentvfio, currentmac) {
     });
   });
 }
-
 function doVFSettingApply(pciId, vd, vfio, mac, currentvfio, currentmac, message) {
   // Show "updating" alert
   swal({
@@ -344,10 +343,10 @@ function doVFSettingApply(pciId, vd, vfio, mac, currentvfio, currentmac, message
   });
 
   // Perform the POST
-  $.post("/plugins/dynamix/include/apply.sriov-cfg.php", { 
-      type: "sriovsettings", 
-      pciid: pciId, 
-      vd: vd, 
+  $.post("/plugins/dynamix/include/apply.sriov-cfg.php", {
+      type: "sriovsettings",
+      pciid: pciId,
+      vd: vd,
       vfio: vfio,
       mac: mac,
       currentvfio: currentvfio,
@@ -356,7 +355,7 @@ function doVFSettingApply(pciId, vd, vfio, mac, currentvfio, currentmac, message
   .done(function (response) {
     let data;
 
-    // Try to parse JSON safely
+    // Safe JSON parse
     try {
       data = (typeof response === "string") ? JSON.parse(response) : response;
     } catch (e) {
@@ -369,23 +368,38 @@ function doVFSettingApply(pciId, vd, vfio, mac, currentvfio, currentmac, message
       return;
     }
 
-    // Handle structured PHP result
+    // SUCCESS
     if (data.success) {
-      //addRebootNotice(message);
-     // document.getElementById("warning").innerHTML = 
-      //  "<b>_(ALERT)_: _(Changes saved)_. _(Reboot to take effect)_.</b>";
+
       saveVFSettingsConfig(pciId, vd, 0);
+
+      // data.details may be:
+      // - string
+      // - array
+      // - undefined
+      let msg = _("Configuration successfully applied.");
+
+      if (Array.isArray(data.details)) {
+        msg = data.details.join("\n");
+      } else if (typeof data.details === "string") {
+        msg = data.details;
+      }
+
       swal({
         title: _("Update Complete"),
-        text: data.details ? data.details.join("\n") : _("Configuration successfully applied."),
+        text: msg,
         type: "success",
         timer: 3000,
         showConfirmButton: false
       });
-    } else {
-      //removeRebootNotice(message);
-    //  const errorMsg = data.error || "No changes detected or operation failed.";
-      document.getElementById("warning").innerHTML = "<b>" + errorMsg + "</b>";
+    }
+
+    // FAILURE
+    else {
+      const errorMsg = data.error || _("Operation failed.");
+
+      document.getElementById("warning").innerHTML =
+        "<b>" + errorMsg + "</b>";
 
       swal({
         title: _("Operation Failed"),
@@ -395,9 +409,11 @@ function doVFSettingApply(pciId, vd, vfio, mac, currentvfio, currentmac, message
       });
     }
 
-    // Always reload the table after handling
+    // Always reload the table
     $('#t1').load('/webGui/include/SysDevs.php', { table: 't1' });
   })
+
+  // Network failure
   .fail(function (xhr, status, error) {
     swal({
       title: _("Network Error"),
@@ -407,6 +423,7 @@ function doVFSettingApply(pciId, vd, vfio, mac, currentvfio, currentmac, message
     });
   });
 }
+
 
   // Helper: safely stringify nested structures
   function formatDetails(details) {
@@ -444,7 +461,7 @@ function doVFApply(pciId, vd, numvfs, message) {
     if (typeof data === "string") {
       try { data = JSON.parse(data); }
       catch (e) {
-        data = { success: false, error: "Invalid JSON: " + e.message };
+        data = { success: false, error: _("Invalid JSON: ") + e.message };
       }
     }
 
@@ -475,7 +492,7 @@ function doVFApply(pciId, vd, numvfs, message) {
     // Build message
     let msg = "";
     if (data.error) {
-      msg = "Error: " + data.error;
+      msg = _("Error") + ": " + data.error;
     } else if (data.details) {
       msg = formatDetails(data.details);
     } else {
