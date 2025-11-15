@@ -156,8 +156,8 @@ samba_stop(){
   else
     REPLY="Stopped"
     # stop gracefully with SIGTERM the "master" smbd process first
-    master=$(ps -o pid=,ppid= -C smbd | awk '$2==1 {print $1}')
-    [[ -n "master" ]] && run kill "$master"
+    master=$(pgrep --ns $$ -o smbd)
+    [[ -n "$master" ]] && run kill "$master"
     sleep 1
     # stop gracefully with SIGTERM
     run killall --ns $$ smbd nmbd wsdd2 winbindd
@@ -165,7 +165,7 @@ samba_stop(){
     if samba_running; then
       REPLY="Killed"
       # stop forcibly with SIGKILL
-      [[ -n "master" ]] && run kill -SIGKILL "master"
+      [[ -n "$master" ]] && run kill -SIGKILL "$master"
       run killall --ns $$ -SIGKILL smbd nmbd wsdd2 winbindd
       samba_waitfor_shutdown
     fi
