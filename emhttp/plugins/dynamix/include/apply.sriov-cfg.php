@@ -53,7 +53,6 @@ function json_response($success, $error = null, $details = [])
     ];
 
     $json = json_encode($response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-    file_put_contents("/tmp/vfactionjson",$json);
     echo $json;
     exit;
 }
@@ -202,14 +201,6 @@ switch ($type) {
                     $ok && ($r['success'] ?? false), true
                 );
 
-                safe_file_put_contents(
-                    "/tmp/vfactionres2",
-                    json_encode(
-                        ['all_success' => $all_success, 'results' => $results],
-                        JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
-                    )
-                );
-
                 json_response(true, null, [
                     sprintf(_("Changed VF count to %d"), $numvfs),
                     $results
@@ -244,7 +235,6 @@ switch ($type) {
         $sriov = json_decode(getSriovInfoJson(), true);
 
         try {
-                   file_put_contents("/tmp/vfchange","SRIOVSETTINGS\n",);
             # MAC changed AND currently bound to VFIO
             if ($currentmac !== $mac) {
                 #Check if driver is required to change before actioning the MAC change.
@@ -283,8 +273,8 @@ switch ($type) {
     # --------------------------------------------------------
     case "inuse":
         $pcitype = _var($_POST, 'pcitype');
-        $result = is_pci_inuse($pciid, $pcitype);
-        echo json_encode($result);
+        is_pci_inuse($pciid, $pcitype);
+        // Note: is_pci_inuse() sends JSON response and exits
         break;
 
     default:

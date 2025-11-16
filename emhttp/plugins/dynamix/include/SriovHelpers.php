@@ -171,7 +171,9 @@ function rebindVfDriver($vf, $sriov, $target = 'original')
     // Step 3: Override driver binding
     if (is_writable($drv_override))
         @file_put_contents($drv_override, "$new_drv");
-    @file_put_contents("/sys/bus/pci/drivers_probe", $vf);
+        $probe_path = "/sys/bus/pci/drivers_probe";
+    if (is_writable($probe_path))
+        @file_put_contents($probe_path, $vf);
     if (is_writable($drv_override))
         @file_put_contents($drv_override, "\n");
 
@@ -245,7 +247,7 @@ function getPciClassNameAndId(string $pci): array {
 
 /**
  * Enumerate all VFs and group them by IOMMU group
- * Output: associative array or JSON with keys like "IOMMU group 29"
+ * Output: Flat array of groups and pci vfpci as separate elemements
  */
 function getVfListByIommuGroup(): array {
     $groups = [];
@@ -420,7 +422,7 @@ function setVfMacAddress(string $vf_pci, array $sriov, string $mac, ?string $reb
     // --- Rebind logic ---
     if ($rebindDriver !== "none") {
         $result2 = rebindVfDriver($vf_pci,$sriov,$rebindDriver);
-        if (isset($result2['error'])) $result['error'] = $result['error']; 
+        if (isset($result2['error'])) $result['error'] = $result2['error']; 
         elseif (isset($result2['details']))  $result["details"] = array_merge($result['details'] , $result2['details']);
     }
     if (!isset($result['error'])) $result['success'] = true;
