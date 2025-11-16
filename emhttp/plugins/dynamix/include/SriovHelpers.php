@@ -336,7 +336,7 @@ function parseVFSettings() {
  *
  * @return array  Result info (for JSON or logs)
  */
-function setVfMacAddress(string $vf_pci, string $mac, ?string $rebindDriver = null): array {
+function setVfMacAddress(string $vf_pci, array $sriov, string $mac, ?string $rebindDriver = null): array {
     $vf_path = "/sys/bus/pci/devices/{$vf_pci}";
     $result = [
         'vf_pci' => $vf_pci,
@@ -412,23 +412,16 @@ function setVfMacAddress(string $vf_pci, string $mac, ?string $rebindDriver = nu
 
     if ($ret === 0) {
         $result['mac_set'] = true;
+        $result['details'] = [sprintf(_("MAC address set to %s"),$mac)];
     } else {
         $result['error'] = _("Failed to set MAC").": " . implode("; ", $output);
     }
 
     // --- Rebind logic ---
     if ($rebindDriver !== "none") {
-        $target_driver = $rebindDriver ?? $vf_driver;
-        if ($target_driver) {
-            $bind_path = "/sys/bus/pci/drivers/{$target_driver}/bind";
-            if (is_writable($bind_path)) {
-                file_put_contents($bind_path, $vf_pci);
-                $result['rebind'] = true;
-                $result['driver_after'] = $target_driver;
-            } else {
-                $result['error'] = sprintf(_("Cannot rebind VF %s to %s (permissions)"),$vf_pci,$target_driver);
-            }
-        }
+        $result2 = rebindVfDriver($vf_pci,$sriov,$rebindDriver);
+        if (isset($result2['error'])) $result['error'] = $result['error']; 
+        elseif (isset($result2['details']))  $result["details"] = array_merge($result['details'] , $result2['details']);
     }
     if (!isset($result['error'])) $result['success'] = true;
     return $result;
