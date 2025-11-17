@@ -201,7 +201,7 @@ case 't1':
             $file_numvfs = $sriov_devices[$pciaddress]['vf_count'];
           else $file_numvfs = 0;
 
-          echo '<label for="vf_select"> '._('Select number of VFs').': </label>';
+          echo '<label for="vf'.$pciaddress.'"> '._('Select number of VFs').': </label>';
           echo '<select class="narrow" name="vf'.$pciaddress.'" id="vf'.$pciaddress.'">';
 
           // First option: None
@@ -219,7 +219,7 @@ case 't1':
           echo ' <a class="info" href="#" title="'._("Save VFs config").'" onclick="saveVFsConfig(\''.htmlentities($pciaddress).'\',\''.htmlentities($vd).'\'); return false;"><i class="fa fa-save"> </i></a>';
           echo ' <a class="info" href="#" title="'._("Action VFs update").'" onclick="applyVFsConfig(\''.htmlentities($pciaddress).'\',\''.htmlentities($vd).'\',\''.htmlentities($num_vfs).'\'); return false;"><i title="Apply now" class="fa fa-play"></i></a>';
 
-          if ($file_numvfs != $num_vfs) echo " <span id='vfnotice".$pciaddress."'><i class=\"fa fa-warning fa-fw orange-text\"></i> ".sprintf(_("Pending action or reboot"));
+          if ($file_numvfs != $num_vfs) echo " <span id='vfnotice".$pciaddress."'><i class=\"fa fa-warning fa-fw orange-text\"></i> ".sprintf(_("Pending action or reboot"))."<?span>";
 
           echo "</td></tr>";
           foreach($sriov[$pciaddress]['vfs'] as $vrf) {
