@@ -160,9 +160,14 @@ if [ -z "$VF_INDEX" ]; then
     exit 1
 fi
 
-if [[ -z \"\$MAC\" ]]; then echo \"Error: No MAC address provided\" 1>&2; exit 1; fi
-if ! [[ \"\$MAC\" =~ ^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})\$ ]]; then
-    echo \"Error: Invalid MAC address format\" 1>&2; exit 1
+if [[ -z "$MAC" ]]; then
+    echo "Error: No MAC address provided" 1>&2
+    exit 1
+fi
+
+if ! [[ "$MAC" =~ ^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$ ]]; then
+    echo "Error: Invalid MAC address format. Expected XX:XX:XX:XX:XX:XX" 1>&2
+    exit 1
 fi
 
 echo "Setting MAC for VF:"
