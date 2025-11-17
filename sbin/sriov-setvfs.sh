@@ -116,6 +116,16 @@ else
     echo "Warning: You did not specify a Vendor:Device (vvvv:dddd), unable to validate ${BDF}" 1>&2
 fi
 
+if [[ -z "$NUMVFS" ]]; then
+    echo "Error: No VF count provided" 1>&2
+    exit 1
+fi
+
+if ! [[ "$NUMVFS" =~ ^[0-9]+$ ]]; then
+    echo "Error: VF count must be a non-negative integer" 1>&2
+    exit 1
+fi
+
 printf "\nSetting...\n"
 
 # Capture stderr output from echo into a variable

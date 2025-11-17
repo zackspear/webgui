@@ -65,7 +65,7 @@ if [[ $# -ne 4 ]]; then
     echo "Error: Expected 4 parameters, but got $#." 1>&2
     echo "Usage: $0 <param1> <param2> <param3> <parm4>" 1>&2
     echo "Example: $0 0000:01:00.0 10de:1fb8 1 62:00:01:00:00:99" 1>&2
-    echi "parm3 is binding to VFIO, parm 4 is mac address."
+    echo "parm3 is binding to VFIO, parm 4 is mac address."
     exit 1
 fi
 
@@ -158,6 +158,11 @@ done
 if [ -z "$VF_INDEX" ]; then
     echo "Error: VF index not found for $VF_PCI under PF $BDF"
     exit 1
+fi
+
+if [[ -z \"\$MAC\" ]]; then echo \"Error: No MAC address provided\" 1>&2; exit 1; fi
+if ! [[ \"\$MAC\" =~ ^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})\$ ]]; then
+    echo \"Error: Invalid MAC address format\" 1>&2; exit 1
 fi
 
 echo "Setting MAC for VF:"

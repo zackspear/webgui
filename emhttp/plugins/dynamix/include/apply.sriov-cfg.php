@@ -161,7 +161,7 @@ $pciid = _var($_POST, 'pciid');
 $vd = _var($_POST, 'vd');
 
 if (!isset($pciid) || !isset($vd)) {
-    echo json_response(false, _("Missing PCI ID or virtual device"));
+    json_response(false, _("Missing PCI ID or virtual device"));
     exit;
 }
 
@@ -278,7 +278,7 @@ switch ($type) {
         break;
 
     default:
-        echo json_response(false, _("Unknown request type").": $type");
+        json_response(false, _("Unknown request type").": $type");
         break;
 }
 
