@@ -25,15 +25,29 @@ $(function(){
 function applyCfg() {
   var message = "_(System Devices)_: _(A reboot is required to apply changes)_";
   var string = "BIND=";
+  var string2 = "V=";
   var elements = document.getElementById("vfiopci").elements;
   for (var i = 0, element; element = elements[i++];) {
     if (element.type === "checkbox"  && element.checked === true && element.className.substring(0, 5) === "iommu")
     string = string + element.value + " ";
+    if (element.type === "checkbox" && element.className.substring(0, 7) === "vfiommu") {
+      var pciId = element.id.replace(/^vfvfio/, "");
+      var mac = document.getElementById("vfmac" + pciId).value;
+      var elvfio = document.getElementById("vfvfio" + pciId).checked;
+      if (elvfio == true) var vfio = "1"; else vfio = "0";
+      string2 = string2 + element.value + "|" + vfio + "|" + mac + " ";
+    }
+
   }
   string = string.trim();
   if (string === "BIND=") {
     string = "";
   }
+  string2 = string2.trim();
+  if (string2 === "V=") {
+    string2 = "";
+  }
+  
   $.post( "/plugins/dynamix/include/update.vfio-pci-cfg.php", { cfg: string } )
   .done(function(d) {
     if (d==1) {
@@ -197,7 +211,7 @@ function applyVFsConfig(pciId, vd, vfs) {
       const messageText =
         _("The following") + plural + _("currently using this device") + ":\n\n" +
         vmListText +
-        "\n\n"._("Please stop") +  " " +
+        "\n\n" + _("Please stop") +  " " +
         (vmCount === 1 ? "it" : "them") +
         _(" before applying changes.");
 
@@ -230,7 +244,7 @@ function applyVFsConfig(pciId, vd, vfs) {
             doVFApply(pciId, vd, numvfs, message);
           }, 300);
         } else {
-          swal(_("Cancelled", "No changes were made.", "info"));
+          swal(_("Cancelled"), _("No changes were made."), "info");
         }
       });
       return;
@@ -252,7 +266,7 @@ function applyVFsConfig(pciId, vd, vfs) {
             doVFApply(pciId, vd, numvfs, message);
           }, 300);
         } else {
-          swal("Cancelled", "No changes were made.", "info");
+          swal(_("Cancelled"), _("No changes were made."), "info");
         }
       });
       return;
@@ -305,7 +319,7 @@ function applyVFSettings(pciId, vd, currentvfio, currentmac) {
       const messageText =
         _("The following") + plural + _("currently using this device") + ":\n\n" +
         vmListText +
-        "\n\n"._("Please stop") +  " " +
+        "\n\n" + _("Please stop") +  " " +
         (vmCount === 1 ? "it" : "them") +
         _(" before applying changes.");
 
@@ -502,7 +516,7 @@ function doVFApply(pciId, vd, numvfs, message) {
   // Show alert
   const ok = data.success === true || data.success === 1;
 
-  saveVFsConfig(pciId, vd, 0);
+  if (ok) saveVFsConfig(pciId, vd, 0);
 
   swal({
     title: ok ? _("Update Complete") : _("Update Failed"),
