@@ -354,6 +354,11 @@ function setVfMacAddress(string $vf_pci, array $sriov, string $mac, ?string $reb
         'error' => null
     ];
 
+    if ($mac != "" && preg_match('/([a-fA-F0-9]{2}[:|\-]?){6}/', $mac) != 1) {
+        $result['error'] = _("MAC format is invalid.");
+        return $result;
+    }
+
     if (!is_dir($vf_path)) {
         $result['error'] = _("VF path not found").": $vf_path";
         return $result;
@@ -414,7 +419,7 @@ function setVfMacAddress(string $vf_pci, array $sriov, string $mac, ?string $reb
 
     if ($ret === 0) {
         $result['mac_set'] = true;
-        $result['details'] = [sprintf(_("MAC address set to %s"),$mac)];
+        $result['details'] = [sprintf(_("MAC address set to %s"),strtoupper($mac))];
     } else {
         $result['error'] = _("Failed to set MAC").": " . implode("; ", $output);
     }

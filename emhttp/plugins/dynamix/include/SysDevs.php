@@ -281,7 +281,7 @@ case 't1':
             echo "<input class='narrow' type=\"text\" name=\"vfmac$pciaddress\" id=\"vfmac$pciaddress\" value=\"$value_attr\" placeholder=\"$placeholder\">";
             echo ' <a class="info" href="#" title="'._("Generate MAC").'" onclick="generateMAC(\''.htmlentities($pciaddress).'\'); return false;"><i class="fa fa-refresh mac_generate"> </i></a>';
             echo ' <a class="info" href="#" title="'._("Save MAC config").'" onclick="saveVFSettingsConfig(\''.htmlentities($pciaddress).'\',\''.htmlentities($vd).'\'); return false;"><i class="fa fa-save"> </i></a>';
-            echo ' <a class="info" href="#" title="'._("Action VFs update").'" onclick="applyVFSettings(\''.htmlentities($pciaddress).'\',\''.htmlentities($vd).'\',\''.htmlentities(isset(\$sriov_devices_settings[\$pciaddress]) && $sriov_devices_settings[$pciaddress]['vfio'] == 1 ? 'true':'false').'\',\''.$value_attr.'\'); return false;"><i title="Apply now VFIO and MAC Address" class="fa fa-play"></i></a> ';
+            echo ' <a class="info" href="#" title="'._("Action VFs update").'" onclick="applyVFSettings(\''.htmlentities($pciaddress).'\',\''.htmlentities($vd).'\',\''.htmlentities(isset($sriov_devices_settings[$pciaddress]) && $sriov_devices_settings[$pciaddress]['vfio'] == 1 ? 'true':'false').'\',\''.$value_attr.'\'); return false;"><i title="Apply now VFIO and MAC Address" class="fa fa-play"></i></a> ';
             if ($vrf['driver'] != "vfio-pci") echo _("Current").": ";
             echo $vrf['driver'] == "vfio-pci" ? _("Bound to VFIO") : strtoupper($vrf['mac']);
             echo " <span id=vfstatus$pciaddress></span>";
