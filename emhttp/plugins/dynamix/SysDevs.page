@@ -25,7 +25,7 @@ $(function(){
 function applyCfg() {
   var message = "_(System Devices)_: _(A reboot is required to apply changes)_";
   var string = "BIND=";
-  var string2 = "V=";
+  var string2 = "VFSETTINGS=";
   var elements = document.getElementById("vfiopci").elements;
   for (var i = 0, element; element = elements[i++];) {
     if (element.type === "checkbox"  && element.checked === true && element.className.substring(0, 5) === "iommu")
@@ -44,19 +44,30 @@ function applyCfg() {
     string = "";
   }
   string2 = string2.trim();
-  if (string2 === "V=") {
+  if (string2 === "VFSETTINGS=") {
     string2 = "";
   }
   
-  $.post( "/plugins/dynamix/include/update.vfio-pci-cfg.php", { cfg: string } )
+  $.post( "/plugins/dynamix/include/update.vfio-pci-cfg.php", { cfg: string, vfcfg:string2} )
   .done(function(d) {
-    if (d==1) {
-      addRebootNotice(message);
-      document.getElementById("warning").innerHTML = "<b>_(ALERT)_: _(Changes saved)_. _(Reboot to take effect)_.</b>";
-    } else {
-      removeRebootNotice(message);
-      document.getElementById("warning").innerHTML = "<b>_(No changes)_.</b>";
-    }
+        switch (d) {
+          case "1":
+            addRebootNotice(message);
+            document.getElementById("warning").innerHTML = "<b>_(ALERT)_: VFIO _(Changes saved)_. _(Reboot to take effect)_.</b>";
+            break;
+          case "2":
+            addRebootNotice(message);
+            document.getElementById("warning").innerHTML = "<b>_(ALERT)_: SRIOV VFs _(Changes saved)_. _(Reboot to take effect)_.</b>";
+            break;
+          case "3":
+            addRebootNotice(message);
+            document.getElementById("warning").innerHTML = "<b>_(ALERT)_: VFIO _(and)_ SRIOV VFs _(saved)_. _(Reboot to take effect)_.</b>";
+            break;
+          default:
+            removeRebootNotice(message);
+            document.getElementById("warning").innerHTML = "<b>_(No changes)_.</b>";
+            break;
+        }
     $("#applycfg").attr("disabled",true);
   });
 }
@@ -209,7 +220,7 @@ function applyVFsConfig(pciId, vd, vfs) {
 
       const plural = vmCount === 1 ? _("VM is") : _("VMs are");
       const messageText =
-        _("The following") + plural + _("currently using this device") + ":\n\n" +
+        _("The following") + " " + plural + " " + _("currently using this device") + ":\n\n" +
         vmListText +
         "\n\n" + _("Please stop") +  " " +
         (vmCount === 1 ? "it" : "them") +
@@ -317,7 +328,7 @@ function applyVFSettings(pciId, vd, currentvfio, currentmac) {
 
       const plural = vmCount === 1 ? _("VM is") : _("VMs are");
       const messageText =
-        _("The following") + plural + _("currently using this device") + ":\n\n" +
+        _("The following") + " " + plural + " " + _("currently using this device") + ":\n\n" +
         vmListText +
         "\n\n" + _("Please stop") +  " " +
         (vmCount === 1 ? "it" : "them") +
@@ -593,20 +604,6 @@ function ackPCI(pcidevice, action) {
 }
 
 </script>
-<style>
-
-.sweet-alert.swal-hostid-input input {
-    width: 60px !important;
-    margin: 12px auto 0 auto !important; /* top margin added */
-    text-align: center !important;
-    display: block !important;
-
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    box-sizing: border-box !important;
-}
-
-</style>
 
 <?exec('ls /sys/kernel/iommu_groups/',$groups); ?>
 <?if (count($groups) > 0):?>

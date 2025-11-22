@@ -32,7 +32,7 @@ if (isset($pciid) && isset($vd)) {
   switch($type) {
       case "sriov":
         $old  = is_file($sriov) ? rtrim(file_get_contents($sriov)) : '';
-        $newexplode = explode(" ",str_replace("VFS=","",$old));
+        $newexplode = preg_split('/\s+/', str_replace("VFS=","",$old), -1, PREG_SPLIT_NO_EMPTY);
         $new = $old;
         $numvfs= _var($_POST,'numvfs');
         $found = false;
@@ -54,7 +54,7 @@ if (isset($pciid) && isset($vd)) {
         break;
       case "sriovsettings":
         $old  = is_file($sriovvfs) ? rtrim(file_get_contents($sriovvfs)) : '';
-        $newexplode = explode(" ",str_replace("VFSETTINGS=","",$old));
+        $newexplode = preg_split('/\s+/', str_replace("VFSETTINGS=","",$old), -1, PREG_SPLIT_NO_EMPTY);
         $mac= _var($_POST,'mac');
         if ($mac == "") $mac = "00:00:00:00:00:00";
         $vfio= _var($_POST,'vfio');
@@ -62,7 +62,7 @@ if (isset($pciid) && isset($vd)) {
         $found = false;
         foreach($newexplode as $key => $newelement) {
           if (strpos($newelement,$newelement_check) !== false) {
-             $found = true;
+            $found = true;
             if($mac == "00:00:00:00:00:00" && $vfio == 0) {
               unset($newexplode[$key]) ;
               break;
@@ -72,8 +72,8 @@ if (isset($pciid) && isset($vd)) {
             }
           }
         }
-        if (!$found  && $vfio != 0) $newexplode[] = $newelement_check.$vfio."|".$mac;
-        $new = "VFSETTINGS=".implode(" ",$newexplode);
+        if (!$found  && ($vfio != 0 || $mac != "00:00:00:00:00:00")) $newexplode[] = $newelement_check.$vfio."|".$mac;
+        if ($newexplode) $new = "VFSETTINGS=".implode(" ",$newexplode);
         $file = $sriovvfs; 
         break;
   }

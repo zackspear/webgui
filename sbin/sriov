@@ -24,7 +24,7 @@ CFG=/boot/config/sriov.cfg
 
 [[ ! -f "$CFG" ]] && exit
 grep -q "^VFS=" "$CFG" || exit
-echo "Loading VFs config from $CFG"
+echo -e "Loading VFs config from $CFG\n"
 cat $CFG
 echo "---"
 
@@ -53,7 +53,7 @@ CFG_VFS=/boot/config/sriovvfs.cfg
 
 [[ ! -f "$CFG_VFS" ]] && exit
 grep -q "VFSETTINGS=" "$CFG_VFS" || exit
-echo "Loading settings config from $CFG_VFS"
+echo -e "Loading settings config from $CFG_VFS/n"
 cat "$CFG_VFS"
 echo "---"
 
