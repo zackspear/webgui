@@ -89,6 +89,7 @@ function saveVFSettingsConfig(pciId,vd,interactive=1) {
           showConfirmButton: false
         });
     } 
+    if (interactive == 1)  $('#t1').load('/webGui/include/SysDevs.php', { table: 't1' });
   });
 }
 function saveVFsConfig(pciId,vd,interactive=1) {

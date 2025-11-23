@@ -73,7 +73,7 @@ if (isset($pciid) && isset($vd)) {
           }
         }
         if (!$found  && ($vfio != 0 || $mac != "00:00:00:00:00:00")) $newexplode[] = $newelement_check.$vfio."|".$mac;
-        if ($newexplode) $new = "VFSETTINGS=".implode(" ",$newexplode);
+        if ($newexplode) $new = "VFSETTINGS=".implode(" ",$newexplode);else $new = null;
         $file = $sriovvfs; 
         break;
   }
