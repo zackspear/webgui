@@ -184,8 +184,8 @@ swal({
     }
 
     swal({
-      title: "MAC",
-      text: "Generated successfully.",
+      title: _("MAC"),
+      text: _("Generated successfully."),
       type: "success",
       timer: 3000,
       showConfirmButton: false
@@ -305,7 +305,6 @@ function applyVFSettings(pciId, vd, currentvfio, currentmac) {
   const message = "_(System Devices)_: _(A reboot is required to apply changes)_";
   const mac = document.getElementById("vfmac" + pciId).value;
   const vfio = document.getElementById("vfvfio" + pciId).checked;
-  //vfs = parseInt(vfs, 10);
 
   // --- Step 1: Check for active VMs (always returns JSON) ---
   $.post("/plugins/dynamix/include/apply.sriov-cfg.php", { 
@@ -450,20 +449,6 @@ function doVFSettingApply(pciId, vd, vfio, mac, currentvfio, currentmac, message
   });
 }
 
-
-  // Helper: safely stringify nested structures
-  function formatDetails(details) {
-    if (details == null) return "";
-    if (typeof details === "string") return details;
-    if (Array.isArray(details))
-      return details.map(formatDetails).join("\n");
-    if (typeof details === "object")
-      return Object.entries(details)
-        .map(([k, v]) => `${k}: ${formatDetails(v)}`)
-        .join("\n\n");
-    return String(details);
-  }
-
 function doVFApply(pciId, vd, numvfs, message) {
   // Show "updating" alert
   swal({
@@ -482,92 +467,91 @@ function doVFApply(pciId, vd, numvfs, message) {
       vd: vd, 
       numvfs: numvfs 
   })
-  .done(function (data) {
-    // Parse JSON safely
-    if (typeof data === "string") {
-      try { data = JSON.parse(data); }
-      catch (e) {
-        data = { success: false, error: _("Invalid JSON: ") + e.message };
+    .done(function (data) {
+      // Parse JSON safely
+      if (typeof data === "string") {
+        try { data = JSON.parse(data); }
+        catch (e) {
+          data = { success: false, error: _("Invalid JSON: ") + e.message };
+        }
       }
-    }
-
-    // Helper: recursively format details to plain text
-    function formatDetails(obj, indent = 0) {
-      const pad = "  ".repeat(indent);
-      if (obj == null) return "";
-      if (typeof obj === "string") return pad + obj;
-      if (typeof obj === "number" || typeof obj === "boolean") return pad + obj;
-      if (Array.isArray(obj)) return obj.map(x => formatDetails(x, indent)).join("\n");
-      if (typeof obj === "object") {
-        return Object.entries(obj).map(([key, val]) => {
-          if (typeof val === "object" && val !== null) {
-            // Special case for VF result objects
-            if ("success" in val || "error" in val || "details" in val) {
-              const symbol = val.success ? "✔" : "✖";
-              const msg = val.error || val.details || "";
-              return `${pad}${key}\n${pad}  ${symbol} ${msg}`;
-            }
-            return `${pad}${key}:\n${formatDetails(val, indent + 1)}`;
-          }
-          return `${pad}${key}: ${val}`;
-        }).join("\n");
-      }
-      return pad + String(obj);
-    }
 
     // Build message
     let msg = "";
     if (data.error) {
       msg = _("Error") + ": " + data.error;
     } else if (data.details) {
-      msg = formatDetails(data.details);
+      msg = formatDetailsSettings(data.details);
     } else {
-      msg = "Configuration successfully applied.";
+      msg = _("Configuration successfully applied.");
     }
 
-  // Show alert
-  const ok = data.success === true || data.success === 1;
+    // Show alert
+    const ok = data.success === true || data.success === 1;
 
-  if (ok) saveVFsConfig(pciId, vd, 0);
+    if (ok) saveVFsConfig(pciId, vd, 0);
 
-  swal({
-    title: ok ? _("Update Complete") : _("Update Failed"),
-    text: msg,
-    type: ok ? "success" : "error",
-    timer: ok ? 3000: null,
-    showConfirmButton: !ok
+    swal({
+      title: ok ? _("Update Complete") : _("Update Failed"),
+      text: msg,
+      type: ok ? "success" : "error",
+      timer: ok ? 3000: null,
+      showConfirmButton: !ok
+    });
+
+      // Reload table
+      $('#t1').load('/webGui/include/SysDevs.php', { table: 't1' });
+    })
+  .fail(function (xhr, status, error) {
+    swal({
+      title: _("Network Error"),
+      text: _("Failed to communicate with the server.") + "\n" + (error || status),
+      type: "error",
+      showConfirmButton: true
+    });
   });
+}
 
-  // Reload table
-  $('#t1').load('/webGui/include/SysDevs.php', { table: 't1' });
-})
-.fail(function (xhr, status, error) {
-  swal({
-    title: _("Network Error"),
-    text: _("Failed to communicate with the server.") + "\n" + (error || status),
-    type: "error",
-    showConfirmButton: true
-  });
-});
-    }
-
+// Helper: recursively format details Settings to plain text
+function formatDetailsSettings(obj, indent = 0) {
+  const pad = "  ".repeat(indent);
+  if (obj == null) return "";
+  if (typeof obj === "string") return pad + obj;
+  if (typeof obj === "number" || typeof obj === "boolean") return pad + obj;
+  if (Array.isArray(obj)) return obj.map(x => formatDetailsSettings(x, indent)).join("\n");
+  if (typeof obj === "object") {
+    return Object.entries(obj).map(([key, val]) => {
+      if (typeof val === "object" && val !== null) {
+        // Special case for VF result objects
+        if ("success" in val || "error" in val || "details" in val) {
+          const symbol = val.success ? "✔" : "✖";
+          const msg = val.error || val.details || "";
+          return `${pad}${key}\n${pad}  ${symbol} ${msg}`;
+        }
+        return `${pad}${key}:\n${formatDetailsSettings(val, indent + 1)}`;
+      }
+      return `${pad}${key}: ${val}`;
+    }).join("\n");
+  }
+  return pad + String(obj);
+}
 
 function formatFullInput(input) {
-    return input
-        .split(';')
-        .filter(Boolean) // remove empty trailing entry
-        .map(entry => {
-            let [pci, status] = entry.split(',');
-            status = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
-            return `${pci} _(${status})_`;
-        })
-        .join('<br>');
+  return input
+    .split(';')
+    .filter(Boolean) // remove empty trailing entry
+    .map(entry => {
+        let [pci, status] = entry.split(',');
+        status = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+        return `${pci} _(${status})_`;
+    })
+    .join('<br>');
 }
 function formatVMS(input) {
-    return input
-        .split(';')
-        .filter(Boolean) // remove empty trailing entry
-        .join('<br>');
+  return input
+    .split(';')
+    .filter(Boolean) // remove empty trailing entry
+    .join('<br>');
 }
 function ackPCI(pcidevice, action) {
   $.post('/webGui/include/PCIUpdate.php', { action: "getvm", pciid: pcidevice }).done(function(vms) {

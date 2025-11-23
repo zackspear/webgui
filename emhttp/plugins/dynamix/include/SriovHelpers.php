@@ -351,7 +351,8 @@ function setVfMacAddress(string $vf_pci, array $sriov, string $mac, ?string $reb
         'unbind' => false,
         'mac_set' => false,
         'rebind' => false,
-        'error' => null
+        'error' => null,
+        'details' => []
     ];
 
     if ($mac != "" && preg_match('/([a-fA-F0-9]{2}[:|\-]?){6}/', $mac) != 1) {

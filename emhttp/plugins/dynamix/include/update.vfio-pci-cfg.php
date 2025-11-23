@@ -35,9 +35,9 @@ function isValidVF($fields)
     $mac = strtolower(trim($mac));
     $isZeroMac = ($mac === '00:00:00:00:00:00');
     $hasMac = ($mac !== '' && !$isZeroMac);
-    if ($fn === '1') return true;
+    if ($fn === 1) return true;
     if ($fn > 1) return true;
-    if ($fn === '0') return $hasMac;
+    if ($fn === 0) return $hasMac;
     return $hasMac;
 }
 
