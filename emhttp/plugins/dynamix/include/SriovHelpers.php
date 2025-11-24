@@ -144,14 +144,23 @@ function rebindVfDriver($vf, $sriov, $target = 'original')
     $res = ['pci'=>$vf,'success'=>false,'error'=>null,'details'=>[]];
     $vf_path = "/sys/bus/pci/devices/$vf";
     $physfn = "$vf_path/physfn";
-    if (!is_link($physfn)) return $res + ['error'=>_("Missing physfn link")];
+    if (!is_link($physfn)) {
+        $res['error'] = _("Missing physfn link");
+        return $res;
+    }
     $pf = basename(readlink($physfn));
     $vf_info = $sriov[$pf]['vfs'][$vf] ?? null;
-    if (!$vf_info) return $res + ['error'=>_("VF not found in sriov for PF")." $pf"];
+    if (!$vf_info) {
+        $res['error'] = _("VF not found in sriov for PF")." $pf";
+        return $res;
+    }
 
     $orig_mod = $vf_info['modules'][0] ?? $sriov[$pf]['module'] ?? null;
     $curr_drv = $vf_info['driver'] ?? null;
-    if (!$orig_mod) return $res + ['error'=>_("No module info for")." $vf"];
+    if (!$orig_mod) {
+        $res['error'] = _("No module info for")." $vf";
+        return $res;
+    }
 
     $drv_override = "$vf_path/driver_override";
 
@@ -186,9 +195,11 @@ function rebindVfDriver($vf, $sriov, $target = 'original')
             $res['details'][] = _("Bound to")." $new_drv";
             return $res;
         }
-        return $res + ['error'=> sprintf(_("Bound to %s instead of %s"),$bound,$new_drv)];
+        $res['error'] = sprintf(_("Bound to %s instead of %s"), $bound, $new_drv);
+        return $res;
     }
-    return $res + ['error'=>_("No driver link after reprobe")];
+    $res['error'] = _("No driver link after reprobe");
+    return $res;
 }
 
 
@@ -431,7 +442,9 @@ function setVfMacAddress(string $vf_pci, array $sriov, string $mac, ?string $reb
         if (isset($result2['error'])) $result['error'] = $result2['error']; 
         elseif (isset($result2['details']))  $result["details"] = array_merge($result['details'] , $result2['details']);
     }
-    if (!isset($result['error'])) $result['success'] = true;
+    if ($result['error'] === null) {
+        $result['success'] = true;
+    }
     return $result;
 }
 
