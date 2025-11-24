@@ -180,7 +180,7 @@ function rebindVfDriver($vf, $sriov, $target = 'original')
     // Step 3: Override driver binding
     if (is_writable($drv_override))
         @file_put_contents($drv_override, "$new_drv");
-        $probe_path = "/sys/bus/pci/drivers_probe";
+    $probe_path = "/sys/bus/pci/drivers_probe";
     if (is_writable($probe_path))
         @file_put_contents($probe_path, $vf);
     if (is_writable($drv_override))
@@ -278,7 +278,6 @@ function getVfListByIommuGroup(): array {
         $groups[] = $vf_pci;
     }
 
-    ksort($groups, SORT_NATURAL);
     return $groups;
 }
 
@@ -323,7 +322,7 @@ function parseVFSettings() {
             if (preg_match($DBDF_SRIOV_SETTINGS_REGEX, $entry)) {
                 // Format: <DBDF>|<Vendor:Device>|<VFIO_flag>|<MAC>
                 [$dbdf, $ven_dev, $vfio_flag, $mac] = explode('|', $entry);
-                if ($mac == "00:00:00:00:00:00") $mac = "";
+                if ($mac === "00:00:00:00:00:00") $mac = "";
                 $sriov_devices_settings[$dbdf] = [
                     'dbdf'     => $dbdf,
                     'vendor'   => $ven_dev,
@@ -366,7 +365,7 @@ function setVfMacAddress(string $vf_pci, array $sriov, string $mac, ?string $reb
         'details' => []
     ];
 
-    if ($mac != "" && preg_match('/([a-fA-F0-9]{2}[:|\-]?){6}/', $mac) != 1) {
+    if ($mac != "" && preg_match('/^([a-fA-F0-9]{2}[:\-]){5}[a-fA-F0-9]{2}$/', $mac) != 1) {
         $result['error'] = _("MAC format is invalid.");
         return $result;
     }
