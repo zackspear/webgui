@@ -175,7 +175,7 @@ function rebindVfDriver($vf, $sriov, $target = 'original')
     // Step 2: Load target driver if needed
     $target_bind = "/sys/bus/pci/drivers/$new_drv/bind";
     if (!file_exists($target_bind))
-        exec("modprobe $new_drv 2>/dev/null");
+        exec("modprobe " . escapeshellarg($new_drv) . " 2>/dev/null");
 
     // Step 3: Override driver binding
     if (is_writable($drv_override))
