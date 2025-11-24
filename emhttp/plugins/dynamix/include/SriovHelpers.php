@@ -420,7 +420,7 @@ function setVfMacAddress(string $vf_pci, array $sriov, string $mac, ?string $reb
 
     if ($ret === 0) {
         $result['mac_set'] = true;
-        $result['details'] = [sprintf(_("MAC address set to %s"),($mac != "00:00:00:00:00:00") ? strtoupper($mac) : _("Dyanamic allocation"))];
+        $result['details'] = [sprintf(_("MAC address set to %s"),($mac != "00:00:00:00:00:00") ? strtoupper($mac) : _("Dynamic allocation"))];
     } else {
         $result['error'] = _("Failed to set MAC").": " . implode("; ", $output);
     }
