@@ -360,6 +360,9 @@ select option {
     color: var(--text-color);
     background-color: var(--mild-background-color);
 }
+select option:disabled {
+    color: var(--disabled-text-color);
+}
 select:focus {
     background-color: var(--focus-input-bg-color);
     outline: 0;
@@ -1903,6 +1906,10 @@ span#wlan0 {
     font-family: bitstream, monospace;
 }
 
+.font-sans {
+    font-family: clear-sans, sans-serif;
+ }
+
 .text-center {
     text-align: center;
 }
@@ -2330,7 +2337,11 @@ div#title.ud {
         color: var(--text-color);
         background-color: var(--opac-background-color);
     }
-
+    
+    select option:disabled {
+        color: var(--disabled-text-color);
+    }
+    
     select[disabled] {
         color: var(--disabled-text-color);
         border-color: var(--disabled-input-border-color);
@@ -2552,7 +2563,7 @@ div#title.ud {
         padding: 0;
     }
 
-    .LanguageButton {
+    .Theme--nav-top .LanguageButton {
         font-size: 12px !important;
     } /* Fix Switch Language Being Cut-Off */
 
@@ -2583,8 +2594,10 @@ div#title.ud {
     }
 
     .usage-bar {
-        position: relative;
-        width: 6.4rem;
+        position: absolute;
+        bottom: .5rem;
+        left: 50%;
+        width: 14rem;
         margin: 0;
         padding: 0;
     }
