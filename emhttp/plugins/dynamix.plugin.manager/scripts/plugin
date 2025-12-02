@@ -77,10 +77,12 @@ Usage: plugin update PLUGIN
   "version" attributes.
 
 Usage: plugin download PLUGIN-FILE [TARGET-VERSION] [forced]
-  Downloads plugin files without executing any Run commands defined for the install method.
-  This method first updates the plugin definition file (.plg) to the latest version, then
-  downloads all required files but skips script execution. This makes it suitable for
-  preparing plugin files before an Unraid OS upgrade.
+  Downloads newer versions of installed plugin files without executing any Run commands.
+  This method downloads the updated plugin definition file (.plg) to /boot/config/plugins-nextboot/
+  then downloads all required files to the same directory but skips script execution.
+  On the next boot, rc.local will move the files from /boot/config/plugins-nextboot/ to /boot/config/plugins/
+  and install them normally.
+  This method is suitable for updating plugin files before an Unraid OS upgrade.
 
   TARGET-VERSION is optional and specifies the Unraid version to use for version compatibility
   checks (Min/Max attributes). If omitted, the current Unraid version is used.
@@ -132,6 +134,12 @@ Here is the set of directories and files used by the plugin system:
   This directory contains the plugin files for plugins to be (re)installed at boot-time. Upon
   successful `plugin install`, the plugin file is copied here (if not here already).  Upon successful
   `plugin remove`, the plugin file is deleted from here.
+
+/boot/config/plugins-nextboot/
+  This directory contains the plugin files for plugins to be updated at next boot-time. 
+  Upon successful `plugin download`, plugin files will be located here.
+  On the next boot, rc.local will move the files from /boot/config/plugins-nextboot/ to /boot/config/plugins/
+  and install them normally.
 
 /boot/config/plugins-error/
   This directory contains plugin files that failed to install.
@@ -293,7 +301,7 @@ function filter_url($url) {
 // is processed for any of those methods.
 //
 function plugin($method, $plugin_file, &$error) {
-  global $logger, $download_only, $check_version;
+  global $logger, $download_only, $check_version, $boot, $nextboot;
   $methods = ['install', 'remove'];
 
   // parse plugin definition XML file
@@ -375,6 +383,16 @@ function plugin($method, $plugin_file, &$error) {
     }
     // Name can be missing but only makes sense if Run attribute is present
     if ($name) {
+      // If download_only mode, only process files that go to $boot/ (persistent location)
+      if ($download_only) {
+        if (strpos($name, "$boot/") === 0) {
+          // Redirect $boot/ paths to $nextboot/ to be installed at next boot
+          $name = "$nextboot/" . substr($name, strlen("$boot/"));
+        } else {
+          // Skip other files - they won't persist after boot
+          continue;
+        }
+      }
       // Ensure parent directory exists
       //
       if (!file_exists(dirname($name))) {
@@ -502,6 +520,7 @@ function move($src_file, $tar_dir) {
 
 $notify        = '/usr/local/emhttp/webGui/scripts/notify';
 $boot          = '/boot/config/plugins';
+$nextboot      = '/boot/config/plugins-nextboot';
 $plugins       = '/var/log/plugins';
 $tmp           = '/tmp/plugins';
 $download_only = false;
@@ -639,10 +658,7 @@ if ($method == 'install') {
     write("plugin: $plugin is not a plg file\n");
     done(1);
   }
-  if ($download_only) {
-    write("plugin: download-only mode enabled, skipping install commands\n");
-  }
-  $action = $download_only ? 'downloading' : 'installing';
+  $action = 'installing';
   write("plugin: $action: $plugin\n");
   // check for URL
   if (preg_match('#^https?://#',$argv[2])) {
@@ -760,11 +776,11 @@ if ($method == 'install') {
   if (!plugin('noInstall', $plugin_file, $error)) {
     if ($target != $plugin_file) copy($plugin_file, $target);
     symlink($target, $symlink);
-    $status = $download_only ? 'downloaded' : 'installed';
+    $status = 'installed';
     write("plugin: $plugin $status\n");
     my_logger("$plugin $status", $logger);
   } else {
-    $script_action = $download_only ? 'staged' : 'executed';
+    $script_action = 'executed';
     write("script: $plugin $script_action\n");
     my_logger("script: $plugin $script_action", $logger);
   }
@@ -879,11 +895,15 @@ if ($method == 'update') {
     done(1);
   }
   // install was successful, save the updated plugin so it installs again next boot
-  unlink($symlink);
-  $target = "$boot/$plugin";
-  copy($plugin_file, $target);
-  symlink($target, $symlink);
+  $target = $download_only ? "$nextboot/$plugin" : "$boot/$plugin";
   $status = $download_only ? 'downloaded' : 'updated';
+  // For normal update, unlink existing symlink before copying
+  if (!$download_only) unlink($symlink);
+  // Ensure target directory exists and copy plugin file
+  @mkdir(dirname($target), 0770, true);
+  copy($plugin_file, $target);
+  // For normal update, create symlink to mark as installed
+  if (!$download_only) symlink($target, $symlink);
   write("plugin: $plugin $status\n");
   my_logger("$plugin $status", $logger);
   // run hook scripts for post processing
