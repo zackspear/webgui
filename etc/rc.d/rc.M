@@ -246,7 +246,7 @@ fi
 # Start avahi:
 if [[ -x /etc/rc.d/rc.avahidaemon ]]; then
   /etc/rc.d/rc.avahidaemon start
-  # disable by default, users can start manualy if needed
+  # disable by default, users can start manually if needed
   # /etc/rc.d/rc.avahidnsconfd start
 fi
 
