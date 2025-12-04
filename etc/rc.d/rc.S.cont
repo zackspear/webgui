@@ -225,7 +225,8 @@ if [[ -r /boot/config/ident.cfg ]]; then
   . <(/usr/bin/fromdos </boot/config/ident.cfg)
   NAME=${NAME//[^a-zA-Z\-\.0-9]/\-}
 fi
-/bin/echo "$NAME" >/etc/HOSTNAME
+hostname "$NAME"
+hostname -s >/etc/hostname
 /bin/echo "# Generated" >/etc/hosts
 /bin/echo "127.0.0.1      $NAME localhost" >>/etc/hosts
 

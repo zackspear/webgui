@@ -31,7 +31,7 @@ CALLER="avahi"
 AVAHI="/usr/sbin/avahi-daemon"
 CONF="/etc/avahi/avahi-daemon.conf"
 HOSTS="/etc/hosts"
-NAME=$(</etc/HOSTNAME)
+NAME=$(hostname -s)
 
 # run & log functions
 . /etc/rc.d/rc.runlog
