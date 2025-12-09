@@ -256,21 +256,21 @@ case 'add':
   $cleanSubject = clean_subject($subject);
   $archiveData = [
     'timestamp' => $timestamp,
-    'event' => $event,
-    'subject' => $cleanSubject,
-    'description' => $description,
-    'importance' => $importance,
+    'event' => htmlspecialchars($event),
+    'subject' => htmlspecialchars($cleanSubject),
+    'description' => htmlspecialchars($description),
+    'importance' => htmlspecialchars($importance),
   ];
-  if ($message) $archiveData['message'] = str_replace('\n','<br>',$message);
+  if ($message) $archiveData['message'] = str_replace('\n','<br>',htmlspecialchars($message));
   if (!$mailtest) file_put_contents($archive, build_ini_string($archiveData));
   if (($entity & 1)==1 && !$mailtest && !$noBrowser) {
     $unreadData = [
       'timestamp' => $timestamp,
-      'event' => $event,
-      'subject' => $cleanSubject,
-      'description' => $description,
-      'importance' => $importance,
-      'link' => $link,
+      'event' => htmlspecialchars($event),
+      'subject' => htmlspecialchars($cleanSubject),
+      'description' => htmlspecialchars($description),
+      'importance' => htmlspecialchars($importance),
+      'link' => htmlspecialchars($link),
     ];
     file_put_contents($unread, build_ini_string($unreadData));
   }
